@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.Set;
 
 @Entity
 @Table(name = "person")
@@ -23,24 +22,25 @@ public class Person {
     @Column(name = "person_name")
     private String name;
 
-    @Column(name = "person_cpf", unique = true)
-    private String cpf;
-
-    @Column(name = "person_phone")
-    private String phone;
-
     @Column(name = "person_email")
     private String email;
+
     @JsonIgnore
     @OneToOne(targetEntity = User.class, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(name = "person_is_visitor")
-    private boolean isVisitor = true;
+    @JsonIgnore
+    @OneToOne(targetEntity = Course.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "course_id")
+    private Course course;
 
-    @Column(name = "person_admin")
-    private boolean isAdmin = false;
+    @JsonIgnore
+    @OneToOne(targetEntity = StudyArea.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "study_area_id")
+    private StudyArea study_area;
+
+
 
     public Person(Long id){
         this.id = id;
@@ -58,8 +58,5 @@ public class Person {
             return separateNameBySpace[separateNameBySpace.length-1];
         }
         return "";
-    }
-    public void setAdmin(boolean isAdmin){
-        this.isAdmin = isAdmin;
     }
 }
