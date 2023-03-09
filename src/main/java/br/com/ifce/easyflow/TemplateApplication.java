@@ -38,27 +38,31 @@ public class TemplateApplication implements CommandLineRunner {
 		if(userService.search().isEmpty()){
 			List<Person> persons = new ArrayList<>();
 
+			
 
 			for(Integer i = 0; i<20; i++){
 				User user = new User();
-				user.setActive(true);
+				Course course = new Course();
+				StudyArea study_area = new StudyArea();
+				course.setCourse_name("ADS-"+i);
+				course.setCourse_name("Redes-"+i);
+				study_area.setStudy_area_name("Backend-"+i);
+				study_area.setStudy_area_name("Frontend-"+i);
+				
 				user.setLogin("user"+ i +"@teste.com.br");
 				user.setPassword(new BCryptPasswordEncoder().encode("123456"));
 
 				Person person = new Person();
-				person.setCpf(i.toString() + i.toString() + i.toString() +
-						      "." + i.toString() + i.toString() + i.toString() +
-						      "." + i.toString() + i.toString() + i.toString() +
-								"-" + i.toString() + i.toString());
+				
 				person.setEmail("user"+ i +"@teste.com.br");
-				person.setPhone("85 999999999");
 				person.setName("Usuário "+ i);
 				person.setUser(user);
+				person.setCourse(course);
+				person.setStudy_area(study_area);
 				person = personService.save(person);
 				persons.add(person);
 			}
+			
 		}
-
-		System.out.println(new BCryptPasswordEncoder().encode("123456"));
 	}
 }
