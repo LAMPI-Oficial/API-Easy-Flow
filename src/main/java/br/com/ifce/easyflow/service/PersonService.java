@@ -65,17 +65,17 @@ public class PersonService {
         return exist.isPresent();
     }
 
-    public boolean existsByCpf(String cpf) {
-        Optional<Person> exist = this.personRepository.findByCpf(cpf);
+
+    public boolean existsByEmail(String email) {
+        Optional<Person> exist = this.personRepository.findByEmail(email);
 
         return exist.isPresent();
     }
 
     public Person createPerson(PersonCreateDTO personCreateDTO) {
         User user = new User(
-                personCreateDTO.getCpf(),
-                new BCryptPasswordEncoder().encode(personCreateDTO.getPassword()),
-                true
+                personCreateDTO.getEmail(),
+                new BCryptPasswordEncoder().encode(personCreateDTO.getPassword())
         );
         userService.save(user);
         Person person = new Person();

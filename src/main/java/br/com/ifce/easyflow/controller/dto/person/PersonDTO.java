@@ -20,19 +20,11 @@ public class PersonDTO {
     @ApiModelProperty(value = "Person's name", example = "Maria Castro")
     private String name;
 
-    @ApiModelProperty(value = "Person's CPF", example = "12345678995")
-    private String cpf;
-
     @ApiModelProperty(value = "Person's email", example = "user23@teste.com.br")
     private String email;
 
-    @ApiModelProperty(value = "Person's visitor status", example = "false")
-    @JsonProperty("is_visitor")
-    private boolean isVisitor;
 
-    @ApiModelProperty(value = "Person's admin status", example = "false")
-    @Column(name = "is_admin")
-    private boolean isAdmin;
+
     public PersonDTO(){
 
     }
@@ -40,10 +32,8 @@ public class PersonDTO {
     public PersonDTO(Person person){
         this.id = person.getId();
         this.name = person.getName();
-        this.cpf = person.getCpf();
         this.email = person.getEmail();
-        this.isVisitor = person.isVisitor();
-        this.isAdmin = person.isAdmin();
+        
     }
 
 

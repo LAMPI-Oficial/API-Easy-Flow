@@ -1,10 +1,10 @@
 package br.com.ifce.easyflow.controller;
 
 
+import br.com.ifce.easyflow.controller.dto.user.UserRequestDTO;
 import br.com.ifce.easyflow.controller.dto.person.PersonCreateDTO;
 import br.com.ifce.easyflow.controller.dto.person.PersonDTO;
 import br.com.ifce.easyflow.controller.dto.security.UserEDTO;
-import br.com.ifce.easyflow.controller.dto.user.UserRequestDTO;
 import br.com.ifce.easyflow.model.Person;
 import br.com.ifce.easyflow.model.User;
 import br.com.ifce.easyflow.service.PersonService;
@@ -51,8 +51,8 @@ public class PersonController {
         if(!personCreateDTO.getPassword().equals(personCreateDTO.getRepeated_password())){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Passwords does not match.");
         }
-        if(personService.existsByCpf(personCreateDTO.getCpf())){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("CPF is already in use.");
+        if(personService.existsByEmail(personCreateDTO.getEmail())){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email is already in use.");
         }
         Person person = personService.createPerson(personCreateDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(this.personService.save(person));
@@ -110,12 +110,11 @@ public class PersonController {
                     "Person Not Found");
         }
 
-        if(!Objects.equals(person.get().getCpf(), personDTO.getCpf()) && personService.existsByCpf(personDTO.getCpf())){
+        if(!Objects.equals(person.get().getEmail(), personDTO.getEmail()) && personService.existsByEmail(personDTO.getEmail())){
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Person CPF is already in use.");
         }
         person.get().setId(id);
         person.get().setName(personDTO.getName());
-        person.get().setCpf(personDTO.getCpf());
         person.get().setEmail(personDTO.getEmail());
 
         return ResponseEntity.ok(personService.update(person.get()));

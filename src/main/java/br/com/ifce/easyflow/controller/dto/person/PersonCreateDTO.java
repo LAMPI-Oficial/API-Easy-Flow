@@ -18,12 +18,6 @@ public class PersonCreateDTO {
     @ApiModelProperty(value = "Persons name", example = "Maria Castro")
     private String name;
 
-    @ApiModelProperty(value = "Person's CPF", example = "12345678995")
-    private String cpf;
-
-    @ApiModelProperty(value = "Person's phone", example = "88985455632")
-    private String phone;
-
     @ApiModelProperty(value = "Person's email", example = "user22@teste.com.br")
     private String email;
 
@@ -39,10 +33,8 @@ public class PersonCreateDTO {
 
     public PersonCreateDTO(Person person){
         this.name = person.getName();
-        this.cpf = person.getCpf();
         this.password = person.getUser().getPassword();
         this.email = person.getEmail();
-        this.phone = person.getPhone();
     }
 
 
