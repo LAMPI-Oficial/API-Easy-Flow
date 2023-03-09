@@ -26,10 +26,7 @@ public class UserRequestDTO {
 
     public User toUser(){
         password = new BCryptPasswordEncoder().encode(password);
-        return new User(login,password,true);
+        return new User(login,password);
     }
-
-//    public User toUser(Long id){
-//        return new User(id,login,password,true,null);
-//    }
+    
 }

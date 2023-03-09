@@ -13,7 +13,7 @@ public class UserResponseDTO {
     private String login;
     private Boolean active;
 
-    @JsonProperty("person")
+    @JsonProperty("tb_person")
     private PersonDTO personDTO;
 
     public UserResponseDTO(){
@@ -23,7 +23,6 @@ public class UserResponseDTO {
     public UserResponseDTO(User user){
         this.id = user.getId();
         this.login = user.getLogin();
-        this.active = user.getActive();
 
         if(user.getPerson() != null){
             this.personDTO = new PersonDTO(user.getPerson());
