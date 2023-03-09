@@ -63,8 +63,6 @@ public class UserService {
 
     private User fillUpdateUser(User oldUser,User newUser){
         newUser.setPassword(oldUser.getPassword());
-        newUser.setActive(oldUser.getActive());
-
         return newUser;
     }
 

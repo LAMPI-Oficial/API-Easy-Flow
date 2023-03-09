@@ -27,9 +27,6 @@ public class User implements UserDetails {
     @Column(name = "user_password")
     private String password;
 
-    @Column(name = "user_active")
-    private Boolean active;
-
     @OneToOne(mappedBy = "user")
     @JoinColumn
     private Person person;
@@ -38,10 +35,9 @@ public class User implements UserDetails {
     private Set<Permission> permission;
 
 
-    public User(String login,String password, Boolean active){
-        this.login = login;
+    public User(String email, String password){
+        this.login = email;
         this.password = password;
-        this.active = active;
     }
 
     @Override
