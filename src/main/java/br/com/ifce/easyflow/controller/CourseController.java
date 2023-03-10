@@ -121,7 +121,7 @@ public class CourseController {
                     "Course Not Found");
         }
 
-        if(!Objects.equals(Course.get().getCourse_name(), CourseUpdateDTO.getCourse_name()) && courseService.existsByCourse(CourseUpdateDTO.getCourse_name())){
+        if(!Objects.equals(Course.get().getName(), CourseUpdateDTO.getCourse_name()) && courseService.existsByCourse(CourseUpdateDTO.getCourse_name())){
             return ResponseEntity.status(HttpStatus.CONFLICT).body("CourseName is already in use.");
         }
 

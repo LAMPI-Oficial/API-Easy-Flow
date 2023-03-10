@@ -11,10 +11,11 @@ public class UserResponseDTO {
 
     private Long id;
     private String login;
-    private Boolean active;
 
     @JsonProperty("tb_person")
     private PersonDTO personDTO;
+
+
 
     public UserResponseDTO(){
 

@@ -21,7 +21,7 @@ public class CourseUpdateDTO {
     public Course toCourse(Long id){
         Course Course = new Course();
         Course.setId(id);
-        Course.setCourse_name(this.course_name);
+        Course.setName(this.course_name);
 
         return Course;
     }

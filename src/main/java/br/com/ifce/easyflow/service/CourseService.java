@@ -27,13 +27,12 @@ public class CourseService {
     public List<Course> search(){
         return this.courseRepository.findAll();
     }
-
     public Optional<Course> searchByID(Long id){
         return this.courseRepository.findById(id);
     }
 
     public Optional<Course> findByCourse(String course_name){
-        return this.courseRepository.findByCourse_name(course_name);
+        return this.courseRepository.findByName(course_name);
     }
 
     @Transactional
@@ -58,16 +57,16 @@ public class CourseService {
     }
 
     public Optional<Course> searchByName(String course_name){
-        return this.courseRepository.findByCourseName(course_name);
+        return this.courseRepository.findByName(course_name);
     }
 
     private Course fillUpdateCourse(Course oldCourse,Course newCourse){
-        newCourse.setCourse_name(oldCourse.getCourse_name());
+        newCourse.setName(oldCourse.getName());
         return newCourse;
     }
 
     public boolean existsByCourse(String course_name) {
-        Optional<Course> exist = this.courseRepository.findByCourseName(course_name);
+        Optional<Course> exist = this.courseRepository.findByName(course_name);
 
         return exist.isPresent();
     }

@@ -21,7 +21,7 @@ public class CourseResponseDTO {
 
     public CourseResponseDTO(Course Course){
         this.id = Course.getId();
-        this.course_name= Course.getCourse_name();
+        this.course_name= Course.getName();
 
         if(Course.getPerson() != null){
             this.personDTO = new PersonDTO(Course.getPerson());

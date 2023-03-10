@@ -21,11 +21,19 @@ public class PersonCreateDTO {
     @ApiModelProperty(value = "Person's email", example = "user22@teste.com.br")
     private String email;
 
+    @ApiModelProperty(value = "Course index", example = "1")
+    private Long course_id;
+
+    @ApiModelProperty(value = "Study Area index", example = "1")
+    private Long study_area_id;
+
     @ApiModelProperty(value = "Person's password", example = "123456")
     private String password;
 
     @ApiModelProperty(value = "Person's repeated password", example = "123456")
     private String repeated_password;
+
+
 
     public PersonCreateDTO(){
 
@@ -34,6 +42,8 @@ public class PersonCreateDTO {
     public PersonCreateDTO(Person person){
         this.name = person.getName();
         this.password = person.getUser().getPassword();
+        this.course_id = person.getCourse().getId();
+        this.study_area_id = person.getStudy_area().getId();
         this.email = person.getEmail();
     }
 

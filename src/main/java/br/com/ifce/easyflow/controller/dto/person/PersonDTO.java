@@ -23,6 +23,8 @@ public class PersonDTO {
     @ApiModelProperty(value = "Person's email", example = "user23@teste.com.br")
     private String email;
 
+    
+
 
 
     public PersonDTO(){

@@ -19,13 +19,13 @@ public class Course {
     private Long id;
 
     @Column(name = "course_name")
-    private String course_name;
+    private String name;
 
     @OneToOne(mappedBy = "course")
     @JoinColumn
     private Person person;
 
     public Course(String course_name){
-        this.course_name = course_name;
+        this.name = course_name;
     }
 }

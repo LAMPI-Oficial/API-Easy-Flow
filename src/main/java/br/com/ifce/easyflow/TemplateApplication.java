@@ -44,10 +44,8 @@ public class TemplateApplication implements CommandLineRunner {
 				User user = new User();
 				Course course = new Course();
 				StudyArea study_area = new StudyArea();
-				course.setCourse_name("ADS-"+i);
-				course.setCourse_name("Redes-"+i);
+				course.setName("ADS-"+i);
 				study_area.setStudy_area_name("Backend-"+i);
-				study_area.setStudy_area_name("Frontend-"+i);
 				
 				user.setLogin("user"+ i +"@teste.com.br");
 				user.setPassword(new BCryptPasswordEncoder().encode("123456"));

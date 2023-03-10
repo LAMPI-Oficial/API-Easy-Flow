@@ -2,6 +2,7 @@ package br.com.ifce.easyflow.service;
 
 import br.com.ifce.easyflow.controller.dto.person.PersonCreateDTO;
 import br.com.ifce.easyflow.model.Person;
+import br.com.ifce.easyflow.model.StudyArea;
 import br.com.ifce.easyflow.model.User;
 import br.com.ifce.easyflow.repository.PersonRepository;
 import org.springframework.beans.BeanUtils;
@@ -17,14 +18,17 @@ public class PersonService {
 
     private final PersonRepository personRepository;
     private final UserService userService;
+    private final CourseService courseService;
 
-    public PersonService(PersonRepository personRepository, UserService userService) {
+    public PersonService(PersonRepository personRepository, UserService userService, CourseService courseService) {
         this.personRepository = personRepository;
         this.userService = userService;
+        this.courseService = courseService;
     }
 
     @Transactional
     public Person save(Person person){
+
         return this.personRepository.save(person);
     }
 
@@ -81,8 +85,9 @@ public class PersonService {
         Person person = new Person();
         BeanUtils.copyProperties(personCreateDTO, person);
         person.setUser(user);
+        person.setCourse(courseService.searchByID(personCreateDTO.getCourse_id()).get());
+        person.setStudy_area(new StudyArea(personCreateDTO.getName()));
         this.save(person);
-
         return person;
     }
 }
