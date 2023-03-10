@@ -1,7 +1,9 @@
 package br.com.ifce.easyflow.controller.dto.person;
 
 import br.com.ifce.easyflow.controller.dto.validation.constraints.OnlyNumbers;
+import br.com.ifce.easyflow.model.Course;
 import br.com.ifce.easyflow.model.Person;
+import br.com.ifce.easyflow.model.StudyArea;
 import br.com.ifce.easyflow.model.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
@@ -23,9 +25,9 @@ public class PersonDTO {
     @ApiModelProperty(value = "Person's email", example = "user23@teste.com.br")
     private String email;
 
-    
+    private String course_name;
 
-
+    private String study_area_name;
 
     public PersonDTO(){
 
@@ -35,6 +37,8 @@ public class PersonDTO {
         this.id = person.getId();
         this.name = person.getName();
         this.email = person.getEmail();
+        this.study_area_name = person.getStudy_area().getName();
+        this.course_name = person.getCourse().getName();
         
     }
 

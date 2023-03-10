@@ -72,7 +72,6 @@ public class PersonController {
                 .map(PersonDTO::new)
                 .collect(Collectors.toList());
     }
-
     @ApiOperation(value = "Returns a person by id", tags = {"Person"})
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful request"),
@@ -90,9 +89,6 @@ public class PersonController {
                 "Person Not Found");
     }
 
-
-
-    //TODO: Arrumar UPDATE de Person
     @ApiOperation(value = "Update a person", tags = {"Person"})
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful request"),
@@ -129,10 +125,7 @@ public class PersonController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> delete(@PathVariable Long id) {
-        //TODO: Verificar retorno quando a pessoa já é utilizada em outra tabela
-
         boolean removed = this.personService.delete(id);
-
         return removed
                 ? ResponseEntity.status(HttpStatus.OK).body(
                         "Person was deleted")

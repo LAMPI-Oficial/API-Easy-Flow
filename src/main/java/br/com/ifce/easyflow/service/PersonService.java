@@ -19,11 +19,13 @@ public class PersonService {
     private final PersonRepository personRepository;
     private final UserService userService;
     private final CourseService courseService;
+    private final StudyAreaService studyAreaService;
 
-    public PersonService(PersonRepository personRepository, UserService userService, CourseService courseService) {
+    public PersonService(PersonRepository personRepository, UserService userService, CourseService courseService, StudyAreaService studyAreaService) {
         this.personRepository = personRepository;
         this.userService = userService;
         this.courseService = courseService;
+        this.studyAreaService = studyAreaService;
     }
 
     @Transactional
@@ -86,7 +88,7 @@ public class PersonService {
         BeanUtils.copyProperties(personCreateDTO, person);
         person.setUser(user);
         person.setCourse(courseService.searchByID(personCreateDTO.getCourse_id()).get());
-        person.setStudy_area(new StudyArea(personCreateDTO.getName()));
+        person.setStudy_area(studyAreaService.searchByID(personCreateDTO.getStudy_area_id()).get());
         this.save(person);
         return person;
     }
