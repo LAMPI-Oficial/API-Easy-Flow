@@ -45,7 +45,7 @@ public class AuthenticatorFilter extends OncePerRequestFilter {
 	private String getToken(HttpServletRequest request) {
 		String token = request.getHeader("Authorization");
 
-		if (token == null || token.isEmpty() || !token.startsWith("Bearer ")) {
+		if (token == null || token.isEmpty() || !token.startsWith("Bearer")) {
 			return null;
 		}
 		

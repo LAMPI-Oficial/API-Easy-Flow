@@ -2,11 +2,15 @@ package br.com.ifce.easyflow.controller;
 
 
 import br.com.ifce.easyflow.controller.dto.user.UserRequestDTO;
+import br.com.ifce.easyflow.controller.dto.user.UserResponseDTO;
 import br.com.ifce.easyflow.controller.dto.person.PersonCreateDTO;
 import br.com.ifce.easyflow.controller.dto.person.PersonDTO;
+import br.com.ifce.easyflow.controller.dto.security.PersonSecurityDTO;
+import br.com.ifce.easyflow.controller.dto.security.TokenDTO;
 import br.com.ifce.easyflow.controller.dto.security.UserEDTO;
 import br.com.ifce.easyflow.model.Person;
 import br.com.ifce.easyflow.model.User;
+import br.com.ifce.easyflow.security.TokenService;
 import br.com.ifce.easyflow.service.PersonService;
 import br.com.ifce.easyflow.service.UserService;
 import io.swagger.annotations.ApiOperation;
@@ -16,6 +20,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,6 +38,12 @@ public class PersonController {
 
     private final PersonService personService;
     private final UserService userService;
+
+    @Autowired
+    private AuthenticationManager authManager;
+
+    @Autowired
+    private TokenService tokenService;
 
     @Autowired
     private PersonController(PersonService personService, UserService userService){
@@ -55,7 +68,17 @@ public class PersonController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Email is already in use.");
         }
         Person person = personService.createPerson(personCreateDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(this.personService.save(person));
+
+        UsernamePasswordAuthenticationToken login = new UsernamePasswordAuthenticationToken(personCreateDTO.getEmail(), personCreateDTO.getPassword());
+            
+        Authentication authentication = authManager.authenticate(login);
+        TokenDTO token = new TokenDTO(tokenService.generateToken(authentication));
+        UserResponseDTO user = new UserResponseDTO((User) authentication.getPrincipal());
+
+        Person savedPerson = this.personService.save(person);
+        PersonSecurityDTO personSecurityDTO = new PersonSecurityDTO(token, user, savedPerson);
+
+        return ResponseEntity.ok(personSecurityDTO);
     }
 
     @ApiOperation(value = "Returns a list of persons", tags = {"Person"})

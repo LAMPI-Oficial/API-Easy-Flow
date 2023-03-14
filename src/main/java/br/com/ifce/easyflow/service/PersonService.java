@@ -30,15 +30,12 @@ public class PersonService {
 
     @Transactional
     public Person save(Person person){
-
         return this.personRepository.save(person);
     }
 
     public List<Person> findAll(){
         return this.personRepository.findAll();
     }
-
-
 
     @Transactional
     public Optional<Person> update(Person newPerson){
@@ -58,7 +55,6 @@ public class PersonService {
             this.personRepository.delete(person.get());
             return true;
         }
-
         return false;
     }
 

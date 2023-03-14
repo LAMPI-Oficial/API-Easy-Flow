@@ -24,7 +24,7 @@ public class TokenService {
 		Date expirationDate = new Date(now.getTime() + Long.parseLong(expiration));
 		
 		return Jwts.builder()
-				.setIssuer("easyflow App")
+				.setIssuer("EasyFlow App")
 				.setSubject(logged.getId().toString())
 				.setIssuedAt(now)
 				.setExpiration(expirationDate)

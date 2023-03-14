@@ -1,0 +1,39 @@
+package br.com.ifce.easyflow.controller.dto.permission;
+
+import br.com.ifce.easyflow.model.Permission;
+import br.com.ifce.easyflow.model.enums.PermissionTypeEnum;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+@Getter @Setter
+public class PermissionRequestDTO {
+
+    @ApiModelProperty(value = "Permission name")
+    @NotEmpty @NotNull
+    private String name;
+
+    @ApiModelProperty(value = "Permission type", example = "READ_AND_WRITE")
+    @NotEmpty @NotNull
+    private PermissionTypeEnum type;
+
+    public Permission toPermission(){
+        Permission permission = new Permission();
+        permission.setName(this.name);
+        permission.setType(this.type);
+
+        return permission;
+    }
+
+    public Permission toPermission(Long id){
+        Permission permission = new Permission();
+        permission.setId(id);
+        permission.setName(this.name);
+        permission.setType(this.type);
+
+        return permission;
+    }
+}
