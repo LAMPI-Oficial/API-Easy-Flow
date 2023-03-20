@@ -42,6 +42,9 @@ public class Person {
     @JoinColumn(name = "study_area_id")
     private StudyArea study_area;
 
+    @ManyToOne
+    @JoinColumn(name = "schedule_id")
+    private Schedule schedule;
 
 
     public Person(Long id){
