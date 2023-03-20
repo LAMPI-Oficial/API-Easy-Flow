@@ -42,6 +42,11 @@ public class Person {
     @JoinColumn(name = "study_area_id")
     private StudyArea study_area;
 
+    @JsonIgnore
+    @ManyToOne(targetEntity = Daily.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "daily_id")
+    private Daily daily;
+
 
 
     public Person(Long id){
