@@ -1,6 +1,7 @@
 package br.com.ifce.easyflow.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +10,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "schedule")
 @Data
+@Builder
 @AllArgsConstructor @NoArgsConstructor
 public class Schedule {
     @Id
