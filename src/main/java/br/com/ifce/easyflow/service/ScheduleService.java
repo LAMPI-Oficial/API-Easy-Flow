@@ -10,9 +10,12 @@ import br.com.ifce.easyflow.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
+@Service
 @RequiredArgsConstructor
 public class ScheduleService {
 
@@ -26,6 +29,19 @@ public class ScheduleService {
     public ScheduleResponseDTO findById(Long id) {
         Schedule schedule = scheduleRepository.findById(id).orElseThrow();
         return ScheduleResponseDTO.toResponseDTO(schedule);
+    }
+
+    public List<Schedule> findByUserId(Long personId) {
+      return scheduleRepository.findByPersonId(personId)
+               .orElseThrow();
+    }
+
+    public List<Schedule> findByShiftSchedule(String shiftSchedule) {
+        return scheduleRepository.findByShiftSchedule(shiftSchedule);
+    }
+
+    public List<Schedule> findByDay(String day) {
+        return scheduleRepository.findByDay(day);
     }
 
     @Transactional
@@ -64,5 +80,4 @@ public class ScheduleService {
         scheduleSaved.setTableNumber(requestDTO.getTableNumber());
         return scheduleSaved;
     }
-
 }

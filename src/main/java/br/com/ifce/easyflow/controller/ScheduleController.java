@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/schedules")
@@ -32,20 +33,38 @@ public class ScheduleController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    @GetMapping("/person/{personId}")
+    public ResponseEntity<List<Schedule>> findByUserId(@PathVariable Long personId) {
+       List<Schedule> schedules = scheduleService.findByUserId(personId);
+       return ResponseEntity.ok(schedules);
+    }
+
+    @GetMapping("/find-shift-schedule")
+    public ResponseEntity<List<Schedule>> findByShiftSchedule(@RequestParam(defaultValue = "Manha") String shiftSchedule) {
+        List<Schedule> schedules = scheduleService.findByShiftSchedule(shiftSchedule);
+        return ResponseEntity.ok(schedules);
+    }
+
+    @GetMapping("/find-day")
+    public ResponseEntity<List<Schedule>> findByDay(@RequestParam(defaultValue = "Segunda") String day) {
+        List<Schedule> schedules = scheduleService.findByDay(day);
+        return ResponseEntity.ok(schedules);
+    }
+
     @PostMapping("/create")
     public ResponseEntity<Schedule> save(@RequestBody SchedulePostRequestDTO requestDTO) {
         URI uri = URI.create("/create");
         return ResponseEntity.created(uri).body(scheduleService.save(requestDTO));
     }
 
-    @PutMapping("edit-schedule/{idSchedule}")
+    @PutMapping("/edit-schedule/{idSchedule}")
     public ResponseEntity<Schedule> update(@PathVariable Long idSchedule,
                                            @RequestBody SchedulePutRequestDTO requestDTO) {
 
         return ResponseEntity.ok(scheduleService.update(idSchedule, requestDTO));
     }
 
-    @DeleteMapping("delete-schedule/{idSchedule}")
+    @DeleteMapping("/delete-schedule/{idSchedule}")
     public ResponseEntity<Void> delete(@PathVariable Long idSchedule) {
         scheduleService.delete(idSchedule);
         return ResponseEntity.noContent().build();
