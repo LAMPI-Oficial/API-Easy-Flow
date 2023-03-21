@@ -24,7 +24,7 @@ public class Schedule {
     private int tableNumber;
 
     @ManyToOne
-    @JoinColumn(name = "person_person_id")
+    @JoinColumn(name = "person_id", nullable = false)
     private Person person;
 
     public Person getPerson() {

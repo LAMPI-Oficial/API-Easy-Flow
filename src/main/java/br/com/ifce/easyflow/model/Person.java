@@ -6,14 +6,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Optional;
-
 import javax.persistence.*;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "person")
 @Inheritance(strategy = InheritanceType.JOINED)
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Person {
 
     @Id
@@ -42,25 +45,27 @@ public class Person {
     @JoinColumn(name = "study_area_id")
     private StudyArea study_area;
 
-    @ManyToOne
-    @JoinColumn(name = "schedule_id")
-    private Schedule schedule;
+    @JsonIgnore
+    @OneToMany(mappedBy = "person", targetEntity = Schedule.class, cascade = CascadeType.ALL)
+    private Set<Schedule> schedules;
 
 
-    public Person(Long id){
+    public Person(Long id) {
         this.id = id;
     }
-    public String getFirtsName(){
-        if(name != null){
+
+    public String getFirtsName() {
+        if (name != null) {
             return name.split(" ")[0];
         }
         return "";
     }
-        public String getLastName(){
-        if(name != null){
+
+    public String getLastName() {
+        if (name != null) {
             String[] separateNameBySpace = name.split(" ");
 
-            return separateNameBySpace[separateNameBySpace.length-1];
+            return separateNameBySpace[separateNameBySpace.length - 1];
         }
         return "";
     }
