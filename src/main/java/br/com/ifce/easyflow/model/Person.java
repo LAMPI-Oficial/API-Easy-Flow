@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.*;
@@ -43,9 +44,8 @@ public class Person {
     private StudyArea study_area;
 
     @JsonIgnore
-    @ManyToOne(targetEntity = Daily.class, cascade = CascadeType.ALL)
-    @JoinColumn(name = "daily_id")
-    private Daily daily;
+    @OneToMany(mappedBy = "person",targetEntity = Daily.class, cascade = CascadeType.ALL)
+    private List<Daily> dailyList;
 
 
 

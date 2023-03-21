@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Table(name = "daily")
 @AllArgsConstructor @NoArgsConstructor
 @Getter @Setter
+@Builder
 public class Daily {
 
     @Id
@@ -34,8 +35,8 @@ public class Daily {
     @Column(name = "date")
     private LocalDateTime localDateTime;
 
-    @JoinColumn
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "daily")
+    @JoinColumn(name = "person_id", nullable = false)
+    @ManyToOne()
     private Person person;
 
 
