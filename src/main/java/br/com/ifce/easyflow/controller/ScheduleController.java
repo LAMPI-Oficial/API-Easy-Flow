@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
@@ -52,14 +53,14 @@ public class ScheduleController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Schedule> save(@RequestBody SchedulePostRequestDTO requestDTO) {
+    public ResponseEntity<Schedule> save(@RequestBody @Valid SchedulePostRequestDTO requestDTO) {
         URI uri = URI.create("/create");
         return ResponseEntity.created(uri).body(scheduleService.save(requestDTO));
     }
 
     @PutMapping("/edit-schedule/{idSchedule}")
     public ResponseEntity<Schedule> update(@PathVariable Long idSchedule,
-                                           @RequestBody SchedulePutRequestDTO requestDTO) {
+                                           @RequestBody @Valid SchedulePutRequestDTO requestDTO) {
 
         return ResponseEntity.ok(scheduleService.update(idSchedule, requestDTO));
     }
