@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.*;
@@ -42,6 +44,9 @@ public class Person {
     @JoinColumn(name = "study_area_id")
     private StudyArea study_area;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Address> addresses = new ArrayList<>();
 
 
     public Person(Long id){

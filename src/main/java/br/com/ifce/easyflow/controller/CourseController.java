@@ -5,7 +5,7 @@ import br.com.ifce.easyflow.controller.dto.course.CourseResponseDTO;
 import br.com.ifce.easyflow.controller.dto.course.CourseUpdateDTO;
 import br.com.ifce.easyflow.model.Course;
 import br.com.ifce.easyflow.service.CourseService;
-import br.com.ifce.easyflow.service.CourseService;
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
