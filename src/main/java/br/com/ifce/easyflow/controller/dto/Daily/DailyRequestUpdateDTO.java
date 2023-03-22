@@ -13,12 +13,9 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 
 public class DailyRequestUpdateDTO {
-
-    @NotBlank
-    private DailyTaskStatusEnum dailyTaskStatusEnum;
     @NotBlank @Size(min = 5)
-    private String WhatWasDoneTodayMessage;
-    private String AnyQuestionsMessage;
-    private String FeedbackMessage;
+    private String whatWasDoneTodayMessage;
+    private String anyQuestionsMessage;
+    private String feedbackMessage;
 
 }

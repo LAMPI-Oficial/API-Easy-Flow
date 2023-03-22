@@ -5,6 +5,7 @@ import br.com.ifce.easyflow.controller.dto.Daily.DailyRequestUpdateDTO;
 import br.com.ifce.easyflow.controller.dto.Daily.DailyResponseDTO;
 import br.com.ifce.easyflow.model.Daily;
 import br.com.ifce.easyflow.model.Person;
+import br.com.ifce.easyflow.model.enums.DailyTaskStatusEnum;
 import br.com.ifce.easyflow.repository.DailyRepository;
 import br.com.ifce.easyflow.repository.PersonRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,16 +30,20 @@ public class DailyService {
        return DailyResponseDTO.toResponseDTO(daily);
     }
 
+    public Page<Daily> listByPersonId(Long id, Pageable pageable) {
+        return this.dailyRepository.findByPersonId(id, pageable);
+    }
+
     @Transactional
     public DailyResponseDTO save(DailyRequestSaveDTO dailyRequestSaveDTO) {
        Person person = personRepository.findById(dailyRequestSaveDTO.getPersonId()).orElseThrow();
 
        Daily daily = Daily.builder()
-               .dailyTaskStatusEnum(dailyRequestSaveDTO.getDailyTaskStatusEnum())
-               .WhatWasDoneTodayMessage(dailyRequestSaveDTO.getWhatWasDoneTodayMessage())
-               .AnyQuestionsMessage(dailyRequestSaveDTO.getAnyQuestionsMessage())
-               .FeedbackMessage(dailyRequestSaveDTO.getFeedbackMessage())
-               .localDateTime(dailyRequestSaveDTO.getLocalDateTime())
+               .dailyTaskStatusEnum(DailyTaskStatusEnum.IN_PROGRESS)
+               .whatWasDoneTodayMessage(dailyRequestSaveDTO.getWhatWasDoneTodayMessage())
+               .anyQuestionsMessage(dailyRequestSaveDTO.getAnyQuestionsMessage())
+               .feedbackMessage(dailyRequestSaveDTO.getFeedbackMessage())
+               .date(dailyRequestSaveDTO.getDate())
                .person(person)
                .build();
        return DailyResponseDTO.toResponseDTO(dailyRepository.save(daily));
@@ -66,12 +71,12 @@ public class DailyService {
 
 
     private Daily updateDailyWithDailyUpdateDto(Daily daily, DailyRequestUpdateDTO dailyRequestUpdateDTO){
-        daily.setDailyTaskStatusEnum(dailyRequestUpdateDTO.getDailyTaskStatusEnum());
         daily.setFeedbackMessage(dailyRequestUpdateDTO.getFeedbackMessage());
         daily.setAnyQuestionsMessage(dailyRequestUpdateDTO.getAnyQuestionsMessage());
         daily.setWhatWasDoneTodayMessage(dailyRequestUpdateDTO.getWhatWasDoneTodayMessage());
         return daily;
     }
+
 
 
 }

@@ -10,6 +10,8 @@ import java.util.List;
 
 public interface DailyRepository extends JpaRepository<Daily, Long> {
 
+    public Page<Daily> findByPersonId(Long id, Pageable pageable);
+
 //    @Query(
 //            "SELECT Daily FROM Daily WHERE Daily.person_id = :userId"
 //    )

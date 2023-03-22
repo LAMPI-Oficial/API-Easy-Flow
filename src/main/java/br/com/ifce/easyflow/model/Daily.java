@@ -4,6 +4,7 @@ import br.com.ifce.easyflow.model.enums.DailyTaskStatusEnum;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -23,17 +24,17 @@ public class Daily {
     @Enumerated(EnumType.STRING)
     private DailyTaskStatusEnum dailyTaskStatusEnum;
 
-    @Column(name = "what_was_done_today_menssage")
-    private String WhatWasDoneTodayMessage;
+    @Column(name = "what_was_done_today_message")
+    private String whatWasDoneTodayMessage;
 
     @Column(name = "any_questions_message")
-    private String AnyQuestionsMessage;
+    private String anyQuestionsMessage;
 
     @Column(name = "feedback_message")
-    private String FeedbackMessage;
+    private String feedbackMessage;
 
     @Column(name = "date")
-    private LocalDateTime localDateTime;
+    private LocalDate date;
 
     @JoinColumn(name = "person_id", nullable = false)
     @ManyToOne()

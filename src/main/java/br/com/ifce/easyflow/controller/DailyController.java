@@ -30,6 +30,15 @@ public class DailyController {
         return ResponseEntity.ok(dailyService.findById(id));
     }
 
+    //TODO: Verificar se é necessário fazer um método para fazer consultas de Daily´s por data.
+    //TODO: Verificar se é necessário fazer um método PATCH para modificar o status da task.
+    //TODO: Verificar os erros de validação.
+    @GetMapping("/person/{id}")
+    public ResponseEntity<Page<Daily>> listsByIdPerson(@PathVariable Long id, Pageable pageable){
+        // TODO: Verificar se é necessario fazer um DTO para o response desse método
+        return ResponseEntity.ok(dailyService.listByPersonId(id, pageable));
+    }
+
     @PostMapping()
     public ResponseEntity<DailyResponseDTO> save(@RequestBody @Valid DailyRequestSaveDTO dailyRequestSaveDTO){
         URI uri = URI.create("/daily");
@@ -43,14 +52,10 @@ public class DailyController {
 
     }
 
-    @DeleteMapping("/id")
+    @DeleteMapping("/{id}")
     public ResponseEntity delete(@PathVariable Long id){
         dailyService.delete(id);
         return ResponseEntity.noContent().build();
     }
-
-//    @GetMapping("/user/{id}")
-//    public  ResponseEntity<Page<Daily>>findDailyByUserId(@PathVariable Long userId, Pageable pageable){
-//        return ResponseEntity.ok(dailyService.findDailyByUserId(userId, pageable));
-//    }
 }
+
