@@ -18,6 +18,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 
 public class DailyRequestSaveDTO {
+
+    private DailyTaskStatusEnum dailyTaskStatusEnum;
     @NotBlank @Size(min = 5)
     private String whatWasDoneTodayMessage;
     private String anyQuestionsMessage;

@@ -5,12 +5,14 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+
 
 @Entity
 @Table(name = "daily")
-@AllArgsConstructor @NoArgsConstructor
-@Getter @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 @Builder
 public class Daily {
 
@@ -24,13 +26,13 @@ public class Daily {
     @Enumerated(EnumType.STRING)
     private DailyTaskStatusEnum dailyTaskStatusEnum;
 
-    @Column(name = "what_was_done_today_message")
+    @Column(name = "what_was_done_today_message", columnDefinition = "TEXT")
     private String whatWasDoneTodayMessage;
 
-    @Column(name = "any_questions_message")
+    @Column(name = "any_questions_message", columnDefinition = "TEXT")
     private String anyQuestionsMessage;
 
-    @Column(name = "feedback_message")
+    @Column(name = "feedback_message", columnDefinition = "TEXT")
     private String feedbackMessage;
 
     @Column(name = "date")
@@ -39,9 +41,6 @@ public class Daily {
     @JoinColumn(name = "person_id", nullable = false)
     @ManyToOne()
     private Person person;
-
-
-
 
 
 }
