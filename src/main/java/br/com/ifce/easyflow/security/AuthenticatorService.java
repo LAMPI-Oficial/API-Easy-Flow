@@ -12,7 +12,7 @@ import java.util.Optional;
 public class AuthenticatorService implements UserDetailsService {
     private final UserService userService;
 
-    public AuthenticatorService(UserService userService){
+    public AuthenticatorService(UserService userService) {
         this.userService = userService;
     }
 
@@ -20,9 +20,8 @@ public class AuthenticatorService implements UserDetailsService {
     public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
         Optional<User> user = userService.findByLogin(login);
 
-        if(user.isPresent()){
+        if (user.isPresent())
             return user.get();
-        }
 
         throw new UsernameNotFoundException("User Not Found");
     }

@@ -11,10 +11,10 @@ import java.util.Date;
 
 @Service
 public class TokenService {
-	
+
 	@Value("${jwt.expiration}")
 	private String expiration;
-	
+
 	@Value("${jwt.secret}")
 	private String secret;
 
@@ -22,16 +22,16 @@ public class TokenService {
 		User logged = (User) authentication.getPrincipal();
 		Date now = new Date();
 		Date expirationDate = new Date(now.getTime() + Long.parseLong(expiration));
-		
+
 		return Jwts.builder()
-				.setIssuer("EasyFlow App")
+				.setIssuer("Easyflow App")
 				.setSubject(logged.getId().toString())
 				.setIssuedAt(now)
 				.setExpiration(expirationDate)
 				.signWith(SignatureAlgorithm.HS256, secret)
 				.compact();
 	}
-	
+
 	public boolean validToken(String token) {
 		try {
 			Jwts.parser().setSigningKey(this.secret).parseClaimsJws(token);
