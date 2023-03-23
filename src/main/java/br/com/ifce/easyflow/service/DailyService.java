@@ -92,6 +92,7 @@ public class DailyService {
 
     }
 
+    @Transactional
     public DailyResponseDTO saveFeedback(Long id, DailyRequestSaveFeedbackDTO dailyRequestSaveFeedbackDTO) {
         Daily dailySaved = dailyRepository.findById(id).orElseThrow();
 
@@ -109,7 +110,6 @@ public class DailyService {
 
 
     private Daily updateDailyWithDailyUpdateDto(Daily daily, DailyRequestUpdateDTO dailyRequestUpdateDTO) {
-        daily.setFeedbackMessage(dailyRequestUpdateDTO.getFeedbackMessage());
         daily.setAnyQuestionsMessage(dailyRequestUpdateDTO.getAnyQuestionsMessage());
         daily.setWhatWasDoneTodayMessage(dailyRequestUpdateDTO.getWhatWasDoneTodayMessage());
         return daily;

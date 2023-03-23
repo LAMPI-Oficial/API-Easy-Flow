@@ -18,6 +18,5 @@ public class DailyRequestUpdateDTO {
     @NotBlank @Size(min = 5)
     private String whatWasDoneTodayMessage;
     private String anyQuestionsMessage;
-    private String feedbackMessage;
 
 }

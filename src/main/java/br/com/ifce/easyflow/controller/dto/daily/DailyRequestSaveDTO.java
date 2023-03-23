@@ -20,9 +20,6 @@ public class DailyRequestSaveDTO {
     @NotBlank @Size(min = 5)
     private String whatWasDoneTodayMessage;
     private String anyQuestionsMessage;
-    private String feedbackMessage;
-
-
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT-3")
     private LocalDate date;
 
