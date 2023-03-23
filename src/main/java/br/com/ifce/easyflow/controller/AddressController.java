@@ -27,11 +27,11 @@ import java.util.stream.Collectors;
 public class AddressController {
 
     
-    private final AddressService AddressService;
+    private final AddressService addressService;
 
     @Autowired
-    private AddressController(AddressService AddressService){
-        this.AddressService = AddressService;
+    private AddressController(AddressService addressService){
+        this.addressService = addressService;
     }
 
 
@@ -44,7 +44,7 @@ public class AddressController {
     })
     @GetMapping
     public List<AddressResponseDTO> search(){
-        return this.AddressService
+        return this.addressService
                 .search()
                 .stream()
                 .map(AddressResponseDTO::new)
@@ -60,7 +60,7 @@ public class AddressController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<Object> searchById(@PathVariable Long id) {
-        Optional<Address> Address = this.AddressService.searchByID(id);
+        Optional<Address> Address = this.addressService.searchByID(id);
 
         return Address.isPresent()
                 ? ResponseEntity.ok(new AddressResponseDTO(Address.get()))
@@ -80,7 +80,7 @@ public class AddressController {
     @PostMapping
     public ResponseEntity<Object> save(@RequestBody @Valid AddressRequestDTO addressRequestDTO, UriComponentsBuilder uriBuilder){
 
-        Address Address = AddressService.createAddress(addressRequestDTO);
+        Address Address = addressService.createAddress(addressRequestDTO);
 
         URI uri = uriBuilder.path("/addresss/{id}").buildAndExpand(Address.getId()).toUri();
         return ResponseEntity.created(uri).body(new AddressResponseDTO(Address));
@@ -95,18 +95,19 @@ public class AddressController {
             @ApiResponse(code = 500, message = "Internal exception"),
     })
     @PutMapping("/{id}")
-    public ResponseEntity<Object> update(@PathVariable Long id, @RequestBody @Valid AddressUpdateDTO AddressUpdateDTO) {
-        Optional<Address> Address = this.AddressService.searchByID(id);
+    public ResponseEntity<Object> update(@PathVariable Long id, @RequestBody @Valid AddressUpdateDTO addressUpdateDTO) {
+        Optional<Address> address = this.addressService.searchByID(id);
 
-        if(Address.isEmpty()){
+        if(address.isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     "Address Not Found");
         }
 
-        Address = this.AddressService.update(AddressUpdateDTO.toAddress(id));
+        
+        address = this.addressService.update(addressUpdateDTO.toAddress(id));
 
-        return Address.isPresent()
-                ? ResponseEntity.ok(new AddressResponseDTO(Address.get()))
+        return address.isPresent()
+                ? ResponseEntity.ok(new AddressResponseDTO(address.get()))
                 :ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 "Address Not Found");
     }
@@ -120,7 +121,7 @@ public class AddressController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> delete(@PathVariable Long id) {
-        boolean removed = this.AddressService.delete(id);
+        boolean removed = this.addressService.delete(id);
 
         return removed
                 ? ResponseEntity.status(HttpStatus.OK).body(

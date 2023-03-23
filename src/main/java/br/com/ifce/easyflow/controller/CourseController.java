@@ -125,7 +125,10 @@ public class CourseController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("CourseName is already in use.");
         }
 
+        Course.get().setName(CourseUpdateDTO.getCourse_name());
+        
         Course = this.courseService.update(CourseUpdateDTO.toCourse(id));
+
 
         return Course.isPresent()
                 ? ResponseEntity.ok(new CourseResponseDTO(Course.get()))

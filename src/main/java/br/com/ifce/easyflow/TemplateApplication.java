@@ -71,6 +71,7 @@ public class TemplateApplication implements CommandLineRunner {
 				address.setNeighborhood("sgsgdsd");
 				address.setNumber("565");
 				address.setStateEnum(StateEnum.CEARA);
+				address.setStreet("dsdsgx");
 				address.setPerson(person);
 				address = addressService.save(address);
 

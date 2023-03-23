@@ -4,7 +4,13 @@ import br.com.ifce.easyflow.model.Address;
 import br.com.ifce.easyflow.model.Person;
 import br.com.ifce.easyflow.model.enums.StateEnum;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor  
 public class AddressUpdateDTO {
     @ApiModelProperty(value = "Person's municipality", example = "123456")
     private String municipality;
@@ -24,7 +30,7 @@ public class AddressUpdateDTO {
     @ApiModelProperty(value = "Person's stateEnum", example = "123456")
     private StateEnum stateEnum;
 
-    private Person person;
+    private Long person;
     
 
     public Address toAddress(Long id){
@@ -36,8 +42,8 @@ public class AddressUpdateDTO {
         address.setNumber(number);
         address.setStateEnum(stateEnum);
         address.setStreet(street);
-        address.setPerson(person);
-
+        address.setPerson();
+        
         return address;
     }
 }

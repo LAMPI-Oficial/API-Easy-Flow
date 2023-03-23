@@ -35,6 +35,7 @@ public class AddressService {
     public List<Address> search(){
         return this.addressRepository.findAll();
     }
+
     public Optional<Address> searchByID(Long id){
         return this.addressRepository.findById(id);
     }
@@ -68,6 +69,7 @@ public class AddressService {
         newAddress.setNumber(oldAddress.getNumber());
         newAddress.setStreet(oldAddress.getStreet());
         newAddress.setStateEnum(oldAddress.getStateEnum());
+        newAddress.setPerson(oldAddress.getPerson());
         return newAddress;
     }
 

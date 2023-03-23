@@ -10,8 +10,11 @@ import br.com.ifce.easyflow.controller.dto.security.TokenDTO;
 import br.com.ifce.easyflow.controller.dto.security.UserEDTO;
 import br.com.ifce.easyflow.model.Person;
 import br.com.ifce.easyflow.model.User;
+import br.com.ifce.easyflow.repository.CourseRepository;
 import br.com.ifce.easyflow.security.TokenService;
+import br.com.ifce.easyflow.service.CourseService;
 import br.com.ifce.easyflow.service.PersonService;
+import br.com.ifce.easyflow.service.StudyAreaService;
 import br.com.ifce.easyflow.service.UserService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -38,6 +41,8 @@ public class PersonController {
 
     private final PersonService personService;
     private final UserService userService;
+    private final CourseService courseService;
+    private final StudyAreaService studyAreaService;
 
     @Autowired
     private AuthenticationManager authManager;
@@ -46,9 +51,11 @@ public class PersonController {
     private TokenService tokenService;
 
     @Autowired
-    private PersonController(PersonService personService, UserService userService){
+    private PersonController(PersonService personService, UserService userService, CourseService courseService, StudyAreaService studyAreaService){
         this.personService = personService;
         this.userService = userService;
+        this.courseService = courseService;
+        this.studyAreaService = studyAreaService;
     }
 
     @ApiOperation(value = "Save a person", tags = {"Person"})
@@ -123,7 +130,7 @@ public class PersonController {
     @PutMapping("/{id}")
     public ResponseEntity<Object> update(@PathVariable Long id, @RequestBody @Valid PersonDTO personDTO) {
         Optional<Person> person = this.personService.findById(id);
-
+        
         if(person.isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     "Person Not Found");
@@ -135,6 +142,8 @@ public class PersonController {
         person.get().setId(id);
         person.get().setName(personDTO.getName());
         person.get().setEmail(personDTO.getEmail());
+        person.get().setCourse(courseService.searchByID(personDTO.getCourse_id()).get());
+        person.get().setStudy_area(studyAreaService.searchByID(personDTO.getStudy_area_id()).get());
 
         return ResponseEntity.ok(personService.update(person.get()));
     }

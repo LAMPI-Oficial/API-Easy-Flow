@@ -25,9 +25,9 @@ public class PersonDTO {
     @ApiModelProperty(value = "Person's email", example = "user23@teste.com.br")
     private String email;
 
-    private String course_name;
+    private Long course_id;
 
-    private String study_area_name;
+    private Long study_area_id;
 
     public PersonDTO(){
 
@@ -37,8 +37,8 @@ public class PersonDTO {
         this.id = person.getId();
         this.name = person.getName();
         this.email = person.getEmail();
-        this.study_area_name = person.getStudy_area().getName();
-        this.course_name = person.getCourse().getName();
+        this.study_area_id = person.getStudy_area().getId();
+        this.course_id = person.getCourse().getId();
         
     }
 
