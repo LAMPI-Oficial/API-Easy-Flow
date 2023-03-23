@@ -2,6 +2,7 @@ package br.com.ifce.easyflow.controller;
 
 import br.com.ifce.easyflow.controller.dto.Equipment.EquipmentPostRequestDTO;
 import br.com.ifce.easyflow.controller.dto.Equipment.EquipmentPutRequestDTO;
+import br.com.ifce.easyflow.controller.dto.Equipment.EquipmentStatusPatchRequestDTO;
 import br.com.ifce.easyflow.model.Equipment;
 import br.com.ifce.easyflow.service.EquipmentService;
 import lombok.RequiredArgsConstructor;
@@ -34,9 +35,15 @@ public class EquipmentController {
         return ResponseEntity.ok(equipmentService.save(requestDTO));
     }
 
-    @PutMapping
+    @PutMapping("/{id}")
     public ResponseEntity<Equipment> update(@PathVariable Long id, @RequestBody EquipmentPutRequestDTO requestDTO) {
         Equipment equipment = equipmentService.update(id, requestDTO);
+        return ResponseEntity.ok(equipment);
+    }
+
+    @PatchMapping("/update-status/{id}")
+    ResponseEntity<Equipment> updateStatus(@PathVariable Long id, @RequestBody EquipmentStatusPatchRequestDTO requestDTO) {
+        Equipment equipment =equipmentService.updateEquipmentStatus(id, requestDTO);
         return ResponseEntity.ok(equipment);
     }
 
