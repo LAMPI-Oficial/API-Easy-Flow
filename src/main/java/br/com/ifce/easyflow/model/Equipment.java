@@ -1,5 +1,6 @@
 package br.com.ifce.easyflow.model;
 
+import br.com.ifce.easyflow.model.enums.EquipmentAvailabilityStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,4 +31,6 @@ public class Equipment {
     @Column(length = 80)
     private String storageMemory;
 
+    @Enumerated(EnumType.STRING)
+    private EquipmentAvailabilityStatus equipmentStatus;
 }
