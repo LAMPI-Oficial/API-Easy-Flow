@@ -1,8 +1,9 @@
 package br.com.ifce.easyflow.service;
 
-import br.com.ifce.easyflow.controller.dto.Daily.DailyRequestSaveDTO;
-import br.com.ifce.easyflow.controller.dto.Daily.DailyRequestUpdateDTO;
-import br.com.ifce.easyflow.controller.dto.Daily.DailyResponseDTO;
+import br.com.ifce.easyflow.controller.dto.daily.DailyRequestSaveDTO;
+import br.com.ifce.easyflow.controller.dto.daily.DailyRequestSaveFeedbackDTO;
+import br.com.ifce.easyflow.controller.dto.daily.DailyRequestUpdateDTO;
+import br.com.ifce.easyflow.controller.dto.daily.DailyResponseDTO;
 import br.com.ifce.easyflow.model.Daily;
 import br.com.ifce.easyflow.model.Person;
 import br.com.ifce.easyflow.repository.DailyRepository;
@@ -73,7 +74,6 @@ public class DailyService {
                 .dailyTaskStatusEnum(dailyRequestSaveDTO.getDailyTaskStatusEnum())
                 .whatWasDoneTodayMessage(dailyRequestSaveDTO.getWhatWasDoneTodayMessage())
                 .anyQuestionsMessage(dailyRequestSaveDTO.getAnyQuestionsMessage())
-                .feedbackMessage(dailyRequestSaveDTO.getFeedbackMessage())
                 .date(dailyRequestSaveDTO.getDate())
                 .person(person)
                 .build();
@@ -92,6 +92,15 @@ public class DailyService {
 
     }
 
+    public DailyResponseDTO saveFeedback(Long id, DailyRequestSaveFeedbackDTO dailyRequestSaveFeedbackDTO) {
+        Daily dailySaved = dailyRepository.findById(id).orElseThrow();
+
+        Daily dailyToSaveFeedback = updateFeedbackDaily(dailySaved, dailyRequestSaveFeedbackDTO);
+
+        return DailyResponseDTO.toResponseDTO(dailyRepository.save(dailyToSaveFeedback));
+
+    }
+
     @Transactional
     public void delete(Long id) {
         dailyRepository.findById(id).orElseThrow();
@@ -106,9 +115,15 @@ public class DailyService {
         return daily;
     }
 
+    private Daily updateFeedbackDaily(Daily daily, DailyRequestSaveFeedbackDTO dailyRequestSaveFeedbackDTO){
+        daily.setFeedbackMessage(dailyRequestSaveFeedbackDTO.getFeedbackMessage());
+        return daily;
+    }
+
     private Page<DailyResponseDTO> turningListOfDailyResponseDTOIntoPage(List<DailyResponseDTO> dailyResponseDTOS, Pageable pageable) {
         return new PageImpl<DailyResponseDTO>(dailyResponseDTOS, pageable, dailyResponseDTOS.size());
     }
+
 
 
 }

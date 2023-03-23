@@ -1,4 +1,4 @@
-package br.com.ifce.easyflow.controller.dto.Daily;
+package br.com.ifce.easyflow.controller.dto.daily;
 
 import br.com.ifce.easyflow.model.Daily;
 import br.com.ifce.easyflow.model.Person;

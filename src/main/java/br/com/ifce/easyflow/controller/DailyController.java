@@ -1,14 +1,14 @@
 package br.com.ifce.easyflow.controller;
 
-import br.com.ifce.easyflow.controller.dto.Daily.DailyRequestSaveDTO;
-import br.com.ifce.easyflow.controller.dto.Daily.DailyRequestUpdateDTO;
-import br.com.ifce.easyflow.controller.dto.Daily.DailyResponseDTO;
+import br.com.ifce.easyflow.controller.dto.daily.DailyRequestSaveDTO;
+import br.com.ifce.easyflow.controller.dto.daily.DailyRequestSaveFeedbackDTO;
+import br.com.ifce.easyflow.controller.dto.daily.DailyRequestUpdateDTO;
+import br.com.ifce.easyflow.controller.dto.daily.DailyResponseDTO;
 import br.com.ifce.easyflow.service.DailyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -59,6 +59,11 @@ public class DailyController {
 
         return ResponseEntity.ok(dailyService.update(id, dailyRequestUpdateDTO));
 
+    }
+    @PatchMapping("/send-feedback/{id}")
+    public ResponseEntity<DailyResponseDTO> saveFeedbackOfDaily(@PathVariable Long id, @RequestBody DailyRequestSaveFeedbackDTO dailyRequestSaveFeedbackDTO){
+
+        return ResponseEntity.ok(dailyService.saveFeedback(id, dailyRequestSaveFeedbackDTO));
     }
 
     @DeleteMapping("/{id}")

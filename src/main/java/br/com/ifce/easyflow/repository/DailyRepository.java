@@ -1,6 +1,5 @@
 package br.com.ifce.easyflow.repository;
 
-import br.com.ifce.easyflow.controller.dto.Daily.DailyResponseDTO;
 import br.com.ifce.easyflow.model.Daily;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
