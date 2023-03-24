@@ -124,6 +124,8 @@ public class StudyAreaController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("StudyAreaName is already in use.");
         }
 
+        StudyArea.get().setName(StudyAreaUpdateDTO.getStudy_area_name());
+
         StudyArea = this.StudyAreaService.update(StudyAreaUpdateDTO.toStudyArea(id));
 
         return StudyArea.isPresent()

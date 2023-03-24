@@ -103,6 +103,12 @@ public class AddressController {
                     "Address Not Found");
         }
 
+        address.get().setComplement(addressUpdateDTO.getComplement());
+        address.get().setMunicipality(addressUpdateDTO.getMunicipality());
+        address.get().setNeighborhood(addressUpdateDTO.getNeighborhood());
+        address.get().setNumber(addressUpdateDTO.getNumber());
+        address.get().setStateEnum(addressUpdateDTO.getStateEnum());
+        address.get().setStreet(addressUpdateDTO.getStreet());
         
         address = this.addressService.update(addressUpdateDTO.toAddress(id));
 

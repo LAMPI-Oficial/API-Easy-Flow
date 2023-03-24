@@ -1,5 +1,6 @@
 package br.com.ifce.easyflow.controller.dto.address;
 
+import br.com.ifce.easyflow.controller.dto.person.PersonDTO;
 import br.com.ifce.easyflow.model.Address;
 import br.com.ifce.easyflow.model.Person;
 import br.com.ifce.easyflow.model.enums.StateEnum;
@@ -30,7 +31,7 @@ public class AddressUpdateDTO {
     @ApiModelProperty(value = "Person's stateEnum", example = "123456")
     private StateEnum stateEnum;
 
-    private Long person;
+    private Person person;
     
 
     public Address toAddress(Long id){
@@ -42,7 +43,7 @@ public class AddressUpdateDTO {
         address.setNumber(number);
         address.setStateEnum(stateEnum);
         address.setStreet(street);
-        address.setPerson();
+        address.setPerson(person);
         
         return address;
     }
