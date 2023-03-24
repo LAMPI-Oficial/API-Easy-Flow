@@ -50,6 +50,10 @@ public class Person {
     private StudyArea study_area;
 
     @JsonIgnore
+    @OneToMany(mappedBy = "person",targetEntity = Daily.class, cascade = CascadeType.ALL)
+    private List<Daily> dailyList;
+
+    @JsonIgnore
     @OneToMany(mappedBy = "person", targetEntity = Schedule.class, cascade = CascadeType.ALL)
     private Set<Schedule> schedules;
     @JsonIgnore
