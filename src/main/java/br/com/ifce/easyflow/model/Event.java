@@ -6,7 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -22,6 +25,9 @@ public class Event {
     @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
     @Column(name = "date")
-    private LocalDateTime dateTime;
+    private LocalDate date;
+
+    @Column(name = "time")
+    private LocalTime time;
 
 }
