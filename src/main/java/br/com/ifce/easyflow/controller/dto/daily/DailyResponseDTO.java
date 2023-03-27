@@ -13,7 +13,6 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
-@Builder
 public class DailyResponseDTO {
 
     private Long id;
@@ -24,24 +23,13 @@ public class DailyResponseDTO {
     private LocalDate date;
     private Person person;
 
-
-    public DailyResponseDTO(Long id, DailyTaskStatusEnum dailyTaskStatusEnum, String whatWasDoneTodayMessage, String anyQuestionsMessage, String feedbackMessage, LocalDate date, Person person) {
-        this.id = id;
-        this.dailyTaskStatusEnum = dailyTaskStatusEnum;
-        this.whatWasDoneTodayMessage = whatWasDoneTodayMessage;
-        this.anyQuestionsMessage = anyQuestionsMessage;
-        this.feedbackMessage = feedbackMessage;
-        this.date = date;
-        this.person = person;
+    public DailyResponseDTO(Daily daily){
+        this.id = daily.getId();
+        this.dailyTaskStatusEnum = daily.getDailyTaskStatusEnum();
+        this.whatWasDoneTodayMessage = daily.getWhatWasDoneTodayMessage();
+        this.anyQuestionsMessage = daily.getAnyQuestionsMessage();
+        this.feedbackMessage = daily.getFeedbackMessage();
+        this.date = daily.getDate();
+        this.person = daily.getPerson();
     }
-
-    public static DailyResponseDTO toResponseDTO(Daily daily) {
-        return new DailyResponseDTO(daily.getId(), daily.getDailyTaskStatusEnum(),
-                daily.getWhatWasDoneTodayMessage(),
-                daily.getAnyQuestionsMessage(),
-                daily.getFeedbackMessage(),
-                daily.getDate(),
-                daily.getPerson());
-    }
-
 }
