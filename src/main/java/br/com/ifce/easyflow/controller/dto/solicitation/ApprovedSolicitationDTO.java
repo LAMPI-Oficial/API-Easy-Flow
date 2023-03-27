@@ -1,6 +1,5 @@
 package br.com.ifce.easyflow.controller.dto.solicitation;
 
-import br.com.ifce.easyflow.model.enums.SolicitationStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,9 +12,10 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 @Builder
 @Data
-public class UpdateSolicitationStatusDTO {
+public class ApprovedSolicitationDTO {
 
-    @JsonProperty(value = "solicitation-status")
-    @NotBlank(message = "The solicitation-status cannot be empty or null")
-    private SolicitationStatus status;
+    @JsonProperty(value = "equipment-id")
+    @NotBlank(message = "The equipment cannot be empty or null")
+    private Long equipmentId;
+
 }

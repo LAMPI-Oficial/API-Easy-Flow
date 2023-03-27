@@ -1,9 +1,8 @@
 package br.com.ifce.easyflow.service;
 
+import br.com.ifce.easyflow.controller.dto.solicitation.ApprovedSolicitationDTO;
 import br.com.ifce.easyflow.controller.dto.solicitation.SolicitationPostRequestDTO;
 import br.com.ifce.easyflow.controller.dto.solicitation.SolicitationPutRequestDTO;
-import br.com.ifce.easyflow.controller.dto.solicitation.UpdateSolicitationStatusDTO;
-import br.com.ifce.easyflow.controller.dto.solicitation.addDeviceToSolicitationDTO;
 import br.com.ifce.easyflow.model.Equipment;
 import br.com.ifce.easyflow.model.Person;
 import br.com.ifce.easyflow.model.Solicitation;
@@ -45,7 +44,7 @@ public class SolicitationService {
             throw new RuntimeException("Person not fond with id: " + personId);
             // TODO: Throw a more specific exception, e.g. NotFoundException
         }
-        return solicitationRepository.findAllByPerson(personId, pageable);
+        return solicitationRepository.findAllByPersonId(personId, pageable);
     }
 
     public Page<Solicitation> findByEquipmentId(Long equipmentId, Pageable pageable) {
@@ -54,7 +53,7 @@ public class SolicitationService {
             throw new RuntimeException("Equipment not fond with id: " + equipmentId);
             // TODO: Throw a more specific exception, e.g. NotFoundException
         }
-        return solicitationRepository.findAllByEquipment(equipmentId, pageable);
+        return solicitationRepository.findAllByEquipmentId(equipmentId, pageable);
     }
 
     public Page<Solicitation> findAllByStartDate(String startDate, Pageable pageable) {
@@ -95,54 +94,61 @@ public class SolicitationService {
     }
 
     @Transactional
-    public Solicitation updateStatus(Long id, UpdateSolicitationStatusDTO requestDTO) {
+    public Solicitation approvedSolicitation(Long id, ApprovedSolicitationDTO requestDTO) {
 
-        Solicitation solicitationSaved = this.findById(id);
-
-        solicitationSaved.setStatus(requestDTO.getStatus());
-
-        return solicitationRepository.save(solicitationSaved);
-
-    }
-
-    @Transactional
-    public Solicitation addDevice(Long id, addDeviceToSolicitationDTO requestDTO) {
         Solicitation solicitationSaved = this.findById(id);
 
         Equipment equipment = equipmentRepository.findById(requestDTO.getEquipmentId())
                 .orElseThrow(); // TODO: Throw a more specific exception, e.g. NotFoundException
 
 
-        if (solicitationSaved.getStatus().equals(SolicitationStatus.APPROVED)) {
-            throw new RuntimeException("This request has already been approved.");
+        if (!solicitationSaved.getStatus().equals(SolicitationStatus.PENDING)) {
+            throw new RuntimeException("The request must be pending to be approved.");
             // TODO: Throw a more specific exception, e.g. BadRequest
         }
 
-        if (solicitationSaved.getStatus().equals(SolicitationStatus.DENIED)) {
-            throw new RuntimeException("The request has already been denied.");
+        if (!equipment.getEquipmentStatus().equals(EquipmentAvailabilityStatus.AVAILABLE)) {
+            throw new RuntimeException("Equipment must be available to be attached to a request.");
             // TODO: Throw a more specific exception, e.g. BadRequest
         }
 
-        if (equipment.getEquipmentStatus().equals(EquipmentAvailabilityStatus.BUSY)) {
-            throw new RuntimeException("The device is already busy.");
-            // TODO: Throw a more specific exception, e.g. BadRequest
-        }
-
-        if (equipment.getEquipmentStatus().equals(EquipmentAvailabilityStatus.MAINTENANCE)) {
-            throw new RuntimeException("The equipment is under maintenance.");
-            // TODO: Throw a more specific exception, e.g. BadRequest
-        }
+        solicitationSaved.setStatus(SolicitationStatus.APPROVED);
 
         solicitationSaved.setEquipment(equipment);
+        equipment.setEquipmentStatus(EquipmentAvailabilityStatus.BUSY);
+
+        equipmentRepository.save(equipment);
+
         return solicitationRepository.save(solicitationSaved);
 
     }
 
     @Transactional
+    public void denySolicitation(Long id) {
+
+        Solicitation solicitation = this.findById(id);
+        if (solicitation.getStatus().equals(SolicitationStatus.PENDING)) {
+            solicitation.setStatus(SolicitationStatus.DENIED);
+            solicitationRepository.save(solicitation);
+        }
+        throw new RuntimeException("Request must be pending to disapprove it");  // TODO: Throw a more specific exception, e.g. BadRequest
+    }
+
+    @Transactional
     public void delete(Long id) {
-        if (!solicitationRepository.existsById(id)) {
-            throw new RuntimeException("Solicitation not fond with id: " + id);
+
+        Solicitation solicitation = this.findById(id);
+        Long equipmentId = solicitation.getEquipment().getId();
+
+        if (equipmentId != null) {
+            Equipment equipment = equipmentRepository.findById(equipmentId)
+                    .orElseThrow();
             // TODO: Throw a more specific exception, e.g. NotFoundException
+
+            equipment.setEquipmentStatus(EquipmentAvailabilityStatus.AVAILABLE);
+
+            equipmentRepository.save(equipment);
+
         }
         solicitationRepository.deleteById(id);
     }
@@ -156,5 +162,4 @@ public class SolicitationService {
         return solicitationSaved;
 
     }
-
 }

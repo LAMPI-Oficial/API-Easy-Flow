@@ -1,18 +1,17 @@
 package br.com.ifce.easyflow.controller;
 
+import br.com.ifce.easyflow.controller.dto.solicitation.ApprovedSolicitationDTO;
 import br.com.ifce.easyflow.controller.dto.solicitation.SolicitationPostRequestDTO;
 import br.com.ifce.easyflow.controller.dto.solicitation.SolicitationPutRequestDTO;
-import br.com.ifce.easyflow.controller.dto.solicitation.UpdateSolicitationStatusDTO;
-import br.com.ifce.easyflow.controller.dto.solicitation.addDeviceToSolicitationDTO;
 import br.com.ifce.easyflow.model.Solicitation;
 import br.com.ifce.easyflow.service.SolicitationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/solicitations")
@@ -22,8 +21,8 @@ public class SolicitationController {
     private final SolicitationService solicitationService;
 
     @GetMapping
-    public ResponseEntity<Page<Solicitation>> findAll(Pageable pageable) {
-        return ResponseEntity.ok(solicitationService.findAll(pageable));
+    public ResponseEntity<List<Solicitation>> findAll(Pageable pageable) {
+        return ResponseEntity.ok(solicitationService.findAll(pageable).getContent());
     }
 
     @GetMapping("/{id}")
@@ -32,31 +31,31 @@ public class SolicitationController {
     }
 
     @GetMapping("/person/{id}")
-    public ResponseEntity<Page<Solicitation>> findByPersonId(@PathVariable(name = "id") Long personId,
+    public ResponseEntity<List<Solicitation>> findByPersonId(@PathVariable(name = "id") Long personId,
                                                              Pageable pageable) {
 
-        return ResponseEntity.ok(solicitationService.findByPersonId(personId, pageable));
+        return ResponseEntity.ok(solicitationService.findByPersonId(personId, pageable).getContent());
     }
 
     @GetMapping("/equipment/{id}")
-    public ResponseEntity<Page<Solicitation>> findByEquipmentId(@PathVariable(name = "id") Long equipmentId,
+    public ResponseEntity<List<Solicitation>> findByEquipmentId(@PathVariable(name = "id") Long equipmentId,
                                                                 Pageable pageable) {
 
-        return ResponseEntity.ok(solicitationService.findByEquipmentId(equipmentId, pageable));
+        return ResponseEntity.ok(solicitationService.findByEquipmentId(equipmentId, pageable).getContent());
     }
 
-    @GetMapping("/find")
-    public ResponseEntity<Page<Solicitation>> findByStartDate(@RequestParam(name = "start-date") String startDate,
+    @GetMapping("/find/start-date")
+    public ResponseEntity<List<Solicitation>> findByStartDate(@RequestParam(name = "date") String startDate,
                                                               Pageable pageable) {
 
-        return ResponseEntity.ok(solicitationService.findAllByStartDate(startDate, pageable));
+        return ResponseEntity.ok(solicitationService.findAllByStartDate(startDate, pageable).getContent());
     }
 
-    @GetMapping("/find")
-    public ResponseEntity<Page<Solicitation>> findByEndDate(@RequestParam(name = "end-date") String endDate,
-                                                              Pageable pageable) {
+    @GetMapping("/find/end-date")
+    public ResponseEntity<List<Solicitation>> findByEndDate(@RequestParam(name = "date") String endDate,
+                                                            Pageable pageable) {
 
-        return ResponseEntity.ok(solicitationService.findAllByEndDate(endDate, pageable));
+        return ResponseEntity.ok(solicitationService.findAllByEndDate(endDate, pageable).getContent());
     }
 
     @PostMapping
@@ -71,18 +70,17 @@ public class SolicitationController {
 
     }
 
-    @PatchMapping("update-status/{id}")
-    public ResponseEntity<Solicitation> updateStatus(@PathVariable Long id,
-                                                     @RequestBody UpdateSolicitationStatusDTO requestDTO) {
-
-        return ResponseEntity.ok(solicitationService.updateStatus(id, requestDTO));
+    @PatchMapping("/approve-request/{id}")
+    ResponseEntity<Solicitation> approveRequest(@PathVariable Long id,
+                                                @RequestBody ApprovedSolicitationDTO requestDTO) {
+        return ResponseEntity.ok(solicitationService.approvedSolicitation(id, requestDTO));
 
     }
 
-    @PatchMapping("/add-device/{solicitationId}")
-    public ResponseEntity<Solicitation> addDeviceToSolicitation(@PathVariable Long solicitationId,
-                                                                @RequestBody addDeviceToSolicitationDTO requestDTO) {
-        return ResponseEntity.ok(solicitationService.addDevice(solicitationId, requestDTO));
+    @PatchMapping("/deny-request/{id}")
+    ResponseEntity<Void> denyRequest(@PathVariable Long id) {
+        solicitationService.denySolicitation(id);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
