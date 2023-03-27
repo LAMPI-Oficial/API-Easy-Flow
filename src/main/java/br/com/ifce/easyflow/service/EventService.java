@@ -19,22 +19,22 @@ import java.time.format.DateTimeFormatter;
 @RequiredArgsConstructor
 public class EventService {
     private final EventRepository eventRepository;
-    public Page<Event> listAll(Pageable pageable) {
-        return eventRepository.findAll(pageable);
+    public Page<EventResponseDTO> listAll(Pageable pageable) {
+        return eventRepository.findAll(pageable).map(EventResponseDTO::new);
     }
 
     public EventResponseDTO listById(Long id) {
         Event event = eventRepository.findById(id).orElseThrow();
-        return EventResponseDTO.toResponseDTO(event);
+        return new EventResponseDTO(event);
     }
-    public Page<Event> listByDate(String date, Pageable pageable){
+    public Page<EventResponseDTO> listByDate(String date, Pageable pageable){
         LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        return eventRepository.findByDate(localDate,pageable);
+        return eventRepository.findByDate(localDate,pageable).map(EventResponseDTO::new);
     }
-    public Page<Event> listByDateTime(String date, String time, Pageable pageable){
+    public Page<EventResponseDTO> listByDateTime(String date, String time, Pageable pageable){
         LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         LocalTime localTime = LocalTime.parse(time, DateTimeFormatter.ofPattern("HH-mm-ss"));
-        return eventRepository.findByDateTime(localDate, localTime,pageable);
+        return eventRepository.findByDateTime(localDate, localTime,pageable).map(EventResponseDTO::new);
     }
 
     @Transactional
@@ -46,14 +46,14 @@ public class EventService {
                 .time(eventToSaveDTO.getTime())
                 .build();
 
-        return EventResponseDTO.toResponseDTO(eventRepository.save(event));
+        return new EventResponseDTO(eventRepository.save(event));
     }
     @Transactional
     public EventResponseDTO update(Long id, EventRequestDTO eventRequestsDTO){
         Event event = eventRepository.findById(id).orElseThrow();
         Event eventUpdated = updateEventWhitEventUpdateDTO(event, eventRequestsDTO);
 
-        return EventResponseDTO.toResponseDTO(eventRepository.save(eventUpdated));
+        return new EventResponseDTO(eventRepository.save(eventUpdated));
     }
 
     @Transactional

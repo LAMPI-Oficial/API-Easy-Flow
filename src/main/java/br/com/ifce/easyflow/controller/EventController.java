@@ -16,17 +16,17 @@ import org.springframework.web.bind.annotation.*;
 public class EventController {
     private final EventService eventService;
     @GetMapping
-    public ResponseEntity<Page<Event>> listAll(Pageable pageable){
+    public ResponseEntity<Page<EventResponseDTO>> listAll(Pageable pageable){
         return ResponseEntity.ok(eventService.listAll(pageable));
     }
 
     @GetMapping("/find-by-date")
-    public ResponseEntity<Page<Event>> listByDate(@RequestParam(name = "date") String date, Pageable pageable){
+    public ResponseEntity<Page<EventResponseDTO>> listByDate(@RequestParam(name = "date") String date, Pageable pageable){
         return ResponseEntity.ok(eventService.listByDate(date,pageable));
     }
 
     @GetMapping("/find-by-date-and-time")
-    public ResponseEntity<Page<Event>> listByDateTime(@RequestParam(name = "date") String date, @RequestParam(name = "time") String time, Pageable pageable){
+    public ResponseEntity<Page<EventResponseDTO>> listByDateTime(@RequestParam(name = "date") String date, @RequestParam(name = "time") String time, Pageable pageable){
         return ResponseEntity.ok(eventService.listByDateTime(date, time, pageable));
     }
 
