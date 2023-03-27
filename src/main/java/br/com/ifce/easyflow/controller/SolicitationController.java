@@ -70,14 +70,14 @@ public class SolicitationController {
 
     }
 
-    @PatchMapping("/approve-request/{id}")
+    @PatchMapping("/approve/{id}")
     ResponseEntity<Solicitation> approveRequest(@PathVariable Long id,
                                                 @RequestBody ApprovedSolicitationDTO requestDTO) {
         return ResponseEntity.ok(solicitationService.approvedSolicitation(id, requestDTO));
 
     }
 
-    @PatchMapping("/deny-request/{id}")
+    @PatchMapping("/deny/{id}")
     ResponseEntity<Void> denyRequest(@PathVariable Long id) {
         solicitationService.denySolicitation(id);
         return ResponseEntity.noContent().build();
