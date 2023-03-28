@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -165,13 +166,18 @@ public class UserController {
     public Boolean sendEmail(@PathVariable Long id) {
                 Optional<User> user = this.userService.searchByID(id);
                 SimpleMailMessage mailMessage = new SimpleMailMessage();
+                String newPassword = userService.generatePassword();
+                user.get().setPassword(new BCryptPasswordEncoder().encode(newPassword));
+                userService.update(user.get());
 
                 mailMessage.setTo(user.get().getPerson().getEmail());
                 mailMessage.setSubject("Email de recuperação de Senha");
-                mailMessage.setText("Sua nova senha: dca_o#54\n\nFaça login e altera sua senha atual\n\n");
+                mailMessage.setText("Sua nova senha: "+newPassword+"\n\nFaça login e altera sua senha atual\n\n");
                 mailMessage.setFrom("marcos.junior@darmlabs.ifce.edu.br");
 
                 emailSender.send(mailMessage);
+
+
 
                 return true;
     }

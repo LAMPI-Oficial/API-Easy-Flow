@@ -14,7 +14,7 @@ public class MailConfig {
     @Value("${spring.mail.host}")
     private String host;
 
-    @Value("${spring.mail.properties.mail.smtp.socketFactory.port}")
+    @Value("${spring.mail.properties.mail.smtp.port}")
     private int port;
 
     @Value("${spring.mail.username}")
