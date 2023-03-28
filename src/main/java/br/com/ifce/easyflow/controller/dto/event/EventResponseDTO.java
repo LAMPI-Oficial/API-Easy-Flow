@@ -25,11 +25,11 @@ public class EventResponseDTO {
     private LocalDate date;
     private LocalTime time;
 
-    public static EventResponseDTO toResponseDTO(Event event){
-        return new EventResponseDTO(event.getId(),
-                event.getDescription(),
-                event.getImageUrl(),
-                event.getDate(),
-                event.getTime());
+    public EventResponseDTO(Event event) {
+        this.id = event.getId();
+        this.description = event.getDescription();
+        this.imageUrl= event.getImageUrl();
+        this.date = event.getDate();
+        this.time = event.getTime();
     }
 }
