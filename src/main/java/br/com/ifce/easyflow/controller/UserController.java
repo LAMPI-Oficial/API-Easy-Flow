@@ -11,7 +11,8 @@ import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -28,10 +29,13 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final UserService userService;
+    
+    private final JavaMailSender emailSender;
 
     @Autowired
-    private UserController(UserService userService){
+    private UserController(UserService userService, JavaMailSender emailSender){
         this.userService = userService;
+        this.emailSender = emailSender;
     }
 
     @ApiOperation(value = "Returns a list of users", tags = {"User"})
@@ -150,4 +154,25 @@ public class UserController {
                 "User Not Found");
     }
 
+    @ApiOperation(value = "User recovery password", tags = {"User"})
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Saved reservation"),
+            @ApiResponse(code = 403, message = "Permission denied to access this resource"),
+            @ApiResponse(code = 409, message = "User login is already being used"),
+            @ApiResponse(code = 500, message = "Internal exception"),
+    })
+    @GetMapping("/recoveryPassword/{id}")
+    public Boolean sendEmail(@PathVariable Long id) {
+                Optional<User> user = this.userService.searchByID(id);
+                SimpleMailMessage mailMessage = new SimpleMailMessage();
+
+                mailMessage.setTo(user.get().getPerson().getEmail());
+                mailMessage.setSubject("Email de recuperação de Senha");
+                mailMessage.setText("Sua nova senha: dca_o#54\n\nFaça login e altera sua senha atual\n\n");
+                mailMessage.setFrom("marcos.junior@darmlabs.ifce.edu.br");
+
+                emailSender.send(mailMessage);
+
+                return true;
+    }
 }
