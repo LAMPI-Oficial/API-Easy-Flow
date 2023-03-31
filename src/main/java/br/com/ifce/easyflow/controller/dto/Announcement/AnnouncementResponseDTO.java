@@ -1,4 +1,4 @@
-package br.com.ifce.easyflow.controller.dto.Announcement;
+package br.com.ifce.easyflow.controller.dto.announcement;
 
 import java.time.LocalDate;
 

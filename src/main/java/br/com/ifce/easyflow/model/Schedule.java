@@ -3,7 +3,9 @@ package br.com.ifce.easyflow.model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 
@@ -11,7 +13,10 @@ import javax.persistence.*;
 @Table(name = "schedule")
 @Data
 @Builder
-@AllArgsConstructor @NoArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 public class Schedule {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

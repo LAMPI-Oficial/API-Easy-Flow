@@ -119,14 +119,13 @@ public class ClaimController {
                                                 "Claim Not Found");
         }
 
-        // @ApiOperation(value = "Returns a Claim by id", tags = { "Claim" })
-        // @ApiResponses(value = {
-        // @ApiResponse(code = 200, message = "Successful request"),
-        // @ApiResponse(code = 403, message = "Permission denied to access this
-        // resource"),
-        // @ApiResponse(code = 404, message = "Claim not found in database"),
-        // @ApiResponse(code = 500, message = "Internal exception"),
-        // })
+        @ApiOperation(value = "Returns a Claim by id", tags = { "Claim" })
+        @ApiResponses(value = {
+                @ApiResponse(code = 200, message = "Successful request"),
+                @ApiResponse(code = 403, message = "Permission denied to access this resource"),
+                @ApiResponse(code = 404, message = "Claim not found in database"),
+                @ApiResponse(code = 500, message = "Internal exception"),
+        })
         @GetMapping("/{id}")
         public ResponseEntity<Object> searchById(@PathVariable Long id) {
                 Optional<Claim> Claim = this.claimService.searchByID(id);

@@ -22,9 +22,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import br.com.ifce.easyflow.controller.dto.Announcement.AnnouncementRequestDTO;
-import br.com.ifce.easyflow.controller.dto.Announcement.AnnouncementResponseDTO;
-import br.com.ifce.easyflow.controller.dto.Announcement.AnnouncementUpdateDTO;
+import br.com.ifce.easyflow.controller.dto.announcement.AnnouncementRequestDTO;
+import br.com.ifce.easyflow.controller.dto.announcement.AnnouncementResponseDTO;
+import br.com.ifce.easyflow.controller.dto.announcement.AnnouncementUpdateDTO;
 import br.com.ifce.easyflow.model.Announcement;
 import br.com.ifce.easyflow.service.AnnouncementService;
 import io.swagger.annotations.ApiOperation;

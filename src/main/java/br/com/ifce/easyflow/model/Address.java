@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import br.com.ifce.easyflow.model.enums.StateEnum;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,7 +14,11 @@ import javax.persistence.*;
 @Entity
 @Table(name = "address")
 @Inheritance(strategy = InheritanceType.JOINED)
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter 
+@Setter 
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Address {
         
     @Id
