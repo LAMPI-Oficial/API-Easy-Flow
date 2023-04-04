@@ -1,5 +1,6 @@
 package br.com.ifce.easyflow.controller;
 
+import br.com.ifce.easyflow.controller.dto.schedule.ScheduleApprovedRequestDTO;
 import br.com.ifce.easyflow.controller.dto.schedule.SchedulePostRequestDTO;
 import br.com.ifce.easyflow.controller.dto.schedule.SchedulePutRequestDTO;
 import br.com.ifce.easyflow.controller.dto.schedule.ScheduleResponseDTO;
@@ -57,6 +58,14 @@ public class ScheduleController {
         URI uri = URI.create("/create");
         return ResponseEntity.created(uri).body(scheduleService.save(requestDTO));
     }
+
+//    @PostMapping("/approve/{id}")
+//    public ResponseEntity<Schedule> approveSchedule(@PathVariable Long id,
+//                                                    @RequestBody @Valid ScheduleApprovedRequestDTO requestDTO) {
+//
+//        URI uri = URI.create("/create");
+//        return ResponseEntity.created(uri).body(scheduleService.approved(id, requestDTO));
+//    }
 
     @PutMapping("/edit-schedule/{idSchedule}")
     public ResponseEntity<Schedule> update(@PathVariable Long idSchedule,

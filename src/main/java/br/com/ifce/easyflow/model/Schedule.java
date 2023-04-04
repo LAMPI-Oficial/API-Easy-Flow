@@ -1,11 +1,7 @@
 package br.com.ifce.easyflow.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import br.com.ifce.easyflow.model.enums.ScheduleRequestStatus;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -26,9 +22,14 @@ public class Schedule {
 
     private String day;
 
-    private int tableNumber;
+    @OneToOne
+    @JoinColumn(name = "table_id")
+    private LabTable table;
 
-    @ManyToOne
+    @Enumerated(EnumType.STRING)
+    private ScheduleRequestStatus status;
+
+    @OneToOne
     @JoinColumn(name = "person_id", nullable = false)
     private Person person;
 

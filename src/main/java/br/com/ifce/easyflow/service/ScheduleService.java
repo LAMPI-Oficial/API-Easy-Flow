@@ -1,11 +1,17 @@
 package br.com.ifce.easyflow.service;
 
+import br.com.ifce.easyflow.controller.dto.schedule.ScheduleApprovedRequestDTO;
 import br.com.ifce.easyflow.controller.dto.schedule.SchedulePostRequestDTO;
 import br.com.ifce.easyflow.controller.dto.schedule.SchedulePutRequestDTO;
 import br.com.ifce.easyflow.controller.dto.schedule.ScheduleResponseDTO;
+import br.com.ifce.easyflow.model.LabTable;
 import br.com.ifce.easyflow.model.Person;
+import br.com.ifce.easyflow.model.ReservedTables;
 import br.com.ifce.easyflow.model.Schedule;
+import br.com.ifce.easyflow.model.enums.ScheduleRequestStatus;
+import br.com.ifce.easyflow.repository.LabTableRepository;
 import br.com.ifce.easyflow.repository.PersonRepository;
+import br.com.ifce.easyflow.repository.ReservedTableRepository;
 import br.com.ifce.easyflow.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,6 +27,10 @@ public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
     private final PersonRepository personRepository;
+
+    private final ReservedTableRepository reservedTableRepository;
+
+    private final LabTableRepository labTableRepository;
 
     public Page<Schedule> listAll(Pageable pageable) {
         return scheduleRepository.findAll(pageable);
@@ -51,7 +61,7 @@ public class ScheduleService {
         Schedule scheduleToSave = Schedule.builder()
                 .day(requestDTO.getDay())
                 .shiftSchedule(requestDTO.getShiftSchedule())
-                .tableNumber(requestDTO.getTableNumber())
+                .status(ScheduleRequestStatus.PENDING)
                 .person(person)
                 .build();
 
@@ -68,6 +78,25 @@ public class ScheduleService {
 
     }
 
+//    public Schedule approved(Long idSchedule, ScheduleApprovedRequestDTO requestDTO) {
+//
+//        Schedule scheduleSaved = scheduleRepository.findById(idSchedule)
+//                .orElseThrow();
+//
+//        if (!scheduleSaved.getStatus().equals(ScheduleRequestStatus.PENDING)) {
+//            throw new RuntimeException("");
+//        }
+//
+//        LabTable table = labTableRepository.findById(requestDTO.getTableId())
+//                .orElseThrow();
+//
+//       List<ReservedTables> reservedTables = reservedTableRepository.findAllByLabTable(table.getId());
+//
+//        reservedTables.stream().allMatch(reservedTable -> reservedTable.getLabTable().equals(table))
+//
+//
+//    }
+
     @Transactional
     public void delete(Long idSchedule) {
         scheduleRepository.findById(idSchedule).orElseThrow();
@@ -77,7 +106,6 @@ public class ScheduleService {
     private Schedule updateScheduleEntity(Schedule scheduleSaved, SchedulePutRequestDTO requestDTO) {
         scheduleSaved.setShiftSchedule(requestDTO.getShiftSchedule());
         scheduleSaved.setDay(requestDTO.getDay());
-        scheduleSaved.setTableNumber(requestDTO.getTableNumber());
         return scheduleSaved;
     }
 }

@@ -19,8 +19,5 @@ public class SchedulePostRequestDTO {
     private String day;
 
     @NotBlank
-    private int tableNumber;
-
-    @NotBlank
     private Long personId;
 }

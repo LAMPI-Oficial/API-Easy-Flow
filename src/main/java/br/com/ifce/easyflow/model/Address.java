@@ -1,31 +1,25 @@
 package br.com.ifce.easyflow.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import br.com.ifce.easyflow.model.enums.StateEnum;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "address")
 @Inheritance(strategy = InheritanceType.JOINED)
-@Getter 
-@Setter 
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Address {
-        
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "course_id")
     private Long id;
-    
+
     @Column(name = "municipality")
     private String municipality;
 
