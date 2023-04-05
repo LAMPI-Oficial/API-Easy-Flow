@@ -25,6 +25,7 @@ public class EventService {
 
     public EventResponseDTO listById(Long id) {
         Event event = eventRepository.findById(id).orElseThrow();
+        //TODO: Trocar a exeção acima por uma mais especifica. Exemplo: NOT FOUND
         return new EventResponseDTO(event);
     }
     public Page<EventResponseDTO> listByDate(String date, Pageable pageable){

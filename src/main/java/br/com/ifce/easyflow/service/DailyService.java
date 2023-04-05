@@ -40,12 +40,20 @@ public class DailyService {
 
     public Page<DailyResponseDTO> listByDate(String date, Pageable pageable) {
         LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        //TODO: Lançar uma exeção BADREQUEST com uma menssagem de padrão de data não aceito. Capturando a exeção DateTimeParseExeption.
         return dailyRepository.findByDate(localDate, pageable).map(DailyResponseDTO::new);
+
     }
 
     public Page<DailyResponseDTO> listByPersonIdAndDate(Long id, String date, Pageable pageable) {
 
         LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        //TODO: Lançar uma exeção BADREQUEST com uma menssagem de padrão de data não aceito. Capturando a exeção DateTimeParseExeption.
+
+        if (!personRepository.existsById(id)){
+            throw new RuntimeException("Person not found");
+            //TODO: Trocar a exeção acima por uma mais especifica. Exemplo: NOT FOUND
+        }
 
         return dailyRepository.findByPersonIdAndDate(id, localDate, pageable).map(DailyResponseDTO::new);
     }
@@ -53,7 +61,7 @@ public class DailyService {
     @Transactional
     public DailyResponseDTO save(DailyRequestSaveDTO dailyRequestSaveDTO) {
         Person person = personRepository.findById(dailyRequestSaveDTO.getPersonId()).orElseThrow();
-
+        //TODO: Trocar a exeção acima por uma mais especifica. Exemplo: NOT FOUND
         Daily daily = Daily.builder()
                 .dailyTaskStatusEnum(dailyRequestSaveDTO.getDailyTaskStatusEnum())
                 .whatWasDoneTodayMessage(dailyRequestSaveDTO.getWhatWasDoneTodayMessage())
@@ -69,7 +77,7 @@ public class DailyService {
     @Transactional
     public DailyResponseDTO update(Long dailyId, DailyRequestUpdateDTO dailyRequestUpdateDTO) {
         Daily dailySaved = dailyRepository.findById(dailyId).orElseThrow();
-
+        //TODO: Trocar a exeção acima por uma mais especifica. Exemplo: NOT FOUND
         Daily dailyToUpdate = updateDailyWithDailyUpdateDto(dailySaved, dailyRequestUpdateDTO);
         return new DailyResponseDTO(dailyRepository.save(dailyToUpdate));
 
