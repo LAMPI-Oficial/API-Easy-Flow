@@ -42,8 +42,8 @@ public class ScheduleService {
     }
 
     public List<Schedule> findByUserId(Long personId) {
-      return scheduleRepository.findByPersonId(personId)
-               .orElseThrow();
+        return scheduleRepository.findByPersonId(personId)
+                .orElseThrow();
     }
 
     public List<Schedule> findByShiftSchedule(String shiftSchedule) {
@@ -78,24 +78,53 @@ public class ScheduleService {
 
     }
 
-//    public Schedule approved(Long idSchedule, ScheduleApprovedRequestDTO requestDTO) {
-//
-//        Schedule scheduleSaved = scheduleRepository.findById(idSchedule)
-//                .orElseThrow();
-//
-//        if (!scheduleSaved.getStatus().equals(ScheduleRequestStatus.PENDING)) {
-//            throw new RuntimeException("");
-//        }
-//
-//        LabTable table = labTableRepository.findById(requestDTO.getTableId())
-//                .orElseThrow();
-//
-//       List<ReservedTables> reservedTables = reservedTableRepository.findAllByLabTable(table.getId());
-//
-//        reservedTables.stream().allMatch(reservedTable -> reservedTable.getLabTable().equals(table))
-//
-//
-//    }
+    @Transactional
+    public Schedule approved(Long idSchedule, ScheduleApprovedRequestDTO requestDTO) {
+
+        Schedule scheduleSaved = scheduleRepository.findById(idSchedule)
+                .orElseThrow();
+
+        if (!scheduleSaved.getStatus().equals(ScheduleRequestStatus.PENDING)) {
+            throw new RuntimeException("The schedule request has a status other than pending.");
+        }
+
+        LabTable table = labTableRepository.findById(requestDTO.getTableId())
+                .orElseThrow();
+
+        boolean existsReserve = reservedTableRepository.existsByTableIdAndShiftScheduleAndDay(table.getId(),
+                scheduleSaved.getShiftSchedule(),
+                scheduleSaved.getDay());
+
+        if (existsReserve) {
+            throw new RuntimeException("This table is already booked for this time.");
+        }
+
+        ReservedTables reservedTable = ReservedTables.builder()
+                .table(table)
+                .shiftSchedule(scheduleSaved.getShiftSchedule())
+                .day(scheduleSaved.getDay())
+                .build();
+
+        reservedTableRepository.save(reservedTable);
+
+        scheduleSaved.setTable(table);
+        scheduleSaved.setStatus(ScheduleRequestStatus.APPROVED);
+
+        return scheduleRepository.save(scheduleSaved);
+    }
+
+    @Transactional
+    public void deny(Long id) {
+        Schedule scheduleSaved = scheduleRepository.findById(id)
+                .orElseThrow();
+
+        if (!scheduleSaved.getStatus().equals(ScheduleRequestStatus.PENDING)) {
+            throw new RuntimeException("The schedule request has a status other than pending.");
+        }
+
+        scheduleSaved.setStatus(ScheduleRequestStatus.DENIED);
+        scheduleRepository.save(scheduleSaved);
+    }
 
     @Transactional
     public void delete(Long idSchedule) {

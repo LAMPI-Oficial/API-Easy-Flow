@@ -59,13 +59,18 @@ public class ScheduleController {
         return ResponseEntity.created(uri).body(scheduleService.save(requestDTO));
     }
 
-//    @PostMapping("/approve/{id}")
-//    public ResponseEntity<Schedule> approveSchedule(@PathVariable Long id,
-//                                                    @RequestBody @Valid ScheduleApprovedRequestDTO requestDTO) {
-//
-//        URI uri = URI.create("/create");
-//        return ResponseEntity.created(uri).body(scheduleService.approved(id, requestDTO));
-//    }
+    @PatchMapping("/approve/{id}")
+    public ResponseEntity<Schedule> approveSchedule(@PathVariable Long id,
+                                                    @RequestBody @Valid ScheduleApprovedRequestDTO requestDTO) {
+
+        return ResponseEntity.ok(scheduleService.approved(id, requestDTO));
+    }
+
+    @PatchMapping("/deny/{id}")
+    public ResponseEntity<Schedule> approveSchedule(@PathVariable Long id) {
+        scheduleService.deny(id);
+        return ResponseEntity.noContent().build();
+    }
 
     @PutMapping("/edit-schedule/{idSchedule}")
     public ResponseEntity<Schedule> update(@PathVariable Long idSchedule,

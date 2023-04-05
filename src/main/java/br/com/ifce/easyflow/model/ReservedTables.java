@@ -23,8 +23,7 @@ public class ReservedTables {
 
     private String day;
 
-    @OneToMany
-    @JoinColumn(name = "table_id", nullable = false)
-    private List<LabTable> labTables;
-
+    @ManyToOne
+    @JoinColumn(name = "table_id")
+    private LabTable table;
 }
