@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -54,6 +55,19 @@ public class ScheduleService {
         return scheduleRepository.findByDay(day);
     }
 
+    public List<Schedule> findAllByStatus(String status) {
+
+        boolean statusMatches = Arrays.stream(ScheduleRequestStatus.values()).anyMatch(s -> s.name().equals(status));
+
+        if (!statusMatches) {
+            throw new RuntimeException("The chosen status does not exist");
+            // TODO: Throw a more specific exception, e.g. BadRequest
+        }
+
+        return scheduleRepository.findAllByStatus(ScheduleRequestStatus.valueOf(status.toUpperCase()));
+
+    }
+
     @Transactional
     public Schedule save(SchedulePostRequestDTO requestDTO) {
         Person person = personRepository.findById(requestDTO.getPersonId())
@@ -72,6 +86,10 @@ public class ScheduleService {
     public Schedule update(Long idSchedule, SchedulePutRequestDTO requestDTO) {
         Schedule scheduleSaved = scheduleRepository.findById(idSchedule)
                 .orElseThrow();
+        if (!scheduleSaved.getStatus().equals(ScheduleRequestStatus.PENDING)) {
+            throw new RuntimeException("The time request can only be edited if it is pending.");
+            // TODO: Throw a more specific exception, e.g. BadRequest
+        }
         Schedule scheduleToSave = updateScheduleEntity(scheduleSaved, requestDTO);
 
         return scheduleRepository.save(scheduleToSave);
@@ -120,6 +138,7 @@ public class ScheduleService {
 
         if (!scheduleSaved.getStatus().equals(ScheduleRequestStatus.PENDING)) {
             throw new RuntimeException("The schedule request has a status other than pending.");
+            // TODO: Throw a more specific exception, e.g. BadRequest
         }
 
         scheduleSaved.setStatus(ScheduleRequestStatus.DENIED);
@@ -128,7 +147,15 @@ public class ScheduleService {
 
     @Transactional
     public void delete(Long idSchedule) {
-        scheduleRepository.findById(idSchedule).orElseThrow();
+       Schedule schedule = scheduleRepository.findById(idSchedule).orElseThrow();
+       if(!schedule.getStatus().equals(ScheduleRequestStatus.APPROVED)) {
+
+           scheduleRepository.deleteById(idSchedule);
+
+
+       }
+
+        reservedTableRepository.deleteByShiftScheduleAndDayAndTableId(schedule.getShiftSchedule(), schedule.getDay(), schedule.getTable().getId());
         scheduleRepository.deleteById(idSchedule);
     }
 

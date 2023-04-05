@@ -47,6 +47,12 @@ public class ScheduleController {
         return ResponseEntity.ok(schedules);
     }
 
+    @GetMapping("/find-status")
+    public ResponseEntity<List<Schedule>> findByStatusSchedule(@RequestParam(defaultValue = "PENDING") String status) {
+        List<Schedule> schedules = scheduleService.findAllByStatus(status);
+        return ResponseEntity.ok(schedules);
+    }
+
     @GetMapping("/find-day")
     public ResponseEntity<List<Schedule>> findByDay(@RequestParam(defaultValue = "Segunda") String day) {
         List<Schedule> schedules = scheduleService.findByDay(day);
