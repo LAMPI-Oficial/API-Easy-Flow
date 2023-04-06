@@ -1,5 +1,6 @@
 package br.com.ifce.easyflow.controller;
 
+import br.com.ifce.easyflow.controller.dto.table.LabTableUpdateRequestDTO;
 import br.com.ifce.easyflow.controller.dto.table.SearchTablesAvailableRequestDTO;
 import br.com.ifce.easyflow.controller.dto.table.TablePostRequestDTO;
 import br.com.ifce.easyflow.model.LabTable;
@@ -41,6 +42,18 @@ public class TableController {
         LabTable table = tableService.save(requestDTO);
         URI uri = uriBuilder.path("/tables/{id}").buildAndExpand(table.getId()).toUri();
         return ResponseEntity.created(uri).body(table);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<LabTable> update(@PathVariable Long id, @RequestBody @Valid LabTableUpdateRequestDTO requestDTO) {
+        LabTable table = tableService.update(id, requestDTO);
+        return ResponseEntity.ok(table);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        tableService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
 }

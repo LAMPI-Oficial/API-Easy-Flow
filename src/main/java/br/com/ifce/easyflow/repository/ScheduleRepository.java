@@ -15,4 +15,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     List<Schedule> findByDay(String day);
 
     List<Schedule> findAllByStatus(ScheduleRequestStatus valueOf);
+
+    List<Schedule> findAllByTableId(Long id);
 }

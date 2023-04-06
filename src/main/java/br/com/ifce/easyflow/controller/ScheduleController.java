@@ -41,6 +41,12 @@ public class ScheduleController {
        return ResponseEntity.ok(schedules);
     }
 
+    @GetMapping("/table/{tableId}")
+    public ResponseEntity<List<Schedule>> findByTableId(@PathVariable Long tableId) {
+        List<Schedule> schedules = scheduleService.findAllByTableId(tableId);
+        return ResponseEntity.ok(schedules);
+    }
+
     @GetMapping("/find-shift-schedule")
     public ResponseEntity<List<Schedule>> findByShiftSchedule(@RequestParam(defaultValue = "Manha") String shiftSchedule) {
         List<Schedule> schedules = scheduleService.findByShiftSchedule(shiftSchedule);

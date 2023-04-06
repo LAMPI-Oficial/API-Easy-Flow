@@ -39,12 +39,16 @@ public class ScheduleService {
 
     public ScheduleResponseDTO findById(Long id) {
         Schedule schedule = scheduleRepository.findById(id).orElseThrow();
+        // TODO: Throw a more specific exception, e.g. NotFoundException
+
         return ScheduleResponseDTO.toResponseDTO(schedule);
     }
 
     public List<Schedule> findByUserId(Long personId) {
         return scheduleRepository.findByPersonId(personId)
                 .orElseThrow();
+        // TODO: Throw a more specific exception, e.g. NotFoundException
+
     }
 
     public List<Schedule> findByShiftSchedule(String shiftSchedule) {
@@ -57,7 +61,9 @@ public class ScheduleService {
 
     public List<Schedule> findAllByStatus(String status) {
 
-        boolean statusMatches = Arrays.stream(ScheduleRequestStatus.values()).anyMatch(s -> s.name().equals(status));
+        boolean statusMatches = Arrays.stream(ScheduleRequestStatus
+                .values())
+                .anyMatch(s -> s.name().equals(status.toUpperCase()));
 
         if (!statusMatches) {
             throw new RuntimeException("The chosen status does not exist");
@@ -68,10 +74,24 @@ public class ScheduleService {
 
     }
 
+    public List<Schedule> findAllByTableId(Long id) {
+
+        boolean tableExist = labTableRepository.existsById(id);
+
+        if (!tableExist) {
+            throw new RuntimeException("There is no table with id: " + id);
+            // TODO: Throw a more specific exception, e.g. NotFoundException
+        }
+
+        return scheduleRepository.findAllByTableId(id);
+    }
+
     @Transactional
     public Schedule save(SchedulePostRequestDTO requestDTO) {
         Person person = personRepository.findById(requestDTO.getPersonId())
                 .orElseThrow();
+        // TODO: Throw a more specific exception, e.g. NotFoundException
+
         Schedule scheduleToSave = Schedule.builder()
                 .day(requestDTO.getDay())
                 .shiftSchedule(requestDTO.getShiftSchedule())
@@ -86,6 +106,8 @@ public class ScheduleService {
     public Schedule update(Long idSchedule, SchedulePutRequestDTO requestDTO) {
         Schedule scheduleSaved = scheduleRepository.findById(idSchedule)
                 .orElseThrow();
+        // TODO: Throw a more specific exception, e.g. NotFoundException
+
         if (!scheduleSaved.getStatus().equals(ScheduleRequestStatus.PENDING)) {
             throw new RuntimeException("The time request can only be edited if it is pending.");
             // TODO: Throw a more specific exception, e.g. BadRequest
@@ -104,10 +126,12 @@ public class ScheduleService {
 
         if (!scheduleSaved.getStatus().equals(ScheduleRequestStatus.PENDING)) {
             throw new RuntimeException("The schedule request has a status other than pending.");
+            // TODO: Throw a more specific exception, e.g. BadRequest
         }
 
         LabTable table = labTableRepository.findById(requestDTO.getTableId())
                 .orElseThrow();
+        // TODO: Throw a more specific exception, e.g. NotFoundException
 
         boolean existsReserve = reservedTableRepository.existsByTableIdAndShiftScheduleAndDay(table.getId(),
                 scheduleSaved.getShiftSchedule(),
@@ -115,6 +139,7 @@ public class ScheduleService {
 
         if (existsReserve) {
             throw new RuntimeException("This table is already booked for this time.");
+            // TODO: Throw a more specific exception, e.g. BadRequest
         }
 
         ReservedTables reservedTable = ReservedTables.builder()
@@ -135,6 +160,7 @@ public class ScheduleService {
     public void deny(Long id) {
         Schedule scheduleSaved = scheduleRepository.findById(id)
                 .orElseThrow();
+        // TODO: Throw a more specific exception, e.g. NotFoundException
 
         if (!scheduleSaved.getStatus().equals(ScheduleRequestStatus.PENDING)) {
             throw new RuntimeException("The schedule request has a status other than pending.");
@@ -147,16 +173,18 @@ public class ScheduleService {
 
     @Transactional
     public void delete(Long idSchedule) {
-       Schedule schedule = scheduleRepository.findById(idSchedule).orElseThrow();
-       if(!schedule.getStatus().equals(ScheduleRequestStatus.APPROVED)) {
+        Schedule schedule = scheduleRepository.findById(idSchedule).orElseThrow();
+        // TODO: Throw a more specific exception, e.g. NotFoundException
+        if (!schedule.getStatus().equals(ScheduleRequestStatus.APPROVED)) {
 
-           scheduleRepository.deleteById(idSchedule);
+            scheduleRepository.deleteById(idSchedule);
 
 
-       }
+        } else {
 
-        reservedTableRepository.deleteByShiftScheduleAndDayAndTableId(schedule.getShiftSchedule(), schedule.getDay(), schedule.getTable().getId());
-        scheduleRepository.deleteById(idSchedule);
+            reservedTableRepository.deleteByShiftScheduleAndDayAndTableId(schedule.getShiftSchedule(), schedule.getDay(), schedule.getTable().getId());
+            scheduleRepository.deleteById(idSchedule);
+        }
     }
 
     private Schedule updateScheduleEntity(Schedule scheduleSaved, SchedulePutRequestDTO requestDTO) {

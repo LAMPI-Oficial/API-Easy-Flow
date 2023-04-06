@@ -1,5 +1,6 @@
 package br.com.ifce.easyflow.service;
 
+import br.com.ifce.easyflow.controller.dto.table.LabTableUpdateRequestDTO;
 import br.com.ifce.easyflow.controller.dto.table.SearchTablesAvailableRequestDTO;
 import br.com.ifce.easyflow.controller.dto.table.TablePostRequestDTO;
 import br.com.ifce.easyflow.model.LabTable;
@@ -18,6 +19,7 @@ public class TableService {
 
     private final LabTableRepository labTableRepository;
     private final ReservedTableRepository reservedTableRepository;
+    private final ScheduleService scheduleService;
 
     public List<LabTable> findAll() {
         return labTableRepository.findAll();
@@ -26,7 +28,7 @@ public class TableService {
     public LabTable findById(Long id) {
         return labTableRepository.findById(id)
                 .orElseThrow();
-
+        // TODO: Throw a more specific exception, e.g. NotFoundException
     }
 
     @Transactional
@@ -37,6 +39,7 @@ public class TableService {
 
         if (existsTableWithNumber) {
             throw new RuntimeException("A table has already been registered with that number.");
+            // TODO: Throw a more specific exception, e.g. BadRequest
         }
 
         LabTable table = LabTable.builder()
@@ -56,7 +59,29 @@ public class TableService {
 
         return tables.stream()
                 .filter(t -> reservedTables.stream()
-                        .noneMatch((id -> id.getTable().getId()
+                        .noneMatch((rt -> rt.getTable().getId()
                                 .equals(t.getId())))).toList();
+    }
+
+    @Transactional
+    public LabTable update(Long id, LabTableUpdateRequestDTO requestDTO) {
+
+        LabTable oldTable = this.findById(id);
+        oldTable.setNumber(requestDTO.number());
+        return labTableRepository.save(oldTable);
+
+    }
+
+    @Transactional
+    public void delete(Long id) {
+
+        LabTable table = this.findById(id);
+
+        if (!scheduleService.findAllByTableId(id).isEmpty()) {
+            throw new RuntimeException("The table cannot be excluded because it is linked to times already reserved.");
+            // TODO: Throw a more specific exception, e.g. BadRequest
+        }
+
+        labTableRepository.deleteById(table.getId());
     }
 }
