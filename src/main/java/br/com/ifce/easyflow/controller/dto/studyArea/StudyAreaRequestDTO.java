@@ -1,6 +1,7 @@
 package br.com.ifce.easyflow.controller.dto.studyArea;
 
 import br.com.ifce.easyflow.model.StudyArea;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,6 +16,7 @@ public class StudyAreaRequestDTO {
 
     @ApiModelProperty(value = "StudyArea name", example = "Back-end")
     @NotNull @NotEmpty
+    @JsonProperty(value = "study-area-name")
     private String StudyArea_name;
 
     public StudyArea toStudyArea(){

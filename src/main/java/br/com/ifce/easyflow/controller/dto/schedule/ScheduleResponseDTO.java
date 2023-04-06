@@ -15,13 +15,13 @@ public class ScheduleResponseDTO {
 
     private String shiftSchedule;
     private String day;
-    private int tableNumber;
+//    private int tableNumber;
     private Person person;
 
     public static ScheduleResponseDTO toResponseDTO(Schedule schedule) {
         return new ScheduleResponseDTO(schedule.getShiftSchedule(),
                 schedule.getDay(),
-                schedule.getTableNumber(),
+//                schedule.getTableNumber(),
                 schedule.getPerson());
     }
 }

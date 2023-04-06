@@ -11,6 +11,8 @@ import br.com.ifce.easyflow.model.enums.SolicitationStatus;
 import br.com.ifce.easyflow.repository.EquipmentRepository;
 import br.com.ifce.easyflow.repository.PersonRepository;
 import br.com.ifce.easyflow.repository.SolicitationRepository;
+//import br.com.ifce.easyflow.service.exceptions.BadRequestException;
+import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,14 +36,14 @@ public class SolicitationService {
 
     public Solicitation findById(Long id) {
         return solicitationRepository.findById(id)
-                .orElseThrow();
+                .orElseThrow(() -> new ResourceNotFoundException("Solicitação não encontrada com id: " + id));
         // TODO: Throws a exception NotFound;
     }
 
     public Page<Solicitation> findByPersonId(Long personId, Pageable pageable) {
         boolean personExists = personRepository.existsById(personId);
         if (!personExists) {
-            throw new RuntimeException("Person not fond with id: " + personId);
+            throw new ResourceNotFoundException("Person not fond with id: " + personId);
             // TODO: Throw a more specific exception, e.g. NotFoundException
         }
         return solicitationRepository.findAllByPersonId(personId, pageable);
@@ -103,12 +105,12 @@ public class SolicitationService {
 
 
         if (!solicitationSaved.getStatus().equals(SolicitationStatus.PENDING)) {
-            throw new RuntimeException("The request must be pending to be approved.");
+//            throw new BadRequestException("The request must be pending to be approved.");
             // TODO: Throw a more specific exception, e.g. BadRequest
         }
 
         if (!equipment.getEquipmentStatus().equals(EquipmentAvailabilityStatus.AVAILABLE)) {
-            throw new RuntimeException("Equipment must be available to be attached to a request.");
+//            throw new BadRequestException("Equipment must be available to be attached to a request.");
             // TODO: Throw a more specific exception, e.g. BadRequest
         }
 

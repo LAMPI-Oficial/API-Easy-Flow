@@ -12,9 +12,6 @@ import javax.validation.constraints.NotBlank;
 @Getter @Setter
 public class PersonCreateDTO {
 
-    @ApiModelProperty(hidden = true)
-    private Long id;
-
     @ApiModelProperty(value = "Persons name", example = "Maria Castro")
     private String name;
 

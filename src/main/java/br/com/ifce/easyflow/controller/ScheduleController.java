@@ -1,5 +1,6 @@
 package br.com.ifce.easyflow.controller;
 
+import br.com.ifce.easyflow.controller.dto.schedule.ScheduleApprovedRequestDTO;
 import br.com.ifce.easyflow.controller.dto.schedule.SchedulePostRequestDTO;
 import br.com.ifce.easyflow.controller.dto.schedule.SchedulePutRequestDTO;
 import br.com.ifce.easyflow.controller.dto.schedule.ScheduleResponseDTO;
@@ -40,9 +41,21 @@ public class ScheduleController {
        return ResponseEntity.ok(schedules);
     }
 
+    @GetMapping("/table/{tableId}")
+    public ResponseEntity<List<Schedule>> findByTableId(@PathVariable Long tableId) {
+        List<Schedule> schedules = scheduleService.findAllByTableId(tableId);
+        return ResponseEntity.ok(schedules);
+    }
+
     @GetMapping("/find-shift-schedule")
     public ResponseEntity<List<Schedule>> findByShiftSchedule(@RequestParam(defaultValue = "Manha") String shiftSchedule) {
         List<Schedule> schedules = scheduleService.findByShiftSchedule(shiftSchedule);
+        return ResponseEntity.ok(schedules);
+    }
+
+    @GetMapping("/find-status")
+    public ResponseEntity<List<Schedule>> findByStatusSchedule(@RequestParam(defaultValue = "PENDING") String status) {
+        List<Schedule> schedules = scheduleService.findAllByStatus(status);
         return ResponseEntity.ok(schedules);
     }
 
@@ -56,6 +69,19 @@ public class ScheduleController {
     public ResponseEntity<Schedule> save(@RequestBody @Valid SchedulePostRequestDTO requestDTO) {
         URI uri = URI.create("/create");
         return ResponseEntity.created(uri).body(scheduleService.save(requestDTO));
+    }
+
+    @PatchMapping("/approve/{id}")
+    public ResponseEntity<Schedule> approveSchedule(@PathVariable Long id,
+                                                    @RequestBody @Valid ScheduleApprovedRequestDTO requestDTO) {
+
+        return ResponseEntity.ok(scheduleService.approved(id, requestDTO));
+    }
+
+    @PatchMapping("/deny/{id}")
+    public ResponseEntity<Schedule> approveSchedule(@PathVariable Long id) {
+        scheduleService.deny(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/edit-schedule/{idSchedule}")

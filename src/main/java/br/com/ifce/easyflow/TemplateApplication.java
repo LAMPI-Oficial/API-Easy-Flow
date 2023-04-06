@@ -40,27 +40,26 @@ public class TemplateApplication implements CommandLineRunner {
 		//DADOS PARA TESTE
 		if(userService.search().isEmpty()){
 			List<Person> persons = new ArrayList<>();
-			
 
-			
-
-			for(Integer i = 0; i<20; i++){
+			for(int i = 0; i<20; i++){
 				User user = new User();
 				Course course = new Course();
+
 				StudyArea study_area = new StudyArea();
 				course.setName("ADS-"+i);
 				study_area.setName("Backend-"+i);
-				
+
 				user.setLogin("user"+ i +"@teste.com.br");
 				user.setPassword(new BCryptPasswordEncoder().encode("123456"));
 
 				Person person = new Person();
-				
+
 				person.setEmail("user"+ i +"@teste.com.br");
 				person.setName("Usuário "+ i);
 				person.setUser(user);
 				person.setCourse(course);
 				person.setStudy_area(study_area);
+				person.setPerson_admin(false);
 				person = personService.save(person);
 				persons.add(person);
 
@@ -74,6 +73,7 @@ public class TemplateApplication implements CommandLineRunner {
 				address.setStreet("dsdsgx");
 				address.setPerson(person);
 				address = addressService.save(address);
+				person.setAddresses(address.getPerson().getAddresses());
 
 			}
 			

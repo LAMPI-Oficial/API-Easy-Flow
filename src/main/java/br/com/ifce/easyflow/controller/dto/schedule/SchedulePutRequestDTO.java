@@ -18,6 +18,4 @@ public class SchedulePutRequestDTO {
     @NotBlank
     private String day;
 
-    @NotBlank
-    private int tableNumber;
 }
