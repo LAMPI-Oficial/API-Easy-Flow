@@ -1,6 +1,5 @@
 package br.com.ifce.easyflow.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,7 +10,10 @@ import javax.persistence.*;
 @Entity
 @Table(name = "study_area")
 @Inheritance(strategy = InheritanceType.JOINED)
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter 
+@NoArgsConstructor 
+@AllArgsConstructor
 public class StudyArea {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

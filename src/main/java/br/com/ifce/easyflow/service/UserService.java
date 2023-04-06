@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
+import java.security.SecureRandom;
 
 @Service
 public class UserService {
@@ -77,5 +78,15 @@ public class UserService {
         Optional<User> exist = this.userRepository.findById(id);
 
         return exist.isPresent();
+    }
+    public String generatePassword() {
+    String CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
+        SecureRandom random = new SecureRandom();
+        StringBuilder sb = new StringBuilder(8);
+        for (int i = 0; i < 8; i++) {
+            int index = random.nextInt(CHARSET.length());
+            sb.append(CHARSET.charAt(index));
+        }
+        return sb.toString();
     }
 }

@@ -5,7 +5,7 @@ import br.com.ifce.easyflow.controller.dto.course.CourseResponseDTO;
 import br.com.ifce.easyflow.controller.dto.course.CourseUpdateDTO;
 import br.com.ifce.easyflow.model.Course;
 import br.com.ifce.easyflow.service.CourseService;
-import br.com.ifce.easyflow.service.CourseService;
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -125,7 +125,10 @@ public class CourseController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("CourseName is already in use.");
         }
 
+        Course.get().setName(CourseUpdateDTO.getCourse_name());
+        
         Course = this.courseService.update(CourseUpdateDTO.toCourse(id));
+
 
         return Course.isPresent()
                 ? ResponseEntity.ok(new CourseResponseDTO(Course.get()))

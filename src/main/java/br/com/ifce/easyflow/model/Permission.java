@@ -11,7 +11,10 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "permission")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor 
+@AllArgsConstructor
 public class Permission implements GrantedAuthority {
 
     @Id

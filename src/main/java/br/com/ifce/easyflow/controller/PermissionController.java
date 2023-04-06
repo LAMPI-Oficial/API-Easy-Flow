@@ -31,7 +31,7 @@ public class PermissionController {
         this.permissionService = permissionService;
     }
 
-    @ApiOperation(value = "Returns a list of permission")
+    @ApiOperation(value = "Returns a list of permission", tags = {"Permission"})
     @GetMapping
     public List<PermissionResponseDTO> search() {
         return this.permissionService
@@ -41,7 +41,7 @@ public class PermissionController {
                 .collect(Collectors.toList());
     }
 
-    @ApiOperation(value = "Returns a permission by id")
+    @ApiOperation(value = "Returns a permission by id", tags = {"Permission"})
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Permission not found in database"),
     })
@@ -54,7 +54,7 @@ public class PermissionController {
                 : ResponseEntity.notFound().build();
     }
 
-    @ApiOperation(value = "Save a permission")
+    @ApiOperation(value = "Save a permission", tags = {"Permission"})
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Permission created"),
     })
@@ -67,7 +67,7 @@ public class PermissionController {
         return ResponseEntity.created(uri).body(new PermissionResponseDTO(permission));
     }
 
-    @ApiOperation(value = "Update a permission by id")
+    @ApiOperation(value = "Update a permission by id", tags = {"Permission"})
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Permission not found in database"),
     })
@@ -80,7 +80,7 @@ public class PermissionController {
                 : ResponseEntity.notFound().build();
     }
 
-    @ApiOperation(value = "Delete a permission by id")
+    @ApiOperation(value = "Delete a permission by id", tags = {"Permission"})
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Permission not found in database"),
     })
