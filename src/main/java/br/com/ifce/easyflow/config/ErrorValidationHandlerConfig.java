@@ -1,6 +1,8 @@
 package br.com.ifce.easyflow.config;
 
+import br.com.ifce.easyflow.exception.PersonNotFoundException;
 import br.com.ifce.easyflow.service.exceptions.BadRequestException;
+import br.com.ifce.easyflow.service.exceptions.ConflictException;
 import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -59,6 +61,28 @@ public class ErrorValidationHandlerConfig {
                 .status(HttpStatus.BAD_REQUEST.value())
                 .timestamp(Instant.now())
                 .build(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ProblemDetails> handlerConflictException(ConflictException ex) {
+
+        return new ResponseEntity<>(ProblemDetails.builder()
+                .detail(ex.getMessage())
+                .title("Conflict Exception, check the Documentation")
+                .status(HttpStatus.CONFLICT.value())
+                .timestamp(Instant.now())
+                .build(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(PersonNotFoundException.class)
+    public ResponseEntity<ProblemDetails> handlerPersonNotFoundException(PersonNotFoundException ex) {
+
+        return new ResponseEntity<>(ProblemDetails.builder()
+                .detail(ex.getMessage())
+                .title("Not Found Exception, check the Documentation")
+                .status(HttpStatus.NOT_FOUND.value())
+                .timestamp(Instant.now())
+                .build(), HttpStatus.NOT_FOUND);
     }
 
 }

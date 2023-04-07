@@ -8,7 +8,6 @@ import br.com.ifce.easyflow.service.TableService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
@@ -39,7 +38,12 @@ public class TableController {
 
     @PostMapping
     public ResponseEntity<LabTable> save(@RequestBody @Valid TablePostRequestDTO requestDTO, UriComponentsBuilder uriBuilder) {
-        LabTable table = tableService.save(requestDTO);
+
+        LabTable newTable = LabTable.builder()
+                .number(requestDTO.number())
+                .build();
+
+        LabTable table = tableService.save(newTable);
         URI uri = uriBuilder.path("/tables/{id}").buildAndExpand(table.getId()).toUri();
         return ResponseEntity.created(uri).body(table);
     }
