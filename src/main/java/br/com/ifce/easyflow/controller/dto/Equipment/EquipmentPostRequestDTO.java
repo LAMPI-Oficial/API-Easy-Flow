@@ -1,4 +1,4 @@
-package br.com.ifce.easyflow.controller.dto.Equipment;
+package br.com.ifce.easyflow.controller.dto.equipment;
 
 import br.com.ifce.easyflow.model.Equipment;
 import com.fasterxml.jackson.annotation.JsonProperty;
