@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -83,6 +84,17 @@ public class ErrorValidationHandlerConfig {
                 .status(HttpStatus.NOT_FOUND.value())
                 .timestamp(Instant.now())
                 .build(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(DateTimeParseException.class)
+    public ResponseEntity<ProblemDetails> handlerDateTimeParseException(DateTimeParseException ex) {
+
+        return new ResponseEntity<>(ProblemDetails.builder()
+                .detail("The date format must conform to the ISO-8601 standard: yyyy-MM-dd or HH:mm:ss.")
+                .title("Bad Request Exception, check the Documentation")
+                .status(HttpStatus.BAD_REQUEST.value())
+                .timestamp(Instant.now())
+                .build(), HttpStatus.BAD_REQUEST);
     }
 
 }

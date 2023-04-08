@@ -4,6 +4,8 @@ import br.com.ifce.easyflow.controller.dto.event.EventRequestDTO;
 import br.com.ifce.easyflow.controller.dto.event.EventResponseDTO;
 import br.com.ifce.easyflow.model.Event;
 import br.com.ifce.easyflow.repository.EventRepository;
+import br.com.ifce.easyflow.service.exceptions.BadRequestException;
+import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 @Service
 @RequiredArgsConstructor
@@ -24,18 +27,32 @@ public class EventService {
     }
 
     public EventResponseDTO listById(Long id) {
-        Event event = eventRepository.findById(id).orElseThrow();
-        //TODO: Trocar a exeção acima por uma mais especifica. Exemplo: NOT FOUND
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found with given id"));
         return new EventResponseDTO(event);
     }
     public Page<EventResponseDTO> listByDate(String date, Pageable pageable){
-        LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        return eventRepository.findByDate(localDate,pageable).map(EventResponseDTO::new);
+
+        try {
+            LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            return eventRepository.findByDate(localDate, pageable).map(EventResponseDTO::new);
+
+        } catch (DateTimeParseException e) {
+
+            throw new BadRequestException("The date format does not conform to the format: yyyy-MM-dd. " +
+                    e.getMessage());
+        }
     }
     public Page<EventResponseDTO> listByDateTime(String date, String time, Pageable pageable){
-        LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        LocalTime localTime = LocalTime.parse(time, DateTimeFormatter.ofPattern("HH-mm-ss"));
-        return eventRepository.findByDateTime(localDate, localTime,pageable).map(EventResponseDTO::new);
+
+        try {
+            LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            LocalTime localTime = LocalTime.parse(time, DateTimeFormatter.ofPattern("HH-mm-ss"));
+            return eventRepository.findByDateTime(localDate, localTime, pageable).map(EventResponseDTO::new);
+        } catch (DateTimeParseException e) {
+            throw new BadRequestException("The date format does not conform to the format: yyyy-MM-dd. or HH-mm-ss " +
+                    e.getMessage());
+        }
     }
 
     @Transactional
@@ -51,7 +68,8 @@ public class EventService {
     }
     @Transactional
     public EventResponseDTO update(Long id, EventRequestDTO eventRequestsDTO){
-        Event event = eventRepository.findById(id).orElseThrow();
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found with given id"));
         Event eventUpdated = updateEventWhitEventUpdateDTO(event, eventRequestsDTO);
 
         return new EventResponseDTO(eventRepository.save(eventUpdated));
@@ -59,7 +77,8 @@ public class EventService {
 
     @Transactional
     public void delete(Long id){
-        eventRepository.findById(id).orElseThrow();
+        eventRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found with given id"));
         eventRepository.deleteById(id);
     }
 
