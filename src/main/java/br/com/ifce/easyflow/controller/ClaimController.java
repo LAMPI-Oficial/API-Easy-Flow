@@ -1,25 +1,5 @@
 package br.com.ifce.easyflow.controller;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.validation.Valid;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriComponentsBuilder;
-
 import br.com.ifce.easyflow.controller.dto.claim.ClaimRequestDTO;
 import br.com.ifce.easyflow.controller.dto.claim.ClaimResponseDTO;
 import br.com.ifce.easyflow.controller.dto.claim.ClaimUpdateDTO;
@@ -28,6 +8,16 @@ import br.com.ifce.easyflow.service.ClaimService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import javax.validation.Valid;
+import java.net.URI;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/claims")
@@ -67,19 +57,10 @@ public class ClaimController {
         @PutMapping("/{id}")
         public ResponseEntity<Object> update(@PathVariable Long id,
                         @RequestBody @Valid ClaimUpdateDTO claimUpdateDTO) {
-                Optional<Claim> claim = this.claimService.searchByID(id);
 
-                if (claim.isEmpty()) {
-                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                                        "Claim Not Found");
-                }
+               Claim claim = this.claimService.update(id, claimUpdateDTO.toClaim(id));
 
-                claim = this.claimService.update(claimUpdateDTO.toClaim(id));
-
-                return claim.isPresent()
-                                ? ResponseEntity.ok(new ClaimResponseDTO(claim.get()))
-                                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                                                "claim Not Found");
+                return ResponseEntity.ok(new ClaimResponseDTO(claim));
         }
 
         @ApiOperation(value = "Save a Claim", tags = { "Claim" })
@@ -128,12 +109,9 @@ public class ClaimController {
         })
         @GetMapping("/{id}")
         public ResponseEntity<Object> searchById(@PathVariable Long id) {
-                Optional<Claim> Claim = this.claimService.searchByID(id);
+                Claim claim = this.claimService.searchByID(id);
 
-                return Claim.isPresent()
-                                ? ResponseEntity.ok(new ClaimResponseDTO(Claim.get()))
-                                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                                                "Claim Not Found");
+                return ResponseEntity.ok(new ClaimResponseDTO(claim));
         }
 
 }

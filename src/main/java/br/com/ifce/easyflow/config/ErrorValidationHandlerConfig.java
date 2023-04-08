@@ -56,7 +56,7 @@ public class ErrorValidationHandlerConfig {
         return new ResponseEntity<>(ValidationExceptionDetails.builder()
                 .fields(fields)
                 .fieldsMessage(fieldsMessage)
-                .detail("**")
+                .detail("The fields are not correctly informed")
                 .title("Bad Request Exception, Invalid Field(s), check the Documentation")
                 .status(HttpStatus.BAD_REQUEST.value())
                 .timestamp(Instant.now())
