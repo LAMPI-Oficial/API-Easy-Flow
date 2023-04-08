@@ -1,14 +1,19 @@
 package br.com.ifce.easyflow.service;
 
-import br.com.ifce.easyflow.repository.UserRepository;
+import br.com.ifce.easyflow.controller.dto.user.UserRequestDTO;
+import br.com.ifce.easyflow.controller.dto.user.UserUpdateDTO;
 import br.com.ifce.easyflow.model.User;
+import br.com.ifce.easyflow.repository.UserRepository;
+import br.com.ifce.easyflow.service.exceptions.ConflictException;
+import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Optional;
-import java.security.SecureRandom;
 
 @Service
 public class UserService {
@@ -16,53 +21,69 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository){
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     @Transactional
-    public User save(User user){
-        return this.userRepository.save(user);
+    public User save(UserRequestDTO userRequest) {
+
+        boolean userExist = this.existsByLogin(userRequest.getLogin());
+
+        if (!userExist) {
+            throw new ConflictException("The email provided is already being used.");
+        }
+
+        User newUser = userRequest.toUser();
+
+        return this.userRepository.save(newUser);
+
     }
 
-    public List<User> search(){
+    public List<User> search() {
         return this.userRepository.findAll();
     }
 
-    public Optional<User> searchByID(Long id){
-        return this.userRepository.findById(id);
+    public User searchByID(Long id) {
+        return this.userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("The user was not found in the database, " +
+                        "please check the registered user."));
     }
 
-    public Optional<User> findByLogin(String login){
-        return this.userRepository.findByLogin(login);
-    }
-
-    @Transactional
-    public Optional<User> update(User newUser){
-        Optional<User> oldUser = this.searchByID(newUser.getId());
-
-        return oldUser.isPresent()
-                ? Optional.of(this.save(this.fillUpdateUser(oldUser.get(),newUser)))
-                : Optional.empty();
+    public User findByLogin(String login) {
+        return this.userRepository.findByLogin(login)
+                .orElseThrow(() -> new ResourceNotFoundException("No user with that email was found in the database, " +
+                        "check the registered users."));
     }
 
     @Transactional
-    public Boolean delete(Long id){
-        Optional<User> user = this.searchByID(id);
+    public User update(Long id, UserUpdateDTO requestDTO) {
+        User oldUser = this.searchByID(id);
 
-        if(user.isPresent()){
-            this.userRepository.delete(user.get());
-            return true;
+        if (!oldUser.getLogin().equals(requestDTO.getLogin())
+                && this.existsByLogin(requestDTO.getLogin())) {
+
+            throw new ConflictException("The email provided is already being used.");
         }
-
-        return false;
+        User newUser = requestDTO.toUser(id);
+        newUser.setLogin(requestDTO.getLogin());
+        return userRepository.save(this.fillUpdateUser(oldUser, newUser));
     }
 
-    public Optional<User> searchByLogin(String login){
-        return this.userRepository.findByLogin(login);
+    @Transactional
+    public Boolean delete(Long id) {
+        User user = this.searchByID(id);
+
+        this.userRepository.delete(user);
+        return true;
+
     }
 
-    private User fillUpdateUser(User oldUser,User newUser){
+    public User searchByLogin(String login) {
+        return this.findByLogin(login);
+    }
+
+    private User fillUpdateUser(User oldUser, User newUser) {
         newUser.setPassword(oldUser.getPassword());
         return newUser;
     }
@@ -79,8 +100,9 @@ public class UserService {
 
         return exist.isPresent();
     }
+
     public String generatePassword() {
-    String CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
+        String CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
         SecureRandom random = new SecureRandom();
         StringBuilder sb = new StringBuilder(8);
         for (int i = 0; i < 8; i++) {
@@ -88,5 +110,14 @@ public class UserService {
             sb.append(CHARSET.charAt(index));
         }
         return sb.toString();
+    }
+
+    public User newPassword(Long id) {
+
+        User user = searchByID(id);
+        String newPassword = this.generatePassword();
+        user.setPassword(new BCryptPasswordEncoder().encode(newPassword));
+
+        return userRepository.save(user);
     }
 }

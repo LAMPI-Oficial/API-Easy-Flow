@@ -13,16 +13,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-
 
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -30,11 +26,11 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final UserService userService;
-    
+
     private final JavaMailSender emailSender;
 
     @Autowired
-    private UserController(UserService userService, JavaMailSender emailSender){
+    private UserController(UserService userService, JavaMailSender emailSender) {
         this.userService = userService;
         this.emailSender = emailSender;
     }
@@ -46,7 +42,7 @@ public class UserController {
             @ApiResponse(code = 500, message = "Internal exception"),
     })
     @GetMapping
-    public List<UserResponseDTO> search(){
+    public List<UserResponseDTO> search() {
         return this.userService
                 .search()
                 .stream()
@@ -62,13 +58,10 @@ public class UserController {
             @ApiResponse(code = 500, message = "Internal exception"),
     })
     @GetMapping("/{id}")
-    public ResponseEntity<Object> searchById(@PathVariable Long id) {
-        Optional<User> user = this.userService.searchByID(id);
+    public ResponseEntity<UserResponseDTO> searchById(@PathVariable Long id) {
+        User user = this.userService.searchByID(id);
 
-        return user.isPresent()
-                ? ResponseEntity.ok(new UserResponseDTO(user.get()))
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                "User Not Found");
+        return ResponseEntity.ok(new UserResponseDTO(user));
     }
 
     @ApiOperation(value = "Returns a user by login", tags = {"User"})
@@ -79,13 +72,10 @@ public class UserController {
             @ApiResponse(code = 500, message = "Internal exception"),
     })
     @RequestMapping(value = "/search_by_login", method = RequestMethod.GET)
-    public ResponseEntity<Object> searchByLogin(@RequestParam String login) {
-        Optional<User> user = this.userService.searchByLogin(login);
+    public ResponseEntity<UserResponseDTO> searchByLogin(@RequestParam String login) {
+        User user = this.userService.searchByLogin(login);
 
-        return user.isPresent()
-                ? ResponseEntity.ok(new UserResponseDTO(user.get()))
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                "User Not Found");
+        return ResponseEntity.ok(new UserResponseDTO(user));
     }
 
     @ApiOperation(value = "Save a user", tags = {"User"})
@@ -96,16 +86,12 @@ public class UserController {
             @ApiResponse(code = 500, message = "Internal exception"),
     })
     @PostMapping
-    public ResponseEntity<Object> save(@RequestBody @Valid UserRequestDTO userRequest, UriComponentsBuilder uriBuilder){
-        if(userService.existsByLogin(userRequest.getLogin())){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("UserName is already in use.");
-        }
+    public ResponseEntity<UserResponseDTO> save(@RequestBody @Valid UserRequestDTO userRequest, UriComponentsBuilder uriBuilder) {
 
-        User user = userRequest.toUser();
-        this.userService.save(user);
+        User userSaved = this.userService.save(userRequest);
 
-        URI uri = uriBuilder.path("/users/{id}").buildAndExpand(user.getId()).toUri();
-        return ResponseEntity.created(uri).body(new UserResponseDTO(user));
+        URI uri = uriBuilder.path("/users/{id}").buildAndExpand(userSaved.getId()).toUri();
+        return ResponseEntity.created(uri).body(new UserResponseDTO(userSaved));
     }
 
     @ApiOperation(value = "Update a user by id", tags = {"User"})
@@ -118,23 +104,10 @@ public class UserController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<Object> update(@PathVariable Long id, @RequestBody @Valid UserUpdateDTO userUpdateDTO) {
-        Optional<User> user = this.userService.searchByID(id);
 
-        if(user.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    "User Not Found");
-        }
+        User user = this.userService.update(id, userUpdateDTO);
 
-        if(!Objects.equals(user.get().getLogin(), userUpdateDTO.getLogin()) && userService.existsByLogin(userUpdateDTO.getLogin())){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("UserName is already in use.");
-        }
-
-        user = this.userService.update(userUpdateDTO.toUser(id));
-
-        return user.isPresent()
-                ? ResponseEntity.ok(new UserResponseDTO(user.get()))
-                :ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                "User Not Found");
+        return ResponseEntity.ok(new UserResponseDTO(user));
     }
 
     @ApiOperation(value = "Delete a user by id", tags = {"User"})
@@ -150,7 +123,7 @@ public class UserController {
 
         return removed
                 ? ResponseEntity.status(HttpStatus.OK).body(
-                        "User was deleted")
+                "User was deleted")
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 "User Not Found");
     }
@@ -164,21 +137,18 @@ public class UserController {
     })
     @GetMapping("/recoveryPassword/{id}")
     public Boolean sendEmail(@PathVariable Long id) {
-                Optional<User> user = this.userService.searchByID(id);
-                SimpleMailMessage mailMessage = new SimpleMailMessage();
-                String newPassword = userService.generatePassword();
-                user.get().setPassword(new BCryptPasswordEncoder().encode(newPassword));
-                userService.update(user.get());
 
-                mailMessage.setTo(user.get().getPerson().getEmail());
-                mailMessage.setSubject("Email de recuperação de Senha");
-                mailMessage.setText("Sua nova senha: "+newPassword+"\n\nFaça login e altera sua senha atual\n\n");
-                mailMessage.setFrom("marcos.junior@darmlabs.ifce.edu.br");
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
 
-                emailSender.send(mailMessage);
+       User user = userService.newPassword(id);
 
+        mailMessage.setTo(user.getPerson().getEmail());
+        mailMessage.setSubject("Email de recuperação de Senha");
+        mailMessage.setText("Sua nova senha: " + user.getPassword() + "\n\nFaça login e altera sua senha atual\n\n");
+        mailMessage.setFrom("marcos.junior@darmlabs.ifce.edu.br");
 
+        emailSender.send(mailMessage);
 
-                return true;
+        return true;
     }
 }
