@@ -18,11 +18,6 @@ public class AuthenticatorService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
-        Optional<User> user = userService.findByLogin(login);
-
-        if(user.isPresent())
-            return user.get();
-
-        throw new UsernameNotFoundException("User Not Found");
+        return userService.findByLogin(login);
     }
 }

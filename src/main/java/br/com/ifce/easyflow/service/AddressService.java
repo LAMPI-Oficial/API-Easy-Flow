@@ -1,14 +1,11 @@
 package br.com.ifce.easyflow.service;
 
 
-import br.com.ifce.easyflow.repository.AddressRepository;
-import br.com.ifce.easyflow.repository.PermissionRepository;
 import br.com.ifce.easyflow.controller.dto.address.AddressRequestDTO;
+import br.com.ifce.easyflow.controller.dto.address.AddressUpdateDTO;
 import br.com.ifce.easyflow.model.Address;
-import br.com.ifce.easyflow.model.Permission;
-import br.com.ifce.easyflow.model.enums.StateEnum;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import br.com.ifce.easyflow.repository.AddressRepository;
+import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -16,53 +13,59 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class AddressService { 
+public class AddressService {
 
     private final AddressRepository addressRepository;
     private final PersonService personService;
 
-    public AddressService(AddressRepository addressRepository, PersonService personService){
+    public AddressService(AddressRepository addressRepository, PersonService personService) {
         this.addressRepository = addressRepository;
         this.personService = personService;
     }
 
     @Transactional
-    public Address save(Address address){
+    public Address save(Address address) {
         return this.addressRepository.save(address);
     }
 
 
-    public List<Address> search(){
+    public List<Address> search() {
         return this.addressRepository.findAll();
     }
 
-    public Optional<Address> searchByID(Long id){
-        return this.addressRepository.findById(id);
+    public Address searchByID(Long id) {
+        return this.addressRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No address was found with given id."));
     }
 
 
     @Transactional
-    public Optional<Address> update(Address newAddress){
-        Optional<Address> oldAddress = this.searchByID(newAddress.getId());
+    public Address update(Long id, AddressUpdateDTO requestDTO) {
+        Address address = this.searchByID(id);
 
-        return oldAddress.isPresent()
-                ? Optional.of(this.save(this.fillUpdateAddress(oldAddress.get(),newAddress)))
-                : Optional.empty();
+        address.setComplement(requestDTO.getComplement());
+        address.setMunicipality(requestDTO.getMunicipality());
+        address.setNeighborhood(requestDTO.getNeighborhood());
+        address.setNumber(requestDTO.getNumber());
+        address.setStateEnum(requestDTO.getStateEnum());
+        address.setStreet(requestDTO.getStreet());
+
+        return this.save(address);
     }
 
     @Transactional
-    public Boolean delete(Long id){
-        Optional<Address> Address = this.searchByID(id);
+    public Boolean delete(Long id) {
+        Address address = this.searchByID(id);
 
-        if(Address.isPresent()){
-            this.addressRepository.delete(Address.get());
+        if (address != null) {
+            this.addressRepository.delete(address);
             return true;
         }
 
         return false;
     }
 
-    private Address fillUpdateAddress(Address oldAddress,Address newAddress){
+    private Address fillUpdateAddress(Address oldAddress, Address newAddress) {
         newAddress.setMunicipality(oldAddress.getMunicipality());
         newAddress.setNeighborhood(oldAddress.getNeighborhood());
         newAddress.setComplement(oldAddress.getComplement());
@@ -87,7 +90,7 @@ public class AddressService {
         address.setNumber(addressRequestDTO.getNumber());
         address.setStreet(addressRequestDTO.getStreet());
         address.setStateEnum(addressRequestDTO.getStateEnum());
-        address.setPerson(personService.findById(addressRequestDTO.getPerson_id()).get());
+        address.setPerson(personService.findById(addressRequestDTO.getPerson_id()));
         return address;
     }
 }

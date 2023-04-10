@@ -3,6 +3,7 @@ package br.com.ifce.easyflow.service;
 import br.com.ifce.easyflow.controller.dto.solicitation.ApprovedSolicitationDTO;
 import br.com.ifce.easyflow.controller.dto.solicitation.SolicitationPostRequestDTO;
 import br.com.ifce.easyflow.controller.dto.solicitation.SolicitationPutRequestDTO;
+import br.com.ifce.easyflow.exception.PersonNotFoundException;
 import br.com.ifce.easyflow.model.Equipment;
 import br.com.ifce.easyflow.model.Person;
 import br.com.ifce.easyflow.model.Solicitation;
@@ -12,6 +13,7 @@ import br.com.ifce.easyflow.repository.EquipmentRepository;
 import br.com.ifce.easyflow.repository.PersonRepository;
 import br.com.ifce.easyflow.repository.SolicitationRepository;
 //import br.com.ifce.easyflow.service.exceptions.BadRequestException;
+import br.com.ifce.easyflow.service.exceptions.BadRequestException;
 import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,6 +23,8 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -36,15 +40,13 @@ public class SolicitationService {
 
     public Solicitation findById(Long id) {
         return solicitationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Solicitação não encontrada com id: " + id));
-        // TODO: Throws a exception NotFound;
+                .orElseThrow(() -> new ResourceNotFoundException("No request was found with the given id."));
     }
 
     public Page<Solicitation> findByPersonId(Long personId, Pageable pageable) {
         boolean personExists = personRepository.existsById(personId);
         if (!personExists) {
-            throw new ResourceNotFoundException("Person not fond with id: " + personId);
-            // TODO: Throw a more specific exception, e.g. NotFoundException
+            throw new PersonNotFoundException();
         }
         return solicitationRepository.findAllByPersonId(personId, pageable);
     }
@@ -52,28 +54,37 @@ public class SolicitationService {
     public Page<Solicitation> findByEquipmentId(Long equipmentId, Pageable pageable) {
         boolean equipmentExists = equipmentRepository.existsById(equipmentId);
         if (!equipmentExists) {
-            throw new RuntimeException("Equipment not fond with id: " + equipmentId);
-            // TODO: Throw a more specific exception, e.g. NotFoundException
+            throw new ResourceNotFoundException("The equipment was not found in the database," +
+                    " please check the registered equipment.");
         }
         return solicitationRepository.findAllByEquipmentId(equipmentId, pageable);
     }
 
     public Page<Solicitation> findAllByStartDate(String startDate, Pageable pageable) {
-        LocalDate date = LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE);
-        return solicitationRepository.findAllByStartDate(date, pageable);
+        try {
+
+            LocalDate date = LocalDate.parse(startDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            return solicitationRepository.findAllByStartDate(date, pageable);
+
+        } catch (DateTimeParseException e) {
+            throw new BadRequestException("The date format does not conform to the format: yyyy-MM-dd. " + e.getMessage());
+        }
     }
 
     public Page<Solicitation> findAllByEndDate(String endDate, Pageable pageable) {
-        LocalDate date = LocalDate.parse(endDate, DateTimeFormatter.ISO_DATE);
-        return solicitationRepository.findAllByEndDate(date, pageable);
+        try {
+            LocalDate date = LocalDate.parse(endDate, DateTimeFormatter.ISO_DATE);
+            return solicitationRepository.findAllByEndDate(date, pageable);
+        } catch (DateTimeParseException e) {
+            throw new BadRequestException("The date format does not conform to the format: yyyy-MM-dd. " + e.getMessage());
+        }
     }
 
     @Transactional
     public Solicitation save(SolicitationPostRequestDTO requestDTO) {
 
         Person person = personRepository.findById(requestDTO.getPersonId())
-                .orElseThrow(); // TODO: Throw a more specific exception, e.g. NotFoundException
-
+                .orElseThrow(PersonNotFoundException::new);
 
         Solicitation newSolicitation = Solicitation.builder()
                 .justification(requestDTO.getJustification())
@@ -100,18 +111,18 @@ public class SolicitationService {
 
         Solicitation solicitationSaved = this.findById(id);
 
-        Equipment equipment = equipmentRepository.findById(requestDTO.getEquipmentId())
-                .orElseThrow(); // TODO: Throw a more specific exception, e.g. NotFoundException
+        Equipment equipment = equipmentRepository
+                .findById(requestDTO.getEquipmentId())
+                .orElseThrow(() -> new ResourceNotFoundException("The equipment was not found in the database," +
+                        " please check the registered equipment."));
 
 
         if (!solicitationSaved.getStatus().equals(SolicitationStatus.PENDING)) {
-//            throw new BadRequestException("The request must be pending to be approved.");
-            // TODO: Throw a more specific exception, e.g. BadRequest
+            throw new BadRequestException("The request must be pending to be approved.");
         }
 
         if (!equipment.getEquipmentStatus().equals(EquipmentAvailabilityStatus.AVAILABLE)) {
-//            throw new BadRequestException("Equipment must be available to be attached to a request.");
-            // TODO: Throw a more specific exception, e.g. BadRequest
+            throw new BadRequestException("Equipment must be available to be attached to a request.");
         }
 
         solicitationSaved.setStatus(SolicitationStatus.APPROVED);
@@ -133,7 +144,7 @@ public class SolicitationService {
             solicitation.setStatus(SolicitationStatus.DENIED);
             solicitationRepository.save(solicitation);
         }
-        throw new RuntimeException("Request must be pending to disapprove it");  // TODO: Throw a more specific exception, e.g. BadRequest
+        throw new BadRequestException("Request must be pending to disapprove it");
     }
 
     @Transactional
@@ -142,17 +153,17 @@ public class SolicitationService {
         Solicitation solicitation = this.findById(id);
         Long equipmentId = solicitation.getEquipment().getId();
 
-        if (equipmentId != null) {
-            Equipment equipment = equipmentRepository.findById(equipmentId)
-                    .orElseThrow();
-            // TODO: Throw a more specific exception, e.g. NotFoundException
+        Optional<Equipment> equipment = equipmentRepository.findById(equipmentId);
 
-            equipment.setEquipmentStatus(EquipmentAvailabilityStatus.AVAILABLE);
+        if (equipment.isPresent()) {
 
-            equipmentRepository.save(equipment);
+            equipment.get().setEquipmentStatus(EquipmentAvailabilityStatus.AVAILABLE);
+            equipmentRepository.save(equipment.get());
+            solicitationRepository.deleteById(id);
 
+        } else {
+            solicitationRepository.deleteById(id);
         }
-        solicitationRepository.deleteById(id);
     }
 
     private Solicitation updateSolicitationEntity(Solicitation solicitationSaved,

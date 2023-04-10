@@ -7,6 +7,7 @@ import br.com.ifce.easyflow.model.Equipment;
 import br.com.ifce.easyflow.model.enums.EquipmentAvailabilityStatus;
 import br.com.ifce.easyflow.repository.EquipmentRepository;
 import br.com.ifce.easyflow.service.exceptions.DatabaseException;
+import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,8 +26,9 @@ public class EquipmentService {
     }
 
     public Equipment findById(Long id) {
-        return equipmentRepository.findById(id).orElseThrow();
-        // TODO: Lançar uma exception - NotFound
+        return equipmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No equipment was found with the provided id, " +
+                        "check the registered equipment."));
     }
 
     @Transactional
@@ -59,12 +61,12 @@ public class EquipmentService {
     }
 
     public void delete(Long id) {
-        equipmentRepository.findById(id).orElseThrow();
-        // TODO: Lançar uma exception - NotFound
+        this.findById(id);
+
         try {
             equipmentRepository.deleteById(id);
         } catch (DatabaseException e) {
-            // TODO: Lançar uma exception - BadRequest
+            e.printStackTrace();
         }
     }
 

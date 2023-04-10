@@ -2,6 +2,7 @@ package br.com.ifce.easyflow.service;
 
 import br.com.ifce.easyflow.repository.PermissionRepository;
 import br.com.ifce.easyflow.model.Permission;
+import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,28 +29,26 @@ public class PermissionService {
         return this.permissionRepository.findAll();
     }
 
-    public Optional<Permission> searchByID(Long id){
-        return this.permissionRepository.findById(id);
+    public Permission searchByID(Long id){
+        return this.permissionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Permission not found with given id"));
     }
 
     @Transactional
-    public Optional<Permission> update(Permission newPermission){
-        Optional<Permission> oldPermission = this.searchByID(newPermission.getId());
+    public Permission update(Long id, Permission newPermission){
+        Permission oldPermission = this.searchByID(id);
 
-        return oldPermission.isPresent()
-                ? Optional.of(this.save(newPermission))
-                : Optional.empty();
+        return this.save(newPermission);
     }
 
     @Transactional
     public Boolean delete(Long id){
-        Optional<Permission> permission = this.searchByID(id);
+        Permission permission = this.searchByID(id);
 
-        if(permission.isPresent()){
-            this.permissionRepository.delete(permission.get());
+        if(permission != null){
+            this.permissionRepository.delete(permission);
             return true;
         }
-
         return false;
     }
 
