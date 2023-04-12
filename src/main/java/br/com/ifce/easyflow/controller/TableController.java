@@ -58,7 +58,7 @@ public class TableController {
     @ApiOperation(value = "Save a table",
             tags = {"Tables"})
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful request"),
+            @ApiResponse(code = 201, message = "Successful request"),
             @ApiResponse(code = 409, message = "A table has already been registered with that number."),
     })
     @PostMapping
@@ -83,7 +83,7 @@ public class TableController {
     @ApiOperation(value = "Delete table by id",
             tags = {"Tables"})
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Successful request"),
+            @ApiResponse(code = 204, message = "Successful request"),
             @ApiResponse(code = 409, message = "The table cannot be excluded because it is linked to times already reserved."),
             @ApiResponse(code = 404, message = "Table not found in database"),
     })

@@ -97,7 +97,7 @@ public class SolicitationController {
             notes = "Standard set by ISO - 8601: yyyy-MM-dd",
             tags = {"Solicitation"})
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful request"),
+            @ApiResponse(code = 201, message = "Successful request"),
             @ApiResponse(code = 404, message = "Person not found in database"),
     })
     @PostMapping
@@ -137,7 +137,7 @@ public class SolicitationController {
             notes = "The request must have the status equal to pending",
             tags = {"Solicitation"})
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful request"),
+            @ApiResponse(code = 204, message = "Successful request"),
             @ApiResponse(code = 404, message = "Solicitation not found in database"),
     })
     @PatchMapping("/deny/{id}")
@@ -149,7 +149,7 @@ public class SolicitationController {
     @ApiOperation(value = "Delete a solicitation by id",
             tags = {"Solicitation"})
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful request"),
+            @ApiResponse(code = 204, message = "Successful request"),
             @ApiResponse(code = 404, message = "Solicitation or equipment not found in database"),
     })
     @DeleteMapping("/{id}")

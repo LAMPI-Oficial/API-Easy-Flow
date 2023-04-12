@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.net.URI;
 
 @RestController
 @RequestMapping("/equipments")
@@ -46,11 +47,12 @@ public class EquipmentController {
 
     @ApiOperation(value = "Save a equipment",tags = {"Equipment"})
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful request"),
+            @ApiResponse(code = 201, message = "Successful request"),
     })
     @PostMapping
     public ResponseEntity<Equipment> save(@RequestBody @Valid EquipmentPostRequestDTO requestDTO) {
-        return ResponseEntity.ok(equipmentService.save(requestDTO));
+        URI uri = URI.create("/equipments");
+        return ResponseEntity.created(uri).body(equipmentService.save(requestDTO));
     }
 
     @ApiOperation(value = "Update a equipment",tags = {"Equipment"})
@@ -80,7 +82,7 @@ public class EquipmentController {
     @ApiOperation(value = "Delete a equipment by id",
             tags = {"Equipment"})
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful request"),
+            @ApiResponse(code = 204, message = "Successful request"),
             @ApiResponse(code = 404, message = "Equipment not found in database"),
     })
     @DeleteMapping("/{id}")

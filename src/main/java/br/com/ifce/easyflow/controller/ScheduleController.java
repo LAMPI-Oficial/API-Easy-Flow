@@ -109,7 +109,7 @@ public class ScheduleController {
     @ApiOperation(value = "Save a schedule times",
             tags = {"Schedule"})
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful request"),
+            @ApiResponse(code = 201, message = "Successful request"),
             @ApiResponse(code = 404, message = "Person not found in database"),
     })
     @PostMapping("/create")
@@ -136,7 +136,7 @@ public class ScheduleController {
     @ApiOperation(value = "Deny a schedule times by id",
             tags = {"Schedule"})
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful request"),
+            @ApiResponse(code = 204, message = "Successful request"),
             @ApiResponse(code = 404, message = "Schedule not found in database"),
             @ApiResponse(code = 400, message = "The schedule request has a status other than pending."),
     })
@@ -163,7 +163,7 @@ public class ScheduleController {
     @ApiOperation(value = "Update a schedule time",
             tags = {"Schedule"})
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Successful request"),
+            @ApiResponse(code = 204, message = "Successful request"),
             @ApiResponse(code = 404, message = "Schedule not found in database"),
             @ApiResponse(code = 400, message = "The schedule request has a status other than pending."),
     })
