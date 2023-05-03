@@ -65,10 +65,10 @@ public class ScheduleController {
         return ResponseEntity.ok(schedules);
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<Schedule> save(@RequestBody @Valid SchedulePostRequestDTO requestDTO) {
+    @PostMapping("/create/{personId}")
+    public ResponseEntity<List<Schedule>> save(@PathVariable Long personId, @RequestBody @Valid List<SchedulePostRequestDTO> requestDTO) {
         URI uri = URI.create("/create");
-        return ResponseEntity.created(uri).body(scheduleService.save(requestDTO));
+        return ResponseEntity.created(uri).body(scheduleService.save(personId, requestDTO));
     }
 
     @PatchMapping("/approve/{id}")

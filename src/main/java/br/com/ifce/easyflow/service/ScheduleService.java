@@ -64,7 +64,7 @@ public class ScheduleService {
     public List<Schedule> findAllByStatus(String status) {
 
         boolean statusMatches = Arrays.stream(ScheduleRequestStatus
-                .values())
+                        .values())
                 .anyMatch(s -> s.name().equals(status.toUpperCase()));
 
         if (!statusMatches) {
@@ -89,18 +89,12 @@ public class ScheduleService {
     }
 
     @Transactional
-    public Schedule save(SchedulePostRequestDTO requestDTO) {
-        Person person = personRepository.findById(requestDTO.getPersonId())
-                .orElseThrow(PersonNotFoundException::new);
+    public List<Schedule> save(Long personId, List<SchedulePostRequestDTO> requestDTO) {
 
-        Schedule scheduleToSave = Schedule.builder()
-                .day(requestDTO.getDay())
-                .shiftSchedule(requestDTO.getShiftSchedule())
-                .status(ScheduleRequestStatus.PENDING)
-                .person(person)
-                .build();
+        return requestDTO.stream()
+                .map(re -> convertScheduleRequest(personId, re))
+                .peek(scheduleRepository::save).toList();
 
-        return scheduleRepository.save(scheduleToSave);
     }
 
     @Transactional
@@ -186,5 +180,38 @@ public class ScheduleService {
         scheduleSaved.setShiftSchedule(requestDTO.getShiftSchedule());
         scheduleSaved.setDay(requestDTO.getDay());
         return scheduleSaved;
+    }
+
+    private Schedule convertScheduleRequest(Long personId, SchedulePostRequestDTO request) {
+        Person person = personRepository.findById(personId)
+                .orElseThrow(PersonNotFoundException::new);
+
+        LabTable table = labTableRepository.findById(request.getTableId())
+                .orElseThrow(() -> new ResourceNotFoundException("No table was found with the provided id, " +
+                        "check the registered tables."));
+
+        boolean existsReserve = reservedTableRepository.existsByTableIdAndShiftScheduleAndDay(table.getId(),
+                request.getShiftSchedule(),
+                request.getDay());
+
+        if (existsReserve) {
+            throw new BadRequestException("This table is already booked for this time.");
+        }
+
+        ReservedTables reservedTable = ReservedTables.builder()
+                .table(table)
+                .shiftSchedule(request.getShiftSchedule())
+                .day(request.getDay())
+                .build();
+
+        reservedTableRepository.save(reservedTable);
+
+        return Schedule.builder()
+                .day(request.getDay())
+                .shiftSchedule(request.getShiftSchedule())
+                .status(ScheduleRequestStatus.PENDING)
+                .table(table)
+                .person(person)
+                .build();
     }
 }

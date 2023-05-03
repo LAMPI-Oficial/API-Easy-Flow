@@ -22,6 +22,6 @@ public class SchedulePostRequestDTO {
     private String day;
 
     @NotNull
-    @JsonProperty(value = "person-id")
-    private Long personId;
+    @JsonProperty(value = "table-id")
+    private Long tableId;
 }
