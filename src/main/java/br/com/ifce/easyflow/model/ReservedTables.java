@@ -26,4 +26,8 @@ public class ReservedTables {
     @ManyToOne
     @JoinColumn(name = "table_id")
     private LabTable table;
+
+    @OneToOne(targetEntity = Schedule.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "schedule_id")
+    private Schedule schedule;
 }

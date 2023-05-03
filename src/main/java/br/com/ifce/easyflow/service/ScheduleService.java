@@ -104,7 +104,36 @@ public class ScheduleService {
         if (!scheduleSaved.getStatus().equals(ScheduleRequestStatus.PENDING)) {
             throw new BadRequestException("The time request can only be edited if it is pending.");
         }
+
+        boolean existsReserveBySchedule = reservedTableRepository.existsByScheduleId(scheduleSaved.getId());
+
+        if (existsReserveBySchedule) {
+            reservedTableRepository.deleteByScheduleId(scheduleSaved.getId());
+        }
+
+        LabTable table = labTableRepository.findById(requestDTO.getTableId())
+                .orElseThrow(() -> new ResourceNotFoundException("No table was found with the provided id, " +
+                        "check the registered tables."));
+
+        boolean existsOtherReserve = reservedTableRepository.existsByTableIdAndShiftScheduleAndDay(
+                table.getId(),
+                requestDTO.getShiftSchedule(),
+                requestDTO.getDay());
+
+        if (existsOtherReserve) {
+            throw new BadRequestException("This table is already booked for this time.");
+        }
+
+
         Schedule scheduleToSave = updateScheduleEntity(scheduleSaved, requestDTO);
+
+        ReservedTables reservedTable = ReservedTables.builder()
+                .table(scheduleToSave.getTable())
+                .shiftSchedule(scheduleToSave.getShiftSchedule())
+                .day(scheduleToSave.getDay())
+                .build();
+
+        reservedTableRepository.save(reservedTable);
 
         return scheduleRepository.save(scheduleToSave);
 
@@ -169,8 +198,14 @@ public class ScheduleService {
     }
 
     private Schedule updateScheduleEntity(Schedule scheduleSaved, SchedulePutRequestDTO requestDTO) {
+
+        LabTable table = labTableRepository.findById(requestDTO.getTableId())
+                .orElseThrow(() -> new ResourceNotFoundException("No table was found with the provided id, " +
+                        "check the registered tables."));
+
         scheduleSaved.setShiftSchedule(requestDTO.getShiftSchedule());
         scheduleSaved.setDay(requestDTO.getDay());
+        scheduleSaved.setTable(table);
         return scheduleSaved;
     }
 
@@ -190,20 +225,22 @@ public class ScheduleService {
             throw new BadRequestException("This table is already booked for this time.");
         }
 
-        ReservedTables reservedTable = ReservedTables.builder()
-                .table(table)
-                .shiftSchedule(request.getShiftSchedule())
-                .day(request.getDay())
-                .build();
-
-        reservedTableRepository.save(reservedTable);
-
-        return Schedule.builder()
+        Schedule schedule = Schedule.builder()
                 .day(request.getDay())
                 .shiftSchedule(request.getShiftSchedule())
                 .status(ScheduleRequestStatus.PENDING)
                 .table(table)
                 .person(person)
                 .build();
+
+        ReservedTables reservedTable = ReservedTables.builder()
+                .table(table)
+                .shiftSchedule(request.getShiftSchedule())
+                .day(request.getDay())
+                .schedule(schedule)
+                .build();
+
+        reservedTableRepository.save(reservedTable);
+        return schedule;
     }
 }
