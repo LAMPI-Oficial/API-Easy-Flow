@@ -1,8 +1,8 @@
 package br.com.ifce.easyflow.service;
 
-import br.com.ifce.easyflow.controller.dto.Equipment.EquipmentPostRequestDTO;
-import br.com.ifce.easyflow.controller.dto.Equipment.EquipmentPutRequestDTO;
-import br.com.ifce.easyflow.controller.dto.Equipment.EquipmentStatusPatchRequestDTO;
+import br.com.ifce.easyflow.controller.dto.equipment.EquipmentPostRequestDTO;
+import br.com.ifce.easyflow.controller.dto.equipment.EquipmentPutRequestDTO;
+import br.com.ifce.easyflow.controller.dto.equipment.EquipmentStatusPatchRequestDTO;
 import br.com.ifce.easyflow.model.Equipment;
 import br.com.ifce.easyflow.model.enums.EquipmentAvailabilityStatus;
 import br.com.ifce.easyflow.repository.EquipmentRepository;
