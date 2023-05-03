@@ -1,6 +1,5 @@
 package br.com.ifce.easyflow.service;
 
-import br.com.ifce.easyflow.controller.dto.schedule.ScheduleApprovedRequestDTO;
 import br.com.ifce.easyflow.controller.dto.schedule.SchedulePostRequestDTO;
 import br.com.ifce.easyflow.controller.dto.schedule.SchedulePutRequestDTO;
 import br.com.ifce.easyflow.controller.dto.schedule.ScheduleResponseDTO;
@@ -112,7 +111,7 @@ public class ScheduleService {
     }
 
     @Transactional
-    public Schedule approved(Long idSchedule, ScheduleApprovedRequestDTO requestDTO) {
+    public Schedule approved(Long idSchedule) {
 
         Schedule scheduleSaved = scheduleRepository.findById(idSchedule)
                 .orElseThrow();
@@ -121,27 +120,14 @@ public class ScheduleService {
             throw new BadRequestException("The schedule request has a status other than pending.");
         }
 
-        LabTable table = labTableRepository.findById(requestDTO.getTableId())
-                .orElseThrow(() -> new ResourceNotFoundException("No table was found with the provided id, " +
-                        "check the registered tables."));
-
-        boolean existsReserve = reservedTableRepository.existsByTableIdAndShiftScheduleAndDay(table.getId(),
+        boolean existsReserve = reservedTableRepository.existsByTableIdAndShiftScheduleAndDay(scheduleSaved.getTable().getId(),
                 scheduleSaved.getShiftSchedule(),
                 scheduleSaved.getDay());
 
-        if (existsReserve) {
-            throw new BadRequestException("This table is already booked for this time.");
+        if (!existsReserve) {
+            throw new BadRequestException("This table is not reserved for this time. Please look at the requests.");
         }
 
-        ReservedTables reservedTable = ReservedTables.builder()
-                .table(table)
-                .shiftSchedule(scheduleSaved.getShiftSchedule())
-                .day(scheduleSaved.getDay())
-                .build();
-
-        reservedTableRepository.save(reservedTable);
-
-        scheduleSaved.setTable(table);
         scheduleSaved.setStatus(ScheduleRequestStatus.APPROVED);
 
         return scheduleRepository.save(scheduleSaved);
@@ -156,7 +142,13 @@ public class ScheduleService {
             throw new BadRequestException("The schedule request has a status other than pending.");
         }
 
+        reservedTableRepository.deleteByShiftScheduleAndDayAndTableId(
+                scheduleSaved.getShiftSchedule(),
+                scheduleSaved.getDay(),
+                scheduleSaved.getTable().getId());
+
         scheduleSaved.setStatus(ScheduleRequestStatus.DENIED);
+        scheduleSaved.setTable(null);
         scheduleRepository.save(scheduleSaved);
     }
 

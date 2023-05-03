@@ -24,9 +24,9 @@ public class ScheduleController {
     private final ScheduleService scheduleService;
 
     @GetMapping
-    public ResponseEntity<Page<Schedule>> listAll(Pageable pageable) {
+    public ResponseEntity<List<Schedule>> listAll(Pageable pageable) {
         Page<Schedule> schedules = scheduleService.listAll(pageable);
-        return ResponseEntity.ok(schedules);
+        return ResponseEntity.ok(schedules.getContent());
     }
 
     @GetMapping("/{id}")
@@ -72,14 +72,13 @@ public class ScheduleController {
     }
 
     @PatchMapping("/approve/{id}")
-    public ResponseEntity<Schedule> approveSchedule(@PathVariable Long id,
-                                                    @RequestBody @Valid ScheduleApprovedRequestDTO requestDTO) {
+    public ResponseEntity<Schedule> approveSchedule(@PathVariable Long id) {
 
-        return ResponseEntity.ok(scheduleService.approved(id, requestDTO));
+        return ResponseEntity.ok(scheduleService.approved(id));
     }
 
     @PatchMapping("/deny/{id}")
-    public ResponseEntity<Schedule> approveSchedule(@PathVariable Long id) {
+    public ResponseEntity<Schedule> denySchedule(@PathVariable Long id) {
         scheduleService.deny(id);
         return ResponseEntity.noContent().build();
     }
