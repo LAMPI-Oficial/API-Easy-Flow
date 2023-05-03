@@ -31,9 +31,9 @@ public class ScheduleController {
             @ApiResponse(code = 200, message = "Successful request"),
     })
     @GetMapping
-    public ResponseEntity<Page<Schedule>> listAll(Pageable pageable) {
+    public ResponseEntity<List<Schedule>> listAll(Pageable pageable) {
         Page<Schedule> schedules = scheduleService.listAll(pageable);
-        return ResponseEntity.ok(schedules);
+        return ResponseEntity.ok(schedules.getContent());
     }
 
     @ApiOperation(value = "Returns a scheduled times by id",tags = {"Schedule"})
@@ -112,10 +112,10 @@ public class ScheduleController {
             @ApiResponse(code = 201, message = "Successful request"),
             @ApiResponse(code = 404, message = "Person not found in database"),
     })
-    @PostMapping("/create")
-    public ResponseEntity<Schedule> save(@RequestBody @Valid SchedulePostRequestDTO requestDTO) {
+    @PostMapping("/create/{personId}")
+    public ResponseEntity<List<Schedule>> save(@PathVariable Long personId, @RequestBody @Valid List<SchedulePostRequestDTO> requestDTO) {
         URI uri = URI.create("/create");
-        return ResponseEntity.created(uri).body(scheduleService.save(requestDTO));
+        return ResponseEntity.created(uri).body(scheduleService.save(personId, requestDTO));
     }
 
     @ApiOperation(value = "Approve a schedule times by id",
@@ -127,10 +127,9 @@ public class ScheduleController {
             @ApiResponse(code = 409, message = "This table is already booked for this time."),
     })
     @PatchMapping("/approve/{id}")
-    public ResponseEntity<Schedule> approveSchedule(@PathVariable Long id,
-                                                    @RequestBody @Valid ScheduleApprovedRequestDTO requestDTO) {
+    public ResponseEntity<Schedule> approveSchedule(@PathVariable Long id) {
 
-        return ResponseEntity.ok(scheduleService.approved(id, requestDTO));
+        return ResponseEntity.ok(scheduleService.approved(id));
     }
 
     @ApiOperation(value = "Deny a schedule times by id",

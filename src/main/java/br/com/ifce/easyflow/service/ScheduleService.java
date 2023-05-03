@@ -1,6 +1,5 @@
 package br.com.ifce.easyflow.service;
 
-import br.com.ifce.easyflow.controller.dto.schedule.ScheduleApprovedRequestDTO;
 import br.com.ifce.easyflow.controller.dto.schedule.SchedulePostRequestDTO;
 import br.com.ifce.easyflow.controller.dto.schedule.SchedulePutRequestDTO;
 import br.com.ifce.easyflow.controller.dto.schedule.ScheduleResponseDTO;
@@ -64,7 +63,7 @@ public class ScheduleService {
     public List<Schedule> findAllByStatus(String status) {
 
         boolean statusMatches = Arrays.stream(ScheduleRequestStatus
-                .values())
+                        .values())
                 .anyMatch(s -> s.name().equals(status.toUpperCase()));
 
         if (!statusMatches) {
@@ -89,18 +88,12 @@ public class ScheduleService {
     }
 
     @Transactional
-    public Schedule save(SchedulePostRequestDTO requestDTO) {
-        Person person = personRepository.findById(requestDTO.getPersonId())
-                .orElseThrow(PersonNotFoundException::new);
+    public List<Schedule> save(Long personId, List<SchedulePostRequestDTO> requestDTO) {
 
-        Schedule scheduleToSave = Schedule.builder()
-                .day(requestDTO.getDay())
-                .shiftSchedule(requestDTO.getShiftSchedule())
-                .status(ScheduleRequestStatus.PENDING)
-                .person(person)
-                .build();
+        return requestDTO.stream()
+                .map(re -> convertScheduleRequest(personId, re))
+                .peek(scheduleRepository::save).toList();
 
-        return scheduleRepository.save(scheduleToSave);
     }
 
     @Transactional
@@ -111,14 +104,43 @@ public class ScheduleService {
         if (!scheduleSaved.getStatus().equals(ScheduleRequestStatus.PENDING)) {
             throw new BadRequestException("The time request can only be edited if it is pending.");
         }
+
+        boolean existsReserveBySchedule = reservedTableRepository.existsByScheduleId(scheduleSaved.getId());
+
+        if (existsReserveBySchedule) {
+            reservedTableRepository.deleteByScheduleId(scheduleSaved.getId());
+        }
+
+        LabTable table = labTableRepository.findById(requestDTO.getTableId())
+                .orElseThrow(() -> new ResourceNotFoundException("No table was found with the provided id, " +
+                        "check the registered tables."));
+
+        boolean existsOtherReserve = reservedTableRepository.existsByTableIdAndShiftScheduleAndDay(
+                table.getId(),
+                requestDTO.getShiftSchedule(),
+                requestDTO.getDay());
+
+        if (existsOtherReserve) {
+            throw new BadRequestException("This table is already booked for this time.");
+        }
+
+
         Schedule scheduleToSave = updateScheduleEntity(scheduleSaved, requestDTO);
+
+        ReservedTables reservedTable = ReservedTables.builder()
+                .table(scheduleToSave.getTable())
+                .shiftSchedule(scheduleToSave.getShiftSchedule())
+                .day(scheduleToSave.getDay())
+                .build();
+
+        reservedTableRepository.save(reservedTable);
 
         return scheduleRepository.save(scheduleToSave);
 
     }
 
     @Transactional
-    public Schedule approved(Long idSchedule, ScheduleApprovedRequestDTO requestDTO) {
+    public Schedule approved(Long idSchedule) {
 
         Schedule scheduleSaved = scheduleRepository.findById(idSchedule)
                 .orElseThrow();
@@ -127,27 +149,14 @@ public class ScheduleService {
             throw new BadRequestException("The schedule request has a status other than pending.");
         }
 
-        LabTable table = labTableRepository.findById(requestDTO.getTableId())
-                .orElseThrow(() -> new ResourceNotFoundException("No table was found with the provided id, " +
-                        "check the registered tables."));
-
-        boolean existsReserve = reservedTableRepository.existsByTableIdAndShiftScheduleAndDay(table.getId(),
+        boolean existsReserve = reservedTableRepository.existsByTableIdAndShiftScheduleAndDay(scheduleSaved.getTable().getId(),
                 scheduleSaved.getShiftSchedule(),
                 scheduleSaved.getDay());
 
-        if (existsReserve) {
-            throw new BadRequestException("This table is already booked for this time.");
+        if (!existsReserve) {
+            throw new BadRequestException("This table is not reserved for this time. Please look at the requests.");
         }
 
-        ReservedTables reservedTable = ReservedTables.builder()
-                .table(table)
-                .shiftSchedule(scheduleSaved.getShiftSchedule())
-                .day(scheduleSaved.getDay())
-                .build();
-
-        reservedTableRepository.save(reservedTable);
-
-        scheduleSaved.setTable(table);
         scheduleSaved.setStatus(ScheduleRequestStatus.APPROVED);
 
         return scheduleRepository.save(scheduleSaved);
@@ -162,7 +171,13 @@ public class ScheduleService {
             throw new BadRequestException("The schedule request has a status other than pending.");
         }
 
+        reservedTableRepository.deleteByShiftScheduleAndDayAndTableId(
+                scheduleSaved.getShiftSchedule(),
+                scheduleSaved.getDay(),
+                scheduleSaved.getTable().getId());
+
         scheduleSaved.setStatus(ScheduleRequestStatus.DENIED);
+        scheduleSaved.setTable(null);
         scheduleRepository.save(scheduleSaved);
     }
 
@@ -183,8 +198,49 @@ public class ScheduleService {
     }
 
     private Schedule updateScheduleEntity(Schedule scheduleSaved, SchedulePutRequestDTO requestDTO) {
+
+        LabTable table = labTableRepository.findById(requestDTO.getTableId())
+                .orElseThrow(() -> new ResourceNotFoundException("No table was found with the provided id, " +
+                        "check the registered tables."));
+
         scheduleSaved.setShiftSchedule(requestDTO.getShiftSchedule());
         scheduleSaved.setDay(requestDTO.getDay());
+        scheduleSaved.setTable(table);
         return scheduleSaved;
+    }
+
+    private Schedule convertScheduleRequest(Long personId, SchedulePostRequestDTO request) {
+        Person person = personRepository.findById(personId)
+                .orElseThrow(PersonNotFoundException::new);
+
+        LabTable table = labTableRepository.findById(request.getTableId())
+                .orElseThrow(() -> new ResourceNotFoundException("No table was found with the provided id, " +
+                        "check the registered tables."));
+
+        boolean existsReserve = reservedTableRepository.existsByTableIdAndShiftScheduleAndDay(table.getId(),
+                request.getShiftSchedule(),
+                request.getDay());
+
+        if (existsReserve) {
+            throw new BadRequestException("This table is already booked for this time.");
+        }
+
+        Schedule schedule = Schedule.builder()
+                .day(request.getDay())
+                .shiftSchedule(request.getShiftSchedule())
+                .status(ScheduleRequestStatus.PENDING)
+                .table(table)
+                .person(person)
+                .build();
+
+        ReservedTables reservedTable = ReservedTables.builder()
+                .table(table)
+                .shiftSchedule(request.getShiftSchedule())
+                .day(request.getDay())
+                .schedule(schedule)
+                .build();
+
+        reservedTableRepository.save(reservedTable);
+        return schedule;
     }
 }

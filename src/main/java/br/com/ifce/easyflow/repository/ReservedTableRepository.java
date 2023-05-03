@@ -12,4 +12,9 @@ public interface ReservedTableRepository extends JpaRepository<ReservedTables, L
     List<ReservedTables> findByShiftScheduleAndDay(String shiftSchedule, String day);
 
     void deleteByShiftScheduleAndDayAndTableId(String shiftSchedule, String day, Long tableId);
+
+    void deleteByScheduleId(Long scheduleId);
+    boolean existsByScheduleId(Long scheduleId);
+
+    boolean existsByTableIdAndShiftScheduleAndDayAndScheduleId(Long tableId, String shiftSchedule, String day, Long scheduleId);
 }
