@@ -1,6 +1,7 @@
 package br.com.ifce.easyflow.controller;
 
 
+import br.com.ifce.easyflow.config.ProblemDetails;
 import br.com.ifce.easyflow.controller.dto.security.UserEDTO;
 import br.com.ifce.easyflow.controller.dto.security.TokenDTO;
 import br.com.ifce.easyflow.controller.dto.security.UserSecurityDTO;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.time.Instant;
 
 
 @RestController
@@ -56,7 +58,14 @@ public class AuthenticationController {
 			return ResponseEntity.ok(new UserSecurityDTO(token,user));
 		} catch (AuthenticationException e) {
 			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Credentials.");
+
+			ProblemDetails problemDetails = ProblemDetails.builder()
+					.title("Unauthorized exception")
+					.detail("The email or password entered is invalid")
+					.status(HttpStatus.UNAUTHORIZED.value())
+					.timestamp(Instant.now())
+					.build();
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(problemDetails);
 		}
 	}
 

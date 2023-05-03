@@ -1,12 +1,16 @@
 package br.com.ifce.easyflow.service;
 
-import br.com.ifce.easyflow.repository.StudyAreaRepository;
+import br.com.ifce.easyflow.controller.dto.studyArea.StudyAreaUpdateDTO;
 import br.com.ifce.easyflow.model.StudyArea;
+import br.com.ifce.easyflow.repository.StudyAreaRepository;
+import br.com.ifce.easyflow.service.exceptions.ConflictException;
+import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -27,8 +31,9 @@ public class StudyAreaService {
     public List<StudyArea> search(){
         return this.studyAreaRepository.findAll();
     }
-    public Optional<StudyArea> searchByID(Long id){
-        return this.studyAreaRepository.findById(id);
+    public StudyArea searchByID(Long id){
+        return this.studyAreaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No study area was found with id provided."));
     }
 
     public Optional<StudyArea> findByStudyArea(String study_area_name){
@@ -36,28 +41,35 @@ public class StudyAreaService {
     }
 
     @Transactional
-    public Optional<StudyArea> update(StudyArea newStudyArea){
-        Optional<StudyArea> oldStudyArea = this.searchByID(newStudyArea.getId());
+    public StudyArea update(Long id, StudyAreaUpdateDTO StudyAreaUpdateDTO){
+        StudyArea oldStudyArea = this.searchByID(id);
 
-        return oldStudyArea.isPresent()
-                ? Optional.of(this.save(this.fillUpdateStudyArea(oldStudyArea.get(),newStudyArea)))
-                : Optional.empty();
+        if(!Objects.equals(oldStudyArea.getName(), StudyAreaUpdateDTO.getStudy_area_name())
+                && this.existsByStudyArea(StudyAreaUpdateDTO.getStudy_area_name())){
+
+            throw new ConflictException("There is already a study area registered with the given name.");
+        }
+
+        oldStudyArea.setName(StudyAreaUpdateDTO.getStudy_area_name());
+
+        return this.save(oldStudyArea);
     }
 
     @Transactional
     public Boolean delete(Long id){
-        Optional<StudyArea> StudyArea = this.searchByID(id);
+        StudyArea studyArea = this.searchByID(id);
 
-        if(StudyArea.isPresent()){
-            this.studyAreaRepository.delete(StudyArea.get());
+        if(studyArea != null){
+            this.studyAreaRepository.delete(studyArea);
             return true;
         }
-
         return false;
     }
 
-    public Optional<StudyArea> searchByName(String StudyArea_name){
-        return this.studyAreaRepository.findByName(StudyArea_name);
+    public StudyArea searchByName(String StudyArea_name){
+        return this.studyAreaRepository
+                .findByName(StudyArea_name)
+                .orElseThrow(() -> new ResourceNotFoundException("No study area was found with the name provided."));
     }
 
     private StudyArea fillUpdateStudyArea(StudyArea oldStudyArea,StudyArea newStudyArea){

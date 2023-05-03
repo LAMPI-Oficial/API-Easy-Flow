@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import javax.transaction.Transactional;
 
+import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,17 +42,16 @@ public class AnnouncementService {
         return false;
     }
 
-    public Optional<Announcement> searchByID(Long id) {
-        return this.announcementRepository.findById(id);
+    public Announcement searchByID(Long id) {
+        return this.announcementRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No announcement was found with the given id."));
     }
 
     @Transactional
-    public Optional<Announcement> update(Announcement newAnnouncement) {
-        Optional<Announcement> oldAnnouncement = this.searchByID(newAnnouncement.getId());
+    public Announcement update(Long id, Announcement newAnnouncement) {
+        Announcement oldAnnouncement = this.searchByID(id);
 
-        return oldAnnouncement.isPresent()
-                ? Optional.of(this.save(this.fillUpdateClaim(oldAnnouncement.get(), newAnnouncement)))
-                : Optional.empty();
+        return this.save(this.fillUpdateClaim(oldAnnouncement, newAnnouncement));
     }
 
     private Announcement fillUpdateClaim(Announcement oldAnnouncement, Announcement newAnnouncement) {
@@ -62,7 +62,8 @@ public class AnnouncementService {
         return oldAnnouncement;
     }
 
-    public Optional<Announcement> searchByTitle(String title) {
-        return this.announcementRepository.findByTitle(title);
+    public Announcement searchByTitle(String title) {
+        return this.announcementRepository.findByTitle(title)
+                .orElseThrow(() -> new ResourceNotFoundException("No announcement were found with the given title."));
     }
 }

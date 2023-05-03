@@ -11,16 +11,12 @@ import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-
 
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -58,12 +54,9 @@ public class StudyAreaController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<Object> searchById(@PathVariable Long id) {
-        Optional<StudyArea> StudyArea = this.StudyAreaService.searchByID(id);
+        StudyArea studyArea = this.StudyAreaService.searchByID(id);
 
-        return StudyArea.isPresent()
-                ? ResponseEntity.ok(new StudyAreaResponseDTO(StudyArea.get()))
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                "StudyArea Not Found");
+        return ResponseEntity.ok(new StudyAreaResponseDTO(studyArea));
     }
 
     @ApiOperation(value = "Returns a StudyArea by login", tags = {"StudyArea"})
@@ -75,12 +68,9 @@ public class StudyAreaController {
     })
     @RequestMapping(value = "/search_by_name", method = RequestMethod.GET)
     public ResponseEntity<Object> searchByName(@RequestParam String name) {
-        Optional<StudyArea> StudyArea = this.StudyAreaService.searchByName(name);
+        StudyArea studyArea = this.StudyAreaService.searchByName(name);
 
-        return StudyArea.isPresent()
-                ? ResponseEntity.ok(new StudyAreaResponseDTO(StudyArea.get()))
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                "StudyArea Not Found");
+        return ResponseEntity.ok(new StudyAreaResponseDTO(studyArea));
     }
 
     @ApiOperation(value = "Save a StudyArea", tags = {"StudyArea"})
@@ -112,26 +102,11 @@ public class StudyAreaController {
             @ApiResponse(code = 500, message = "Internal exception"),
     })
     @PutMapping("/{id}")
-    public ResponseEntity<Object> update(@PathVariable Long id, @RequestBody @Valid StudyAreaUpdateDTO StudyAreaUpdateDTO) {
-        Optional<StudyArea> StudyArea = this.StudyAreaService.searchByID(id);
+    public ResponseEntity<StudyAreaResponseDTO> update(@PathVariable Long id, @RequestBody @Valid StudyAreaUpdateDTO studyAreaUpdateDTO) {
 
-        if(StudyArea.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    "StudyArea Not Found");
-        }
+        StudyArea studyArea = this.StudyAreaService.update(id, studyAreaUpdateDTO);
 
-        if(!Objects.equals(StudyArea.get().getName(), StudyAreaUpdateDTO.getStudy_area_name()) && StudyAreaService.existsByStudyArea(StudyAreaUpdateDTO.getStudy_area_name())){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("StudyAreaName is already in use.");
-        }
-
-        StudyArea.get().setName(StudyAreaUpdateDTO.getStudy_area_name());
-
-        StudyArea = this.StudyAreaService.update(StudyAreaUpdateDTO.toStudyArea(id));
-
-        return StudyArea.isPresent()
-                ? ResponseEntity.ok(new StudyAreaResponseDTO(StudyArea.get()))
-                :ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                "StudyArea Not Found");
+        return ResponseEntity.ok(new StudyAreaResponseDTO(studyArea));
     }
 
     @ApiOperation(value = "Delete a StudyArea by id", tags = {"StudyArea"})
