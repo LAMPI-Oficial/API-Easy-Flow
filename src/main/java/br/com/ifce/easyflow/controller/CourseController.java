@@ -58,13 +58,10 @@ public class CourseController {
             @ApiResponse(code = 500, message = "Internal exception"),
     })
     @GetMapping("/{id}")
-    public ResponseEntity<Object> searchById(@PathVariable Long id) {
-        Optional<Course> Course = this.courseService.searchByID(id);
+    public ResponseEntity<CourseResponseDTO> searchById(@PathVariable Long id) {
+        Course course = this.courseService.searchByID(id);
 
-        return Course.isPresent()
-                ? ResponseEntity.ok(new CourseResponseDTO(Course.get()))
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                "Course Not Found");
+        return ResponseEntity.ok(new CourseResponseDTO(course));
     }
 
     @ApiOperation(value = "Returns a Course by login", tags = {"Course"})
@@ -76,12 +73,9 @@ public class CourseController {
     })
     @RequestMapping(value = "/search_by_name", method = RequestMethod.GET)
     public ResponseEntity<Object> searchByName(@RequestParam String name) {
-        Optional<Course> Course = this.courseService.searchByName(name);
+        Course course = this.courseService.searchByName(name);
 
-        return Course.isPresent()
-                ? ResponseEntity.ok(new CourseResponseDTO(Course.get()))
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                "Course Not Found");
+        return ResponseEntity.ok(new CourseResponseDTO(course));
     }
 
     @ApiOperation(value = "Save a Course", tags = {"Course"})
@@ -92,16 +86,12 @@ public class CourseController {
             @ApiResponse(code = 500, message = "Internal exception"),
     })
     @PostMapping
-    public ResponseEntity<Object> save(@RequestBody @Valid CourseRequestDTO CourseRequest, UriComponentsBuilder uriBuilder){
-        if(courseService.existsByCourse(CourseRequest.getCourse_name())){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Course Name is already in use.");
-        }
+    public ResponseEntity<CourseResponseDTO> save(@RequestBody @Valid CourseRequestDTO courseRequest, UriComponentsBuilder uriBuilder){
 
-        Course Course = CourseRequest.toCourse();
-        this.courseService.save(Course);
+       Course course = this.courseService.save(courseRequest);
 
-        URI uri = uriBuilder.path("/courses/{id}").buildAndExpand(Course.getId()).toUri();
-        return ResponseEntity.created(uri).body(new CourseResponseDTO(Course));
+        URI uri = uriBuilder.path("/courses/{id}").buildAndExpand(course).toUri();
+        return ResponseEntity.created(uri).body(new CourseResponseDTO(course));
     }
 
     @ApiOperation(value = "Update a Course by id", tags = {"Course"})
@@ -113,27 +103,11 @@ public class CourseController {
             @ApiResponse(code = 500, message = "Internal exception"),
     })
     @PutMapping("/{id}")
-    public ResponseEntity<Object> update(@PathVariable Long id, @RequestBody @Valid CourseUpdateDTO CourseUpdateDTO) {
-        Optional<Course> Course = this.courseService.searchByID(id);
+    public ResponseEntity<CourseResponseDTO> update(@PathVariable Long id, @RequestBody @Valid CourseUpdateDTO courseUpdateDTO) {
 
-        if(Course.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    "Course Not Found");
-        }
+        Course course = this.courseService.update(id, courseUpdateDTO);
 
-        if(!Objects.equals(Course.get().getName(), CourseUpdateDTO.getCourse_name()) && courseService.existsByCourse(CourseUpdateDTO.getCourse_name())){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("CourseName is already in use.");
-        }
-
-        Course.get().setName(CourseUpdateDTO.getCourse_name());
-        
-        Course = this.courseService.update(CourseUpdateDTO.toCourse(id));
-
-
-        return Course.isPresent()
-                ? ResponseEntity.ok(new CourseResponseDTO(Course.get()))
-                :ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                "Course Not Found");
+        return ResponseEntity.ok(new CourseResponseDTO(course));
     }
 
     @ApiOperation(value = "Delete a Course by id", tags = {"Course"})

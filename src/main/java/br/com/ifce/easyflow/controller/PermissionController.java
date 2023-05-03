@@ -47,11 +47,9 @@ public class PermissionController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<PermissionResponseDTO> searchById(@PathVariable Long id) {
-        Optional<Permission> permission = this.permissionService.searchByID(id);
+        Permission permission = this.permissionService.searchByID(id);
 
-        return permission.isPresent()
-                ? ResponseEntity.ok(new PermissionResponseDTO(permission.get()))
-                : ResponseEntity.notFound().build();
+        return ResponseEntity.ok(new PermissionResponseDTO(permission));
     }
 
     @ApiOperation(value = "Save a permission", tags = {"Permission"})
@@ -73,11 +71,9 @@ public class PermissionController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<PermissionResponseDTO> update(@PathVariable Long id, @RequestBody @Valid PermissionRequestDTO permissionRequestDTO) {
-        Optional<Permission> permission = this.permissionService.update(permissionRequestDTO.toPermission(id));
+        Permission permission = this.permissionService.update(id, permissionRequestDTO.toPermission(id));
 
-        return permission.isPresent()
-                ? ResponseEntity.ok(new PermissionResponseDTO(permission.get()))
-                : ResponseEntity.notFound().build();
+        return ResponseEntity.ok(new PermissionResponseDTO(permission));
     }
 
     @ApiOperation(value = "Delete a permission by id", tags = {"Permission"})

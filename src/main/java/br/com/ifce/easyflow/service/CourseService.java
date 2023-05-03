@@ -1,12 +1,21 @@
 package br.com.ifce.easyflow.service;
 
+import br.com.ifce.easyflow.controller.dto.course.CourseRequestDTO;
+import br.com.ifce.easyflow.controller.dto.course.CourseUpdateDTO;
 import br.com.ifce.easyflow.repository.CourseRepository;
 import br.com.ifce.easyflow.model.Course;
+import br.com.ifce.easyflow.service.exceptions.ConflictException;
+import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.transaction.Transactional;
+import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -15,52 +24,68 @@ public class CourseService {
     private final CourseRepository courseRepository;
 
     @Autowired
-    public CourseService(CourseRepository CourseRepository){
+    public CourseService(CourseRepository CourseRepository) {
         this.courseRepository = CourseRepository;
     }
 
     @Transactional
-    public Course save(Course Course){
-        return this.courseRepository.save(Course);
+    public Course save(CourseRequestDTO courseRequest) {
+
+        if (existsByCourse(courseRequest.getCourse_name())) {
+            throw new ConflictException("A course with the given name already exists.");
+        }
+        Course course = courseRequest.toCourse();
+        return this.courseRepository.save(course);
     }
 
-    public List<Course> search(){
+    public List<Course> search() {
         return this.courseRepository.findAll();
     }
-    public Optional<Course> searchByID(Long id){
-        return this.courseRepository.findById(id);
+
+    public Course searchByID(Long id) {
+        return this.courseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No courses were found with the given id."));
     }
 
-    public Optional<Course> findByCourse(String course_name){
-        return this.courseRepository.findByName(course_name);
-    }
-
-    @Transactional
-    public Optional<Course> update(Course newCourse){
-        Optional<Course> oldCourse = this.searchByID(newCourse.getId());
-
-        return oldCourse.isPresent()
-                ? Optional.of(this.save(this.fillUpdateCourse(oldCourse.get(),newCourse)))
-                : Optional.empty();
+    public Course findByCourse(String course_name) {
+        return this.courseRepository.findByName(course_name)
+                .orElseThrow(() -> new ResourceNotFoundException("No courses were found with the given name."));
     }
 
     @Transactional
-    public Boolean delete(Long id){
-        Optional<Course> Course = this.searchByID(id);
+    public Course update(Long id, CourseUpdateDTO courseUpdateDTO) {
+        Course oldCourse = this.searchByID(id);
 
-        if(Course.isPresent()){
-            this.courseRepository.delete(Course.get());
+        if(!Objects.equals(oldCourse.getName(), courseUpdateDTO.getCourse_name())
+                && this.existsByCourse(courseUpdateDTO.getCourse_name())){
+
+            throw new ConflictException("A course with the given name already exists.");
+
+        }
+
+        oldCourse.setName(courseUpdateDTO.getCourse_name());
+
+        return courseRepository.save(oldCourse);
+    }
+
+    @Transactional
+    public Boolean delete(Long id) {
+        Course course = this.searchByID(id);
+
+        if (course != null) {
+            this.courseRepository.delete(course);
             return true;
         }
 
         return false;
     }
 
-    public Optional<Course> searchByName(String course_name){
-        return this.courseRepository.findByName(course_name);
+    public Course searchByName(String course_name) {
+        return this.courseRepository.findByName(course_name)
+                .orElseThrow(() -> new ResourceNotFoundException("No courses were found with the given name."));
     }
 
-    private Course fillUpdateCourse(Course oldCourse,Course newCourse){
+    private Course fillUpdateCourse(Course oldCourse, Course newCourse) {
         newCourse.setName(oldCourse.getName());
         return newCourse;
     }

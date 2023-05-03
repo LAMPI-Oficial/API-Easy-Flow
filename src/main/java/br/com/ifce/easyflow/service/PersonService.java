@@ -1,16 +1,23 @@
 package br.com.ifce.easyflow.service;
 
 import br.com.ifce.easyflow.controller.dto.person.PersonCreateDTO;
+import br.com.ifce.easyflow.controller.dto.person.PersonDTO;
+import br.com.ifce.easyflow.controller.dto.user.UserRequestDTO;
+import br.com.ifce.easyflow.exception.PersonNotFoundException;
+import br.com.ifce.easyflow.model.Course;
 import br.com.ifce.easyflow.model.Person;
 import br.com.ifce.easyflow.model.StudyArea;
 import br.com.ifce.easyflow.model.User;
 import br.com.ifce.easyflow.repository.PersonRepository;
+import br.com.ifce.easyflow.service.exceptions.BadRequestException;
+import br.com.ifce.easyflow.service.exceptions.ConflictException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -38,28 +45,40 @@ public class PersonService {
     }
 
     @Transactional
-    public Optional<Person> update(Person newPerson){
-        Optional<Person> oldPerson = this.findById(newPerson.getId());
+    public Person update(Long id, PersonDTO personDTO){
+        Person oldPerson = this.findById(id);
 
-        return oldPerson.isPresent()
-                ? Optional.of(this.save(newPerson))
-                : Optional.empty();
+
+        if(!Objects.equals(oldPerson.getEmail(), personDTO.getEmail()) && this.existsByEmail(personDTO.getEmail())){
+            throw new ConflictException("The email provided is already being used.");
+        }
+
+        StudyArea studyArea = studyAreaService.searchByID(personDTO.getStudy_area_id());
+        Course course = courseService.searchByID(personDTO.getCourse_id());
+
+        oldPerson.setName(personDTO.getName());
+        oldPerson.setEmail(personDTO.getEmail());
+        oldPerson.setCourse(course);
+        oldPerson.setStudy_area(studyArea);
+
+       return this.save(oldPerson);
     }
 
 
     @Transactional
     public Boolean delete(Long id){
-        Optional<Person> person = this.personRepository.findById(id);
+        Person person = this.findById(id);
 
-        if(person.isPresent()){
-            this.personRepository.delete(person.get());
+        if(person != null){
+            this.personRepository.delete(person);
             return true;
         }
         return false;
     }
 
-    public Optional<Person> findById(Long id){
-        return this.personRepository.findById(id);
+    public Person findById(Long id){
+        return this.personRepository.findById(id)
+                .orElseThrow(PersonNotFoundException::new);
     }
 
     public boolean existsById(Long id) {
@@ -75,16 +94,24 @@ public class PersonService {
     }
 
     public Person createPerson(PersonCreateDTO personCreateDTO) {
-        User user = new User(
-                personCreateDTO.getEmail(),
-                new BCryptPasswordEncoder().encode(personCreateDTO.getPassword())
-        );
-        userService.save(user);
+
+        if(!personCreateDTO.getPassword().equals(personCreateDTO.getRepeated_password())){
+            throw new BadRequestException("Passwords does not match.");
+        }
+        if(existsByEmail(personCreateDTO.getEmail())){
+            throw new ConflictException("The email provided is already being used.");
+        }
+
+        UserRequestDTO newUserDTO = new UserRequestDTO(personCreateDTO.getEmail(),
+                new BCryptPasswordEncoder().encode(personCreateDTO.getPassword()));
+
+       User user = userService.save(newUserDTO);
+
         Person person = new Person();
         BeanUtils.copyProperties(personCreateDTO, person);
         person.setUser(user);
-        person.setCourse(courseService.searchByID(personCreateDTO.getCourse_id()).get());
-        person.setStudy_area(studyAreaService.searchByID(personCreateDTO.getStudy_area_id()).get());
+        person.setCourse(courseService.searchByID(personCreateDTO.getCourse_id()));
+        person.setStudy_area(studyAreaService.searchByID(personCreateDTO.getStudy_area_id()));
         this.save(person);
         return person;
     }

@@ -2,11 +2,12 @@ package br.com.ifce.easyflow.service;
 
 import br.com.ifce.easyflow.controller.dto.table.LabTableUpdateRequestDTO;
 import br.com.ifce.easyflow.controller.dto.table.SearchTablesAvailableRequestDTO;
-import br.com.ifce.easyflow.controller.dto.table.TablePostRequestDTO;
 import br.com.ifce.easyflow.model.LabTable;
 import br.com.ifce.easyflow.model.ReservedTables;
 import br.com.ifce.easyflow.repository.LabTableRepository;
 import br.com.ifce.easyflow.repository.ReservedTableRepository;
+import br.com.ifce.easyflow.service.exceptions.ConflictException;
+import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,26 +28,21 @@ public class TableService {
 
     public LabTable findById(Long id) {
         return labTableRepository.findById(id)
-                .orElseThrow();
-        // TODO: Throw a more specific exception, e.g. NotFoundException
+                .orElseThrow(() -> new ResourceNotFoundException("No table was found with the provided id, " +
+                        "check the registered tables."));
     }
 
     @Transactional
-    public LabTable save(TablePostRequestDTO requestDTO) {
+    public LabTable save(LabTable newLabTable) {
 
         boolean existsTableWithNumber = labTableRepository
-                .existsByNumber(requestDTO.number());
+                .existsByNumber(newLabTable.getNumber());
 
         if (existsTableWithNumber) {
-            throw new RuntimeException("A table has already been registered with that number.");
-            // TODO: Throw a more specific exception, e.g. BadRequest
+            throw new ConflictException("A table has already been registered with that number.");
         }
 
-        LabTable table = LabTable.builder()
-                .number(requestDTO.number())
-                .build();
-
-        return labTableRepository.save(table);
+        return labTableRepository.save(newLabTable);
     }
 
     public List<LabTable> tablesAvailable(SearchTablesAvailableRequestDTO requestDTO) {
@@ -68,7 +64,7 @@ public class TableService {
 
         LabTable oldTable = this.findById(id);
         oldTable.setNumber(requestDTO.number());
-        return labTableRepository.save(oldTable);
+        return this.save(oldTable);
 
     }
 
@@ -78,8 +74,7 @@ public class TableService {
         LabTable table = this.findById(id);
 
         if (!scheduleService.findAllByTableId(id).isEmpty()) {
-            throw new RuntimeException("The table cannot be excluded because it is linked to times already reserved.");
-            // TODO: Throw a more specific exception, e.g. BadRequest
+            throw new ConflictException("The table cannot be excluded because it is linked to times already reserved.");
         }
 
         labTableRepository.deleteById(table.getId());

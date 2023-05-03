@@ -1,5 +1,6 @@
 package br.com.ifce.easyflow.service;
 
+import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,17 +41,16 @@ public class ClaimService {
         return false;
     }
 
-    public Optional<Claim> searchByID(Long id) {
-        return this.claimRepository.findById(id);
+    public Claim searchByID(Long id) {
+        return this.claimRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No claim with given id was found"));
     }
 
     @Transactional
-    public Optional<Claim> update(Claim newClaim) {
-        Optional<Claim> oldClaim = this.searchByID(newClaim.getId());
+    public Claim update(Long id, Claim newClaim) {
+        Claim oldClaim = this.searchByID(id);
 
-        return oldClaim.isPresent()
-                ? Optional.of(this.save(this.fillUpdateClaim(oldClaim.get(), newClaim)))
-                : Optional.empty();
+        return this.save(this.fillUpdateClaim(oldClaim, newClaim));
     }
 
     private Claim fillUpdateClaim(Claim oldClaim, Claim newClaim) {
