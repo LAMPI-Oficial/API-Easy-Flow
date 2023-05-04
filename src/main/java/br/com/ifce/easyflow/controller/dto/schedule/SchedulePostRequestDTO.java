@@ -31,6 +31,6 @@ public class SchedulePostRequestDTO {
     @ApiModelProperty(value = "Person id",
             notes = "ID of the person making the time request", example = "2")
     @NotNull
-    @JsonProperty(value = "person-id")
-    private Long personId;
+    @JsonProperty(value = "table-id")
+    private Long tableId;
 }

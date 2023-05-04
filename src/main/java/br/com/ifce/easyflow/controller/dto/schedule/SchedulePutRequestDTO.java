@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Data
 @Builder
@@ -25,5 +26,9 @@ public class SchedulePutRequestDTO {
     @JsonProperty(value = "day")
     @NotBlank
     private String day;
+
+    @NotNull
+    @JsonProperty(value = "table-id")
+    private Long tableId;
 
 }
