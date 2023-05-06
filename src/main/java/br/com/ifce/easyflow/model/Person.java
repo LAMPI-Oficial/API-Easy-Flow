@@ -41,12 +41,12 @@ public class Person {
     private User user;
 
     @JsonIgnore
-    @OneToOne(targetEntity = Course.class, cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;
 
     @JsonIgnore
-    @OneToOne(targetEntity = StudyArea.class, cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "study_area_id")
     private StudyArea study_area;
 

@@ -12,8 +12,8 @@ public class CourseResponseDTO {
     private Long id;
     private String course_name;
 
-    @JsonProperty("tb_person")
-    private PersonDTO personDTO;
+    // @JsonProperty("tb_person")
+    // private PersonDTO personDTO;
 
     public CourseResponseDTO(){
 
@@ -23,9 +23,9 @@ public class CourseResponseDTO {
         this.id = Course.getId();
         this.course_name= Course.getName();
 
-        if(Course.getPerson() != null){
-            this.personDTO = new PersonDTO(Course.getPerson());
-        }
+        // if(Course.getPerson() != null){
+        //     this.personDTO = new PersonDTO(Course.getClass());
+        // }
     }
 
 }

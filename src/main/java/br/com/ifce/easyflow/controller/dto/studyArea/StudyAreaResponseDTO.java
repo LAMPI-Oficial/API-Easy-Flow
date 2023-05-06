@@ -12,8 +12,8 @@ public class StudyAreaResponseDTO {
     private Long id;
     private String study_area_name;
 
-    @JsonProperty("tb_person")
-    private PersonDTO personDTO;
+    // @JsonProperty("tb_person")
+    // private PersonDTO personDTO;
 
     public StudyAreaResponseDTO(){
 
@@ -23,9 +23,9 @@ public class StudyAreaResponseDTO {
         this.id = StudyArea.getId();
         this.study_area_name= StudyArea.getName();
 
-        if(StudyArea.getPerson() != null){
-            this.personDTO = new PersonDTO(StudyArea.getPerson());
-        }
+        // if(StudyArea.getPerson() != null){
+        //     this.personDTO = new PersonDTO(StudyArea.getPerson());
+        // }
     }
 
 }
