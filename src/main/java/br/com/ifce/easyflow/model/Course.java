@@ -27,7 +27,7 @@ public class Course {
     @Column(name = "course_name")
     private String name;
 
-    @OneToMany(mappedBy = "course")
+    @OneToMany(mappedBy = "course",  targetEntity = Person.class, cascade = CascadeType.ALL)
     private List<Person> person;
 
     public Course(String course_name){

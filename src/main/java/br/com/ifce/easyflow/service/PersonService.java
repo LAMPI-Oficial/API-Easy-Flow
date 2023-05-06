@@ -80,32 +80,33 @@ public class PersonService {
         return this.personRepository.findById(id)
                 .orElseThrow(PersonNotFoundException::new);
     }
-
+    @Transactional
     public boolean existsById(Long id) {
         Optional<Person> exist = this.personRepository.findById(id);
         return exist.isPresent();
     }
 
-
+    @Transactional
     public boolean existsByEmail(String email) {
         Optional<Person> exist = this.personRepository.findByEmail(email);
-
         return exist.isPresent();
     }
 
+    @Transactional
     public Person createPerson(PersonCreateDTO personCreateDTO) {
+
+        if(existsByEmail(personCreateDTO.getEmail())){
+            throw new ConflictException("The email provided is already being used");
+        }
 
         if(!personCreateDTO.getPassword().equals(personCreateDTO.getRepeated_password())){
             throw new BadRequestException("Passwords does not match.");
-        }
-        if(existsByEmail(personCreateDTO.getEmail())){
-            throw new ConflictException("The email provided is already being used.");
         }
 
         UserRequestDTO newUserDTO = new UserRequestDTO(personCreateDTO.getEmail(),
                 new BCryptPasswordEncoder().encode(personCreateDTO.getPassword()));
 
-       User user = userService.save(newUserDTO);
+        User user = userService.save(newUserDTO);
 
         Person person = new Person();
         BeanUtils.copyProperties(personCreateDTO, person);
