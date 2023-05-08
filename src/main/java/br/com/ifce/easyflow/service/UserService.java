@@ -28,10 +28,8 @@ public class UserService {
     @Transactional
     public User save(UserRequestDTO userRequest) {
 
-        boolean userExist = this.existsByLogin(userRequest.getLogin());
-
-        if (!userExist) {
-            throw new ConflictException("The email provided is already being used.");
+        if(existsByLogin(userRequest.getLogin())){
+            throw new ConflictException("The  email provided is already being used.");
         }
 
         User newUser = userRequest.toUser();

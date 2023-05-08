@@ -96,7 +96,7 @@ public class PersonService {
     public Person createPerson(PersonCreateDTO personCreateDTO) {
 
         if(existsByEmail(personCreateDTO.getEmail())){
-            throw new ConflictException("The email provided is already being used");
+            throw new ConflictException("The email provided is already being used.");
         }
 
         if(!personCreateDTO.getPassword().equals(personCreateDTO.getRepeated_password())){
@@ -104,7 +104,7 @@ public class PersonService {
         }
 
         UserRequestDTO newUserDTO = new UserRequestDTO(personCreateDTO.getEmail(),
-                new BCryptPasswordEncoder().encode(personCreateDTO.getPassword()));
+                                        personCreateDTO.getPassword());
 
         User user = userService.save(newUserDTO);
 

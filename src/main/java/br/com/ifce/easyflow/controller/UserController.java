@@ -80,7 +80,7 @@ public class UserController {
 
     @ApiOperation(value = "Save a user", tags = {"User"})
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Saved reservation"),
+            @ApiResponse(code = 200, message = "Saved reservation"),
             @ApiResponse(code = 403, message = "Permission denied to access this resource"),
             @ApiResponse(code = 409, message = "User login is already being used"),
             @ApiResponse(code = 500, message = "Internal exception"),
@@ -96,7 +96,7 @@ public class UserController {
 
     @ApiOperation(value = "Update a user by id", tags = {"User"})
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Saved reservation"),
+            @ApiResponse(code = 200, message = "Saved reservation"),
             @ApiResponse(code = 403, message = "Permission denied to access this resource"),
             @ApiResponse(code = 404, message = "User not found in database"),
             @ApiResponse(code = 409, message = "User login is already being used"),
@@ -130,7 +130,7 @@ public class UserController {
 
     @ApiOperation(value = "User recovery password", tags = {"User"})
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Saved reservation"),
+            @ApiResponse(code = 200, message = "Saved reservation"),
             @ApiResponse(code = 403, message = "Permission denied to access this resource"),
             @ApiResponse(code = 409, message = "User login is already being used"),
             @ApiResponse(code = 500, message = "Internal exception"),

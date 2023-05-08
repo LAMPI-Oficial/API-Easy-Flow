@@ -14,9 +14,6 @@ public class UserResponseDTO {
 
     @JsonProperty("tb_person")
     private PersonDTO personDTO;
-
-
-
     public UserResponseDTO(){
 
     }
