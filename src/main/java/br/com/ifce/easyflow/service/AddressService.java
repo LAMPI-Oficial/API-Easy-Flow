@@ -5,6 +5,7 @@ import br.com.ifce.easyflow.controller.dto.address.AddressRequestDTO;
 import br.com.ifce.easyflow.controller.dto.address.AddressUpdateDTO;
 import br.com.ifce.easyflow.model.Address;
 import br.com.ifce.easyflow.repository.AddressRepository;
+import br.com.ifce.easyflow.service.exceptions.ConflictException;
 import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,11 @@ public class AddressService {
     @Transactional
     public Address save(Address address) {
         return this.addressRepository.save(address);
+    }
+
+    public boolean findByPersonId(Long address_id){
+        Optional<Address> exist = this.addressRepository.findByPersonId(address_id);
+        return exist.isPresent();
     }
 
 
@@ -83,6 +89,9 @@ public class AddressService {
     }
 
     public Address createAddress(AddressRequestDTO addressRequestDTO) {
+        if(findByPersonId(addressRequestDTO.getPerson_id())){
+            throw new ConflictException("Usuário com endereço cadastro.");
+        }
         Address address = new Address();
         address.setComplement(addressRequestDTO.getComplement());
         address.setMunicipality(addressRequestDTO.getMunicipality());
@@ -91,6 +100,7 @@ public class AddressService {
         address.setStreet(addressRequestDTO.getStreet());
         address.setStateEnum(addressRequestDTO.getStateEnum());
         address.setPerson(personService.findById(addressRequestDTO.getPerson_id()));
+        this.save(address);
         return address;
     }
 }

@@ -66,6 +66,7 @@ public class TemplateApplication implements CommandLineRunner {
 				person.setName("Usuário "+ i);
 				person.setUser(user);
 				person.setCourse(course);
+				person.setPhone("(85) 98840-6679");
 				person.setStudy_area(study_area);
 				person.setPerson_admin(false);
 				person = personService.save(person);

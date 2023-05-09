@@ -9,4 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface AddressRepository extends JpaRepository<Address,Long> {
+    Optional<Address> findByPersonId(Long address_id);
 }
