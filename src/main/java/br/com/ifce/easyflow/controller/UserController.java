@@ -1,10 +1,12 @@
 package br.com.ifce.easyflow.controller;
 
+import br.com.ifce.easyflow.controller.dto.user.UserRecoveryPassword;
 import br.com.ifce.easyflow.controller.dto.user.UserRequestDTO;
 import br.com.ifce.easyflow.controller.dto.user.UserResponseDTO;
 import br.com.ifce.easyflow.controller.dto.user.UserUpdateDTO;
 import br.com.ifce.easyflow.model.User;
 import br.com.ifce.easyflow.service.UserService;
+import br.com.ifce.easyflow.service.exceptions.ConflictException;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -135,20 +137,12 @@ public class UserController {
             @ApiResponse(code = 409, message = "User login is already being used"),
             @ApiResponse(code = 500, message = "Internal exception"),
     })
-    @GetMapping("/recoveryPassword/{id}")
-    public Boolean sendEmail(@PathVariable Long id) {
+    @PostMapping("/recoveryPassword/")
+    public ResponseEntity<UserRecoveryPassword> sendEmail(@Valid @RequestBody UserRecoveryPassword userRecoveryPassword) {
 
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-
-       User user = userService.newPassword(id);
-
-        mailMessage.setTo(user.getPerson().getEmail());
-        mailMessage.setSubject("Email de recuperação de Senha");
-        mailMessage.setText("Sua nova senha: " + user.getPassword() + "\n\nFaça login e altera sua senha atual\n\n");
-        mailMessage.setFrom("marcos.junior@darmlabs.ifce.edu.br");
-
-        emailSender.send(mailMessage);
-
-        return true;
+        if(!userService.findByRecovery(userRecoveryPassword)){
+            throw new ConflictException("User not found");
+        }
+        return ResponseEntity.ok(userRecoveryPassword);
     }
 }

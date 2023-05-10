@@ -1,5 +1,6 @@
 package br.com.ifce.easyflow.service;
 
+import br.com.ifce.easyflow.controller.dto.user.UserRecoveryPassword;
 import br.com.ifce.easyflow.controller.dto.user.UserRequestDTO;
 import br.com.ifce.easyflow.controller.dto.user.UserUpdateDTO;
 import br.com.ifce.easyflow.model.User;
@@ -7,8 +8,11 @@ import br.com.ifce.easyflow.repository.UserRepository;
 import br.com.ifce.easyflow.service.exceptions.ConflictException;
 import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.mail.javamail.JavaMailSender;
 
 import javax.transaction.Transactional;
 import java.security.SecureRandom;
@@ -19,10 +23,12 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final JavaMailSender emailSender;
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, JavaMailSender emailSender) {
         this.userRepository = userRepository;
+        this.emailSender = emailSender;
     }
 
     @Transactional
@@ -52,6 +58,27 @@ public class UserService {
         return this.userRepository.findByLogin(login)
                 .orElseThrow(() -> new ResourceNotFoundException("No user with that email was found in the database, " +
                         "check the registered users."));
+    }
+
+    public boolean findByRecovery(UserRecoveryPassword userRecoveryPassword){
+        String email = this.userRepository.findByLogin(userRecoveryPassword.getLogin()).get().getLogin();
+        Long id = this.userRepository.findByLogin(userRecoveryPassword.getLogin()).get().getId();
+
+        if(email.equals(userRecoveryPassword.getLogin()) && id.equals(userRecoveryPassword.getId())){
+            
+            SimpleMailMessage mailMessage = new SimpleMailMessage();
+            
+            User user = this.newPassword(userRecoveryPassword.getId());
+
+            mailMessage.setTo(user.getPerson().getEmail());
+            mailMessage.setSubject("Email de recuperação de Senha");
+            mailMessage.setText("Sua nova senha: " + user.getPassword() + "\n\nFaça login e altera sua senha atual\n\n");
+            mailMessage.setFrom("marcos.junior@darmlabs.ifce.edu.br");
+            emailSender.send(mailMessage);
+
+            return true;
+        }
+        return false;
     }
 
     @Transactional
