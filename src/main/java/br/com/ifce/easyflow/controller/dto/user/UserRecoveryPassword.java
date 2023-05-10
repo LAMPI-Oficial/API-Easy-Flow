@@ -5,6 +5,5 @@ import lombok.Setter;
 
 @Getter @Setter
 public class UserRecoveryPassword {
-    private Long id;
     private String login;
 }

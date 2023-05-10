@@ -12,7 +12,6 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.mail.javamail.JavaMailSender;
 
 import javax.transaction.Transactional;
 import java.security.SecureRandom;
@@ -23,12 +22,11 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final JavaMailSender emailSender;
+
 
     @Autowired
-    public UserService(UserRepository userRepository, JavaMailSender emailSender) {
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.emailSender = emailSender;
     }
 
     @Transactional
@@ -60,25 +58,11 @@ public class UserService {
                         "check the registered users."));
     }
 
-    public boolean findByRecovery(UserRecoveryPassword userRecoveryPassword){
+    public Optional<User> findByRecovery(UserRecoveryPassword userRecoveryPassword){
         String email = this.userRepository.findByLogin(userRecoveryPassword.getLogin()).get().getLogin();
         Long id = this.userRepository.findByLogin(userRecoveryPassword.getLogin()).get().getId();
 
-        if(email.equals(userRecoveryPassword.getLogin()) && id.equals(userRecoveryPassword.getId())){
-            
-            SimpleMailMessage mailMessage = new SimpleMailMessage();
-            
-            User user = this.newPassword(userRecoveryPassword.getId());
-
-            mailMessage.setTo(user.getPerson().getEmail());
-            mailMessage.setSubject("Email de recuperação de Senha");
-            mailMessage.setText("Sua nova senha: " + user.getPassword() + "\n\nFaça login e altera sua senha atual\n\n");
-            mailMessage.setFrom("marcos.junior@darmlabs.ifce.edu.br");
-            emailSender.send(mailMessage);
-
-            return true;
-        }
-        return false;
+        return userRepository.findById(id);
     }
 
     @Transactional

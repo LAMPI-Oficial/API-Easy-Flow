@@ -18,9 +18,12 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.fasterxml.jackson.databind.introspect.TypeResolutionContext.Empty;
+
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -28,7 +31,6 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final UserService userService;
-
     private final JavaMailSender emailSender;
 
     @Autowired
@@ -139,10 +141,22 @@ public class UserController {
     })
     @PostMapping("/recoveryPassword/")
     public ResponseEntity<UserRecoveryPassword> sendEmail(@Valid @RequestBody UserRecoveryPassword userRecoveryPassword) {
+        Optional<User> userModel = userService.findByRecovery(userRecoveryPassword);
+        String email = userModel.get().getLogin();
 
-        if(!userService.findByRecovery(userRecoveryPassword)){
-            throw new ConflictException("User not found");
+        if(!email.equals(userRecoveryPassword.getLogin())){
+            throw new ConflictException("Email User Not Found");
         }
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+            
+        User user = userModel.get();
+        user = userService.newPassword(user.getId());
+
+        mailMessage.setTo(user.getPerson().getEmail());
+        mailMessage.setSubject("Email de recuperação de Senha");
+        mailMessage.setText("Sua nova senha: " + user.getPassword() + "\n\nFaça login e altera sua senha atual\n\n");
+        mailMessage.setFrom("marcos.junior@darmlabs.ifce.edu.br");
+        emailSender.send(mailMessage);
         return ResponseEntity.ok(userRecoveryPassword);
     }
 }
