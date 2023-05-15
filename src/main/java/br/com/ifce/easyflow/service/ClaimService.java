@@ -1,6 +1,6 @@
-package br.com.ifce.easyflow.service;
+package br.com.ifce.easyflow.service.daily;
 
-import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
+import br.com.ifce.easyflow.service.daily.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

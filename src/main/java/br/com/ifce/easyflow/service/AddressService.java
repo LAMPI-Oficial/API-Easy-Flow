@@ -1,12 +1,12 @@
-package br.com.ifce.easyflow.service;
+package br.com.ifce.easyflow.service.daily;
 
 
 import br.com.ifce.easyflow.controller.dto.address.AddressRequestDTO;
 import br.com.ifce.easyflow.controller.dto.address.AddressUpdateDTO;
 import br.com.ifce.easyflow.model.Address;
 import br.com.ifce.easyflow.repository.AddressRepository;
-import br.com.ifce.easyflow.service.exceptions.ConflictException;
-import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
+import br.com.ifce.easyflow.service.daily.exceptions.ConflictException;
+import br.com.ifce.easyflow.service.daily.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;

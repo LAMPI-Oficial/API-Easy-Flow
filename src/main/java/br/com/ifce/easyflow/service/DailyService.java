@@ -1,4 +1,4 @@
-package br.com.ifce.easyflow.service;
+package br.com.ifce.easyflow.service.daily;
 
 import br.com.ifce.easyflow.controller.dto.daily.DailyRequestSaveDTO;
 import br.com.ifce.easyflow.controller.dto.daily.DailyRequestSaveFeedbackDTO;
@@ -9,8 +9,8 @@ import br.com.ifce.easyflow.model.Daily;
 import br.com.ifce.easyflow.model.Person;
 import br.com.ifce.easyflow.repository.DailyRepository;
 import br.com.ifce.easyflow.repository.PersonRepository;
-import br.com.ifce.easyflow.service.exceptions.BadRequestException;
-import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
+import br.com.ifce.easyflow.service.daily.exceptions.BadRequestException;
+import br.com.ifce.easyflow.service.daily.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -1,4 +1,4 @@
-package br.com.ifce.easyflow.service;
+package br.com.ifce.easyflow.service.daily;
 
 import br.com.ifce.easyflow.controller.dto.table.LabTableUpdateRequestDTO;
 import br.com.ifce.easyflow.controller.dto.table.SearchTablesAvailableRequestDTO;
@@ -6,8 +6,8 @@ import br.com.ifce.easyflow.model.LabTable;
 import br.com.ifce.easyflow.model.ReservedTables;
 import br.com.ifce.easyflow.repository.LabTableRepository;
 import br.com.ifce.easyflow.repository.ReservedTableRepository;
-import br.com.ifce.easyflow.service.exceptions.ConflictException;
-import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
+import br.com.ifce.easyflow.service.daily.exceptions.ConflictException;
+import br.com.ifce.easyflow.service.daily.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

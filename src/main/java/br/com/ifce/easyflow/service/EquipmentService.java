@@ -1,4 +1,4 @@
-package br.com.ifce.easyflow.service;
+package br.com.ifce.easyflow.service.daily;
 
 import br.com.ifce.easyflow.controller.dto.equipment.EquipmentPostRequestDTO;
 import br.com.ifce.easyflow.controller.dto.equipment.EquipmentPutRequestDTO;
@@ -6,8 +6,8 @@ import br.com.ifce.easyflow.controller.dto.equipment.EquipmentStatusPatchRequest
 import br.com.ifce.easyflow.model.Equipment;
 import br.com.ifce.easyflow.model.enums.EquipmentAvailabilityStatus;
 import br.com.ifce.easyflow.repository.EquipmentRepository;
-import br.com.ifce.easyflow.service.exceptions.DatabaseException;
-import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
+import br.com.ifce.easyflow.service.daily.exceptions.DatabaseException;
+import br.com.ifce.easyflow.service.daily.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

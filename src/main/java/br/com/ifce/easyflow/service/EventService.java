@@ -1,11 +1,11 @@
-package br.com.ifce.easyflow.service;
+package br.com.ifce.easyflow.service.daily;
 
 import br.com.ifce.easyflow.controller.dto.event.EventRequestDTO;
 import br.com.ifce.easyflow.controller.dto.event.EventResponseDTO;
 import br.com.ifce.easyflow.model.Event;
 import br.com.ifce.easyflow.repository.EventRepository;
-import br.com.ifce.easyflow.service.exceptions.BadRequestException;
-import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
+import br.com.ifce.easyflow.service.daily.exceptions.BadRequestException;
+import br.com.ifce.easyflow.service.daily.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;

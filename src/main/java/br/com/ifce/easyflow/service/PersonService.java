@@ -1,4 +1,4 @@
-package br.com.ifce.easyflow.service;
+package br.com.ifce.easyflow.service.daily;
 
 import br.com.ifce.easyflow.controller.dto.person.PersonCreateDTO;
 import br.com.ifce.easyflow.controller.dto.person.PersonDTO;
@@ -9,10 +9,9 @@ import br.com.ifce.easyflow.model.Person;
 import br.com.ifce.easyflow.model.StudyArea;
 import br.com.ifce.easyflow.model.User;
 import br.com.ifce.easyflow.repository.PersonRepository;
-import br.com.ifce.easyflow.service.exceptions.BadRequestException;
-import br.com.ifce.easyflow.service.exceptions.ConflictException;
+import br.com.ifce.easyflow.service.daily.exceptions.BadRequestException;
+import br.com.ifce.easyflow.service.daily.exceptions.ConflictException;
 import org.springframework.beans.BeanUtils;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
