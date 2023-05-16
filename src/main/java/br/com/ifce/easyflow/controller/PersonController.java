@@ -56,7 +56,6 @@ public class PersonController {
             @ApiResponse(code = 201, message = "Person saved"),
             @ApiResponse(code = 403, message = "Permission denied to access this resource"),
             @ApiResponse(code = 400, message = "Person cannot be saved, passwords do not match"),
-            @ApiResponse(code = 409, message = "Person already exists in the database"),
             @ApiResponse(code = 500, message = "Internal exception"),
     })
     @PostMapping
@@ -71,7 +70,8 @@ public class PersonController {
         UserResponseDTO user = new UserResponseDTO((User) authentication.getPrincipal());
 
         Person savedPerson = this.personService.save(person);
-        PersonSecurityDTO personSecurityDTO = new PersonSecurityDTO(token, user, savedPerson);
+        user.setPersonDTO(savedPerson);
+        PersonSecurityDTO personSecurityDTO = new PersonSecurityDTO(token, user);
 
         return ResponseEntity.ok(personSecurityDTO);
     }

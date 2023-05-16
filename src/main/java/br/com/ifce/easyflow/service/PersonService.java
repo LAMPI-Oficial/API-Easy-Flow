@@ -80,32 +80,33 @@ public class PersonService {
         return this.personRepository.findById(id)
                 .orElseThrow(PersonNotFoundException::new);
     }
-
+    @Transactional
     public boolean existsById(Long id) {
         Optional<Person> exist = this.personRepository.findById(id);
         return exist.isPresent();
     }
 
-
+    @Transactional
     public boolean existsByEmail(String email) {
         Optional<Person> exist = this.personRepository.findByEmail(email);
-
         return exist.isPresent();
     }
 
+    @Transactional
     public Person createPerson(PersonCreateDTO personCreateDTO) {
 
-        if(!personCreateDTO.getPassword().equals(personCreateDTO.getRepeated_password())){
-            throw new BadRequestException("Passwords does not match.");
-        }
         if(existsByEmail(personCreateDTO.getEmail())){
             throw new ConflictException("The email provided is already being used.");
         }
 
-        UserRequestDTO newUserDTO = new UserRequestDTO(personCreateDTO.getEmail(),
-                new BCryptPasswordEncoder().encode(personCreateDTO.getPassword()));
+        if(!personCreateDTO.getPassword().equals(personCreateDTO.getRepeated_password())){
+            throw new BadRequestException("Passwords does not match.");
+        }
 
-       User user = userService.save(newUserDTO);
+        UserRequestDTO newUserDTO = new UserRequestDTO(personCreateDTO.getEmail(),
+                                        personCreateDTO.getPassword());
+
+        User user = userService.save(newUserDTO);
 
         Person person = new Person();
         BeanUtils.copyProperties(personCreateDTO, person);
@@ -113,6 +114,8 @@ public class PersonService {
         person.setCourse(courseService.searchByID(personCreateDTO.getCourse_id()));
         person.setStudy_area(studyAreaService.searchByID(personCreateDTO.getStudy_area_id()));
         this.save(person);
+        user.setPerson(person);
+        
         return person;
     }
 }

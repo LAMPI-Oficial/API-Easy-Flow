@@ -65,7 +65,7 @@ public class AddressController {
 
     @ApiOperation(value = "Save a Address", tags = {"Address"})
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Saved reservation"),
+            @ApiResponse(code = 200, message = "Saved reservation"),
             @ApiResponse(code = 403, message = "Permission denied to access this resource"),
             @ApiResponse(code = 409, message = "Address login is already being used"),
             @ApiResponse(code = 500, message = "Internal exception"),
@@ -81,7 +81,7 @@ public class AddressController {
 
     @ApiOperation(value = "Update a Address by id", tags = {"Address"})
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Saved reservation"),
+            @ApiResponse(code = 200, message = "Saved reservation"),
             @ApiResponse(code = 403, message = "Permission denied to access this resource"),
             @ApiResponse(code = 404, message = "Address not found in database"),
             @ApiResponse(code = 409, message = "Address login is already being used"),

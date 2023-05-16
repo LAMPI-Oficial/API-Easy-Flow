@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 import javax.persistence.*;
 
 @Entity
@@ -25,9 +27,8 @@ public class Course {
     @Column(name = "course_name")
     private String name;
 
-    @OneToOne(mappedBy = "course")
-    @JoinColumn
-    private Person person;
+    @OneToMany(mappedBy = "course",  targetEntity = Person.class, cascade = CascadeType.ALL)
+    private List<Person> person;
 
     public Course(String course_name){
         this.name = course_name;

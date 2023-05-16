@@ -1,6 +1,9 @@
 package br.com.ifce.easyflow.security;
 
 import br.com.ifce.easyflow.service.UserService;
+
+import javax.annotation.security.PermitAll;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,6 +47,10 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.authorizeRequests()
 				.antMatchers(HttpMethod.POST, "/auth").permitAll()
+				.antMatchers(HttpMethod.GET,"/study_area").permitAll()
+				.antMatchers(HttpMethod.GET, "/courses").permitAll()
+				.antMatchers(HttpMethod.POST, "/address").permitAll()
+				.antMatchers(HttpMethod.POST, "/user/recoveryPassword").permitAll()
 				.antMatchers(HttpMethod.POST, "/persons").permitAll()
 				.antMatchers(HttpMethod.GET, "/actuator/**").permitAll()
 				.antMatchers(HttpMethod.GET, "/api/**").permitAll()

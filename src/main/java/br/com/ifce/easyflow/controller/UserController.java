@@ -1,10 +1,12 @@
 package br.com.ifce.easyflow.controller;
 
+import br.com.ifce.easyflow.controller.dto.user.UserRecoveryPassword;
 import br.com.ifce.easyflow.controller.dto.user.UserRequestDTO;
 import br.com.ifce.easyflow.controller.dto.user.UserResponseDTO;
 import br.com.ifce.easyflow.controller.dto.user.UserUpdateDTO;
 import br.com.ifce.easyflow.model.User;
 import br.com.ifce.easyflow.service.UserService;
+import br.com.ifce.easyflow.service.exceptions.ConflictException;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -16,9 +18,12 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.fasterxml.jackson.databind.introspect.TypeResolutionContext.Empty;
+
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -26,7 +31,6 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final UserService userService;
-
     private final JavaMailSender emailSender;
 
     @Autowired
@@ -80,7 +84,7 @@ public class UserController {
 
     @ApiOperation(value = "Save a user", tags = {"User"})
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Saved reservation"),
+            @ApiResponse(code = 200, message = "Saved reservation"),
             @ApiResponse(code = 403, message = "Permission denied to access this resource"),
             @ApiResponse(code = 409, message = "User login is already being used"),
             @ApiResponse(code = 500, message = "Internal exception"),
@@ -96,7 +100,7 @@ public class UserController {
 
     @ApiOperation(value = "Update a user by id", tags = {"User"})
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Saved reservation"),
+            @ApiResponse(code = 200, message = "Saved reservation"),
             @ApiResponse(code = 403, message = "Permission denied to access this resource"),
             @ApiResponse(code = 404, message = "User not found in database"),
             @ApiResponse(code = 409, message = "User login is already being used"),
@@ -130,25 +134,29 @@ public class UserController {
 
     @ApiOperation(value = "User recovery password", tags = {"User"})
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Saved reservation"),
+            @ApiResponse(code = 200, message = "Saved reservation"),
             @ApiResponse(code = 403, message = "Permission denied to access this resource"),
             @ApiResponse(code = 409, message = "User login is already being used"),
             @ApiResponse(code = 500, message = "Internal exception"),
     })
-    @GetMapping("/recoveryPassword/{id}")
-    public Boolean sendEmail(@PathVariable Long id) {
+    @PostMapping("/recoveryPassword/")
+    public ResponseEntity<UserRecoveryPassword> sendEmail(@Valid @RequestBody UserRecoveryPassword userRecoveryPassword) {
+        Optional<User> userModel = userService.findByRecovery(userRecoveryPassword);
+        String email = userModel.get().getLogin();
 
+        if(!email.equals(userRecoveryPassword.getLogin())){
+            throw new ConflictException("Email User Not Found");
+        }
         SimpleMailMessage mailMessage = new SimpleMailMessage();
-
-       User user = userService.newPassword(id);
+            
+        User user = userModel.get();
+        user = userService.newPassword(user.getId());
 
         mailMessage.setTo(user.getPerson().getEmail());
         mailMessage.setSubject("Email de recuperação de Senha");
         mailMessage.setText("Sua nova senha: " + user.getPassword() + "\n\nFaça login e altera sua senha atual\n\n");
         mailMessage.setFrom("marcos.junior@darmlabs.ifce.edu.br");
-
         emailSender.send(mailMessage);
-
-        return true;
+        return ResponseEntity.ok(userRecoveryPassword);
     }
 }

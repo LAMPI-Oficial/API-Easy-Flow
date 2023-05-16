@@ -86,7 +86,7 @@ public class CourseController {
             @ApiResponse(code = 500, message = "Internal exception"),
     })
     @PostMapping
-    public ResponseEntity<CourseResponseDTO> save(@RequestBody @Valid CourseRequestDTO courseRequest, UriComponentsBuilder uriBuilder){
+    public ResponseEntity<CourseResponseDTO> save(@RequestBody @Valid Course courseRequest, UriComponentsBuilder uriBuilder){
 
        Course course = this.courseService.save(courseRequest);
 

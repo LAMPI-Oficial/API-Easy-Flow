@@ -29,12 +29,11 @@ public class CourseService {
     }
 
     @Transactional
-    public Course save(CourseRequestDTO courseRequest) {
+    public Course save(Course course) {
 
-        if (existsByCourse(courseRequest.getCourse_name())) {
+        if (existsByCourse(course.getName())) {
             throw new ConflictException("A course with the given name already exists.");
         }
-        Course course = courseRequest.toCourse();
         return this.courseRepository.save(course);
     }
 

@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 import javax.persistence.*;
 
 @Entity
@@ -23,9 +25,8 @@ public class StudyArea {
     @Column(name = "study_area_name")
     private String name;
 
-    @OneToOne(mappedBy = "study_area")
-    @JoinColumn
-    private Person person;
+    @OneToMany(mappedBy = "study_area", targetEntity = Person.class, cascade = CascadeType.ALL)
+    private List<Person> person;
 
     public StudyArea(String study_area_name){
         this.name = study_area_name;

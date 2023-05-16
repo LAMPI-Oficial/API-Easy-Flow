@@ -32,6 +32,9 @@ public class Person {
     @Column(name = "person_email")
     private String email;
 
+    @Column(name = "person_phone")
+    private String phone;
+
     @Column(name = "person_admin")
     private boolean person_admin = false;
 
@@ -41,12 +44,12 @@ public class Person {
     private User user;
 
     @JsonIgnore
-    @OneToOne(targetEntity = Course.class, cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;
 
     @JsonIgnore
-    @OneToOne(targetEntity = StudyArea.class, cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "study_area_id")
     private StudyArea study_area;
 

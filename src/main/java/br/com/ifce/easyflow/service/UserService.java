@@ -1,5 +1,6 @@
 package br.com.ifce.easyflow.service;
 
+import br.com.ifce.easyflow.controller.dto.user.UserRecoveryPassword;
 import br.com.ifce.easyflow.controller.dto.user.UserRequestDTO;
 import br.com.ifce.easyflow.controller.dto.user.UserUpdateDTO;
 import br.com.ifce.easyflow.model.User;
@@ -7,6 +8,8 @@ import br.com.ifce.easyflow.repository.UserRepository;
 import br.com.ifce.easyflow.service.exceptions.ConflictException;
 import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +23,7 @@ public class UserService {
 
     private final UserRepository userRepository;
 
+
     @Autowired
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -28,10 +32,8 @@ public class UserService {
     @Transactional
     public User save(UserRequestDTO userRequest) {
 
-        boolean userExist = this.existsByLogin(userRequest.getLogin());
-
-        if (!userExist) {
-            throw new ConflictException("The email provided is already being used.");
+        if(existsByLogin(userRequest.getLogin())){
+            throw new ConflictException("The  email provided is already being used.");
         }
 
         User newUser = userRequest.toUser();
@@ -54,6 +56,13 @@ public class UserService {
         return this.userRepository.findByLogin(login)
                 .orElseThrow(() -> new ResourceNotFoundException("No user with that email was found in the database, " +
                         "check the registered users."));
+    }
+
+    public Optional<User> findByRecovery(UserRecoveryPassword userRecoveryPassword){
+        String email = this.userRepository.findByLogin(userRecoveryPassword.getLogin()).get().getLogin();
+        Long id = this.userRepository.findByLogin(userRecoveryPassword.getLogin()).get().getId();
+
+        return userRepository.findById(id);
     }
 
     @Transactional
