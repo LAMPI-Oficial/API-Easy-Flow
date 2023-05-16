@@ -114,6 +114,8 @@ public class PersonService {
         person.setCourse(courseService.searchByID(personCreateDTO.getCourse_id()));
         person.setStudy_area(studyAreaService.searchByID(personCreateDTO.getStudy_area_id()));
         this.save(person);
+        user.setPerson(person);
+        
         return person;
     }
 }

@@ -14,5 +14,5 @@ public class PersonSecurityDTO {
 
     private TokenDTO token;
     private UserResponseDTO user;
-    private Person person;
+ 
 }
