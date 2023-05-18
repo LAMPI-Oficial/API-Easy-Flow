@@ -16,6 +16,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -43,6 +45,19 @@ public class PersonService {
     public List<Person> findAll(){
         return this.personRepository.findAll();
     }
+    public List<Person> findAllRepresentants() {
+        List<Person> allPersons = this.personRepository.findAll();
+        List<Person> representants = new ArrayList<>();
+    
+        for (Person person : allPersons) {
+            if (person.isPerson_representant()) {
+                representants.add(person);
+            }
+        }
+    
+        return representants;
+    }
+    
 
     @Transactional
     public Person update(Long id, PersonDTO personDTO){

@@ -38,6 +38,9 @@ public class Person {
     @Column(name = "person_admin")
     private boolean person_admin = false;
 
+    @Column(name = "person_representant")
+    private boolean person_representant = false;
+
     @JsonIgnore
     @OneToOne(targetEntity = User.class, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")

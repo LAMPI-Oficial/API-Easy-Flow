@@ -75,6 +75,35 @@ public class PersonController {
 
         return ResponseEntity.ok(personSecurityDTO);
     }
+    @ApiOperation(value = "Save a person representant", tags = {"Person"})
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Person saved"),
+            @ApiResponse(code = 403, message = "Permission denied to access this resource"),
+            @ApiResponse(code = 400, message = "Person cannot be saved, passwords do not match"),
+            @ApiResponse(code = 500, message = "Internal exception"),
+    })
+    @PostMapping("savedRepresentant/{id}")
+    public ResponseEntity<Object> save_representant(@PathVariable Long id) {
+        Person person = personService.findById(id);
+        person.setPerson_representant(true);
+        Person savedPerson = this.personService.save(person);
+        return ResponseEntity.ok(savedPerson);
+    }
+    @ApiOperation(value = "Returns a list of representants", tags = {"Person"})
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful request"),
+            @ApiResponse(code = 403, message = "Permission denied to access this resource"),
+            @ApiResponse(code = 500, message = "Internal exception"),
+    })
+    @GetMapping("representants")
+    public List<PersonDTO> findAllRepresentants() {
+        return this.personService
+                .findAllRepresentants()
+                .stream()
+                .map(PersonDTO::new)
+                .collect(Collectors.toList());
+    }
+
 
     @ApiOperation(value = "Returns a list of persons", tags = {"Person"})
     @ApiResponses(value = {
