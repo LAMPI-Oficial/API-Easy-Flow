@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -11,13 +12,12 @@ import br.com.ifce.easyflow.controller.dto.person.PersonCreateDTO;
 import br.com.ifce.easyflow.model.Person;
 import br.com.ifce.easyflow.service.PersonService;
 
-
+@SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
-@SpringBootTest
-public abstract class PersonServiceTest  {
+class PersonServiceTest  {
 
-    
+    @Autowired
     private PersonService personService;
 
     @Test
