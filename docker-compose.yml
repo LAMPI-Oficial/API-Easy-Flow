@@ -1,0 +1,32 @@
+version: "3.9"
+services:
+  app:
+    image: 'api-easy-flow:1.0'
+    build: .
+    container_name: 'api-easy-flow'
+    expose:
+      - 8080
+    ports:
+      - "8080:8080"
+    volumes:
+      - .m2:/root/.m2
+    stdin_open: true
+    depends_on:
+      - maria-db
+    links:
+      - maria-db:ip_db
+    tty: true
+
+  maria-db:
+    image: mariadb
+    restart: always
+
+    container_name: 'easyflow-db'
+
+    ports:
+      - "3306:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: easyflow
+      MARIADB_USER: root
+      MARIADB_PASSWORD: root
