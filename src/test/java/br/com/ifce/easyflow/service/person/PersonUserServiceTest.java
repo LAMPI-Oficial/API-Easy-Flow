@@ -13,15 +13,12 @@ import br.com.ifce.easyflow.service.CourseService;
 import br.com.ifce.easyflow.service.PersonService;
 import br.com.ifce.easyflow.service.StudyAreaService;
 import br.com.ifce.easyflow.service.UserService;
-import br.com.ifce.easyflow.service.exceptions.BadRequestException;
-import br.com.ifce.easyflow.service.exceptions.ConflictException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.BeanUtils;
 
 import java.util.List;
 import java.util.Optional;
