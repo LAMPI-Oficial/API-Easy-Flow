@@ -33,10 +33,6 @@ public class AnnouncementServiceTest {
     @Mock
     private AnnouncementRepository announcementRepository;
 
-    @Test
-    public void test() {
-        Assertions.assertTrue(true);
-    }
 
     @Test
     void search_returns_AllAnnouncement_WhenSuccessful() {
