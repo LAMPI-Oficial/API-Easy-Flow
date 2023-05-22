@@ -1,10 +1,10 @@
-package br.com.ifce.easyflow.service.daily;
+package br.com.ifce.easyflow.service;
 
 import br.com.ifce.easyflow.controller.dto.studyArea.StudyAreaUpdateDTO;
 import br.com.ifce.easyflow.model.StudyArea;
 import br.com.ifce.easyflow.repository.StudyAreaRepository;
-import br.com.ifce.easyflow.service.daily.exceptions.ConflictException;
-import br.com.ifce.easyflow.service.daily.exceptions.ResourceNotFoundException;
+import br.com.ifce.easyflow.service.exceptions.ConflictException;
+import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

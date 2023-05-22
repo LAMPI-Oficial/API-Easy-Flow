@@ -1,4 +1,4 @@
-package br.com.ifce.easyflow.service.daily.exceptions;
+package br.com.ifce.easyflow.service.exceptions;
 
 public class ResourceNotFoundException extends RuntimeException{
 	

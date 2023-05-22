@@ -1,11 +1,11 @@
-package br.com.ifce.easyflow.service.daily;
+package br.com.ifce.easyflow.service;
 
 import java.util.List;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
 
-import br.com.ifce.easyflow.service.daily.exceptions.ResourceNotFoundException;
+import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,11 +1,11 @@
-package br.com.ifce.easyflow.service.daily;
+package br.com.ifce.easyflow.service;
 
 import br.com.ifce.easyflow.controller.dto.event.EventRequestDTO;
 import br.com.ifce.easyflow.controller.dto.event.EventResponseDTO;
 import br.com.ifce.easyflow.model.Event;
 import br.com.ifce.easyflow.repository.EventRepository;
-import br.com.ifce.easyflow.service.daily.exceptions.BadRequestException;
-import br.com.ifce.easyflow.service.daily.exceptions.ResourceNotFoundException;
+import br.com.ifce.easyflow.service.exceptions.BadRequestException;
+import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
