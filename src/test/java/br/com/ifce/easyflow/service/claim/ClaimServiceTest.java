@@ -25,7 +25,6 @@ import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
 @ExtendWith(MockitoExtension.class)
 public class ClaimServiceTest {
 
-
     @InjectMocks
     private ClaimService claimService;
 
@@ -33,12 +32,7 @@ public class ClaimServiceTest {
     private ClaimRepository claimRepository;
 
     @Test
-    void test(){
-        Assertions.assertTrue(true);
-    }
-
-    @Test
-    void save_returns_ASavedClaim_WhenSuccessful(){
+    void save_returns_ASavedClaim_WhenSuccessful() {
         Claim claim = createClaim();
         when(claimRepository.save(any(Claim.class))).thenReturn(claim);
 
@@ -51,7 +45,7 @@ public class ClaimServiceTest {
         Assertions.assertEquals(claim.getDescrition(), savedClaim.getDescrition());
         Assertions.assertEquals(claim.getCriationDate(), savedClaim.getCriationDate());
         verify(claimRepository).save(claim);
-        
+
     }
 
     @Test
@@ -126,7 +120,7 @@ public class ClaimServiceTest {
     }
 
     @Test
-    void update_returns_AUpdatedClaim_WhenSuccessful(){
+    void update_returns_AUpdatedClaim_WhenSuccessful() {
         Claim claim = createClaim();
         ClaimUpdateDTO ClaimUpdateDTO = createClaimUpdateDTO();
         when(claimRepository.save(claim)).thenReturn(claim);
@@ -150,7 +144,7 @@ public class ClaimServiceTest {
         return claim;
     }
 
-    private ClaimUpdateDTO createClaimUpdateDTO(){
+    private ClaimUpdateDTO createClaimUpdateDTO() {
         ClaimUpdateDTO claimUpdateDTO = new ClaimUpdateDTO();
 
         claimUpdateDTO.setClaim_user_name("Joao Victor");
