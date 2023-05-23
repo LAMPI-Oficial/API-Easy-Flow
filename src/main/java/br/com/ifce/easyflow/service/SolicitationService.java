@@ -86,15 +86,27 @@ public class SolicitationService {
         Person person = personRepository.findById(requestDTO.getPersonId())
                 .orElseThrow(PersonNotFoundException::new);
 
-        Solicitation newSolicitation = Solicitation.builder()
-                .justification(requestDTO.getJustification())
-                .startDate(requestDTO.getStartDate())
-                .endDate(requestDTO.getEndDate())
-                .person(person)
-                .status(SolicitationStatus.PENDING)
-                .build();
+        try {
+            LocalDate startDate = LocalDate.parse(requestDTO.getStartDate(),
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-        return solicitationRepository.save(newSolicitation);
+            LocalDate endDate = LocalDate.parse(requestDTO.getEndDate(),
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+            Solicitation newSolicitation = Solicitation.builder()
+                    .justification(requestDTO.getJustification())
+                    .startDate(startDate)
+                    .endDate(endDate)
+                    .person(person)
+                    .status(SolicitationStatus.PENDING)
+                    .build();
+
+            return solicitationRepository.save(newSolicitation);
+
+        } catch (DateTimeParseException ex) {
+            throw new BadRequestException("The date format does not conform to the format: yyyy-MM-dd. " + ex.getMessage());
+        }
+
     }
 
     @Transactional
