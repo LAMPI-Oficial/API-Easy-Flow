@@ -3,31 +3,52 @@ package br.com.ifce.easyflow.service.daily;
 import br.com.ifce.easyflow.controller.dto.daily.DailyRequestSaveDTO;
 import br.com.ifce.easyflow.controller.dto.daily.DailyRequestUpdateDTO;
 import br.com.ifce.easyflow.controller.dto.daily.DailyResponseDTO;
+import br.com.ifce.easyflow.model.Daily;
+import br.com.ifce.easyflow.model.Person;
 import br.com.ifce.easyflow.model.enums.DailyTaskStatusEnum;
+import br.com.ifce.easyflow.repository.DailyRepository;
 import br.com.ifce.easyflow.service.DailyService;
+import org.apache.catalina.LifecycleState;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@ActiveProfiles("test")
-@SpringBootTest
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
 class DailyServiceTest {
-    @Autowired
+    @InjectMocks
     DailyService dailyService;
-
+    @Mock
+    DailyRepository dailyRepository;
     @Test
-    void listAll() {
+    void listAll_DailyResponseDTO_WhenSuccessful() {
+        PageRequest pageable = PageRequest.of(0,5);
+        List<Daily> dailyList = List.of(createDaily());
+        PageImpl<Daily> dailyPage = new PageImpl<>(dailyList);
 
+        when(dailyRepository.findAll(pageable)).thenReturn(dailyPage);
+
+        Page<DailyResponseDTO> dailyResponseDTOSPage = dailyService.listAll(pageable);
+        List<DailyResponseDTO> dailyResponseDTOSList = dailyResponseDTOSPage.stream().toList();
+        Assertions.assertEquals(dailyList.get(0).getId(), dailyResponseDTOSList.get(0).getId());
+        Assertions.assertEquals(dailyList.get(0).getPerson().getId(), dailyResponseDTOSList.get(0).getPerson().getId());
+        Assertions.assertNotNull(dailyResponseDTOSList.get(0).getId());
+        verify(dailyRepository).findAll(pageable);
     }
 
     @Test
@@ -134,12 +155,40 @@ class DailyServiceTest {
                 .whatWasDoneTodayMessage("dnuybdbcdgctvsdyngbdcn")
                 .build();
     }
+    private DailyResponseDTO createDailyResponseDTO(){
+        LocalDate date = LocalDate.parse("2023-05-25", DateTimeFormatter.ISO_DATE);
+        Person person = new Person();
+        person.setId(1L);
+        person.setName("vfvfv");
+        return DailyResponseDTO.builder()
+                .id(1L)
+                .dailyTaskStatusEnum(DailyTaskStatusEnum.CONCLUDED)
+                .whatWasDoneTodayMessage("vfvvfvf")
+                .date(date)
+                .anyQuestionsMessage("FFvVFv")
+                .person(person)
+                .build();
+    }
 
     private DailyRequestUpdateDTO createDailyRequestUpdateDTO(){
         return DailyRequestUpdateDTO.builder()
                 .anyQuestionsMessage("vybsmjdmudoumudoumdodcdc")
                 .dailyTaskStatusEnum(DailyTaskStatusEnum.IN_PROGRESS)
                 .whatWasDoneTodayMessage("vndvsuvdsdvnusmudouc")
+                .build();
+    }
+    private Daily createDaily(){
+        LocalDate date = LocalDate.parse("2023-05-25", DateTimeFormatter.ISO_DATE);
+        Person person = new Person();
+        person.setId(1L);
+        person.setName("vfvfv");
+        return Daily.builder()
+                .id(1L)
+                .dailyTaskStatusEnum(DailyTaskStatusEnum.CONCLUDED)
+                .whatWasDoneTodayMessage("deeded")
+                .anyQuestionsMessage("ededed")
+                .date(date)
+                .person(person)
                 .build();
     }
 }
