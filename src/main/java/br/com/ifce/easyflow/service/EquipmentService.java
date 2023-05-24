@@ -77,7 +77,6 @@ public class EquipmentService {
         equipmentSaved.setProcessor(request.getProcessor());
         equipmentSaved.setRamMemory(request.getRamMemory());
         equipmentSaved.setStorageMemory(request.getStorageMemory());
-        equipmentSaved.setEquipmentStatus(EquipmentAvailabilityStatus.AVAILABLE);
         return equipmentSaved;
     }
 }
