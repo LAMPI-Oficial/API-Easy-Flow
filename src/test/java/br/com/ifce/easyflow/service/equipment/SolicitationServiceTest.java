@@ -1,6 +1,7 @@
 package br.com.ifce.easyflow.service.equipment;
 
 import br.com.ifce.easyflow.controller.dto.solicitation.SolicitationPostRequestDTO;
+import br.com.ifce.easyflow.controller.dto.solicitation.SolicitationPutRequestDTO;
 import br.com.ifce.easyflow.exception.PersonNotFoundException;
 import br.com.ifce.easyflow.model.Equipment;
 import br.com.ifce.easyflow.model.Person;
@@ -374,11 +375,86 @@ class SolicitationServiceTest {
     }
 
     @Test
-    void update() {
+    void update_Return_UpdatedEquipmentSolicitation_WhenSuccessful() {
+
+        Solicitation solicitationUpdated = createSolicitation();
+        Solicitation oldSolicitation = createSolicitation();
+
+        SolicitationPutRequestDTO requestDTO = SolicitationPutRequestDTO.builder()
+                .justification("Other Justification")
+                .startDate("2023-11-13")
+                .endDate("2023-11-16")
+                .build();
+
+        LocalDate endDate = LocalDate.parse(requestDTO.getEndDate());
+        LocalDate startDate = LocalDate.parse(requestDTO.getStartDate());
+
+        solicitationUpdated.setJustification(requestDTO.getJustification());
+        solicitationUpdated.setEndDate(endDate);
+        solicitationUpdated.setStartDate(startDate);
+
+        when(solicitationRepository.save(any(Solicitation.class))).thenReturn(solicitationUpdated);
+        when(solicitationRepository.findById(anyLong())).thenReturn(Optional.of(oldSolicitation));
+        Solicitation update = solicitationService.update(1L, requestDTO);
+
+        Assertions.assertNotNull(update.getId());
+        Assertions.assertEquals(solicitationUpdated.getId(), update.getId());
+        Assertions.assertEquals(requestDTO.getJustification(), update.getJustification());
+        Assertions.assertEquals(endDate, update.getEndDate());
+        Assertions.assertEquals(startDate, update.getStartDate());
+
     }
 
     @Test
+    void update_Throw_BadRequestExceptionInUpdatedSolicitation_WhenDateIsInWrongFormat() {
+
+        Solicitation solicitation = createSolicitation();
+
+        SolicitationPutRequestDTO requestDTO = SolicitationPutRequestDTO.builder()
+                .justification("Other Justification")
+                .startDate("23-11-13")
+                .endDate("2023-11-16")
+                .build();
+
+        when(solicitationRepository.findById(anyLong())).thenReturn(Optional.of(solicitation));
+
+        BadRequestException badRequestException = Assertions
+                .assertThrows(BadRequestException.class,
+                        () -> solicitationService.update(1L, requestDTO));
+
+
+        Assertions.assertTrue(badRequestException
+                .getMessage()
+                .contains("The date format does not conform to the format: yyyy-MM-dd. "));
+
+    }
+
+    @Test
+    void update_Throw_ResourceNotFoundExceptionInUpdatedSolicitation_WhenSolicitationNotFound() {
+
+        Solicitation solicitation = createSolicitation();
+
+        SolicitationPutRequestDTO requestDTO = SolicitationPutRequestDTO.builder()
+                .justification("Other Justification")
+                .startDate("23-11-13")
+                .endDate("2023-11-16")
+                .build();
+
+        when(solicitationRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        ResourceNotFoundException resourceNotFoundException = Assertions
+                .assertThrows(ResourceNotFoundException.class,
+                        () -> solicitationService.update(1L, requestDTO));
+
+
+        Assertions.assertTrue(resourceNotFoundException
+                .getMessage()
+                .contains("No request was found with the given id."));
+
+    }
+    @Test
     void approvedSolicitation() {
+
     }
 
     @Test
