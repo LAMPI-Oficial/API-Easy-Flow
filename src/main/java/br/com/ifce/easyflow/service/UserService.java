@@ -8,8 +8,6 @@ import br.com.ifce.easyflow.repository.UserRepository;
 import br.com.ifce.easyflow.service.exceptions.ConflictException;
 import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
