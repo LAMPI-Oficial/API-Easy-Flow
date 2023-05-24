@@ -29,14 +29,14 @@ public class SolicitationPostRequestDTO {
     @NotBlank(message = "The start date cannot be empty or null")
     @Future(message = "The start date cannot be earlier than today")
     @JsonProperty("start-date")
-    private LocalDate startDate;
+    private String startDate;
 
     @ApiModelProperty(value = "Solicitation end date",
             notes = "Obey ISO-8601 standard: yyyy-MM-dd", example = "2023-08-28")
     @NotBlank(message = "The end date cannot be empty or null")
     @Future(message = "The end date cannot be earlier than today")
     @JsonProperty("end-date")
-    private LocalDate endDate;
+    private String endDate;
 
     @ApiModelProperty(value = "Person id",
             notes = "ID of the person making the request", example = "2")
