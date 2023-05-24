@@ -113,9 +113,15 @@ public class SolicitationService {
     public Solicitation update(Long id, SolicitationPutRequestDTO requestDTO) {
         Solicitation solicitationSaved = this.findById(id);
 
-        Solicitation solicitationUpdated = updateSolicitationEntity(solicitationSaved, requestDTO);
+        try {
 
-        return solicitationRepository.save(solicitationUpdated);
+            Solicitation solicitationUpdated = updateSolicitationEntity(solicitationSaved, requestDTO);
+            return solicitationRepository.save(solicitationUpdated);
+
+        } catch (DateTimeParseException e) {
+            throw new BadRequestException("The date format does not conform to the format: yyyy-MM-dd. " + e.getMessage());
+        }
+
     }
 
     @Transactional
@@ -179,11 +185,17 @@ public class SolicitationService {
     }
 
     private Solicitation updateSolicitationEntity(Solicitation solicitationSaved,
-                                                  SolicitationPutRequestDTO requestDTO) {
+                                                  SolicitationPutRequestDTO requestDTO) throws DateTimeParseException {
+
+        LocalDate startDate = LocalDate.parse(requestDTO.getStartDate(),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+        LocalDate endDate = LocalDate.parse(requestDTO.getEndDate(),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
         solicitationSaved.setJustification(requestDTO.getJustification());
-        solicitationSaved.setStartDate(requestDTO.getStartDate());
-        solicitationSaved.setEndDate(requestDTO.getEndDate());
+        solicitationSaved.setStartDate(startDate);
+        solicitationSaved.setEndDate(endDate);
         return solicitationSaved;
 
     }
