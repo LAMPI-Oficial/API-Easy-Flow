@@ -1,5 +1,6 @@
 package br.com.ifce.easyflow.service.equipment;
 
+import br.com.ifce.easyflow.controller.dto.solicitation.ApprovedSolicitationDTO;
 import br.com.ifce.easyflow.controller.dto.solicitation.SolicitationPostRequestDTO;
 import br.com.ifce.easyflow.controller.dto.solicitation.SolicitationPutRequestDTO;
 import br.com.ifce.easyflow.exception.PersonNotFoundException;
@@ -15,6 +16,7 @@ import br.com.ifce.easyflow.service.SolicitationService;
 import br.com.ifce.easyflow.service.exceptions.BadRequestException;
 import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -432,8 +434,6 @@ class SolicitationServiceTest {
     @Test
     void update_Throw_ResourceNotFoundExceptionInUpdatedSolicitation_WhenSolicitationNotFound() {
 
-        Solicitation solicitation = createSolicitation();
-
         SolicitationPutRequestDTO requestDTO = SolicitationPutRequestDTO.builder()
                 .justification("Other Justification")
                 .startDate("23-11-13")
@@ -452,17 +452,198 @@ class SolicitationServiceTest {
                 .contains("No request was found with the given id."));
 
     }
+
     @Test
-    void approvedSolicitation() {
+    @DisplayName("Approved Solicitation: Return a equipment solicitation updated with status approved and equipment status busy")
+    void approvedSolicitation_Return_EquipmentSolicitation_WhenSuccessful() {
+
+        Solicitation solicitationUpdated = createSolicitation();
+        Solicitation oldSolicitation = createSolicitation();
+        oldSolicitation.setEquipment(null);
+        Equipment equipment = createEquipment();
+
+        ApprovedSolicitationDTO requestDTO = ApprovedSolicitationDTO.builder()
+                .equipmentId(1L)
+                .build();
+
+        solicitationUpdated.setStatus(SolicitationStatus.APPROVED);
+        solicitationUpdated.getEquipment().setEquipmentStatus(EquipmentAvailabilityStatus.BUSY);
+
+        when(solicitationRepository.findById(anyLong())).thenReturn(Optional.of(oldSolicitation));
+        when(equipmentRepository.findById(anyLong())).thenReturn(Optional.of(equipment));
+        when(solicitationRepository.save(any(Solicitation.class))).thenReturn(solicitationUpdated);
+
+        Solicitation solicitation = solicitationService.approvedSolicitation(1L, requestDTO);
+
+        Assertions.assertEquals(requestDTO.getEquipmentId(), solicitation.getEquipment().getId());
+        Assertions.assertEquals(oldSolicitation.getId(), solicitation.getId());
+        Assertions.assertEquals(SolicitationStatus.APPROVED, solicitation.getStatus());
+        Assertions.assertEquals(EquipmentAvailabilityStatus.BUSY, solicitation.getEquipment().getEquipmentStatus());
 
     }
 
     @Test
-    void denySolicitation() {
+    @DisplayName("Approved Solicitation: Throw a badRequestException when solicitation status is different from pending")
+    void approvedSolicitation_Throw_BadRequestException_WhenSolicitationStatusIsNotPending() {
+
+
+        Solicitation oldSolicitation = createSolicitation();
+        oldSolicitation.setEquipment(null);
+        Equipment equipment = createEquipment();
+
+        ApprovedSolicitationDTO requestDTO = ApprovedSolicitationDTO.builder()
+                .equipmentId(1L)
+                .build();
+
+        oldSolicitation.setStatus(SolicitationStatus.DENIED);
+
+        when(solicitationRepository.findById(anyLong())).thenReturn(Optional.of(oldSolicitation));
+        when(equipmentRepository.findById(anyLong())).thenReturn(Optional.of(equipment));
+
+        BadRequestException badRequestException = Assertions
+                .assertThrows(BadRequestException.class,
+                        () -> solicitationService.approvedSolicitation(1L, requestDTO));
+
+        Assertions.assertTrue(badRequestException.getMessage().contains("The request must be pending to be approved."));
+
+        verify(solicitationRepository).findById(anyLong());
+        verify(equipmentRepository).findById(anyLong());
+
+        verifyNoMoreInteractions(solicitationRepository);
+        verifyNoMoreInteractions(equipmentRepository);
+
     }
 
     @Test
-    void delete() {
+    @DisplayName("Approved Solicitation: Throw a badRequestException when equipment status is different from available")
+    void approvedSolicitation_Throw_BadRequestException_WhenEquipmentStatusIsNotAvailable() {
+
+        Solicitation oldSolicitation = createSolicitation();
+        oldSolicitation.setEquipment(null);
+
+        Equipment equipment = createEquipment();
+        equipment.setEquipmentStatus(EquipmentAvailabilityStatus.BUSY);
+
+        ApprovedSolicitationDTO requestDTO = ApprovedSolicitationDTO.builder()
+                .equipmentId(1L)
+                .build();
+
+        when(solicitationRepository.findById(anyLong())).thenReturn(Optional.of(oldSolicitation));
+        when(equipmentRepository.findById(anyLong())).thenReturn(Optional.of(equipment));
+
+        BadRequestException badRequestException = Assertions
+                .assertThrows(BadRequestException.class,
+                        () -> solicitationService.approvedSolicitation(1L, requestDTO));
+
+        Assertions.assertTrue(badRequestException.getMessage().contains("Equipment must be available to be attached to a request."));
+
+        verify(solicitationRepository).findById(anyLong());
+        verify(equipmentRepository).findById(anyLong());
+
+        verifyNoMoreInteractions(solicitationRepository);
+        verifyNoMoreInteractions(equipmentRepository);
+
+    }
+
+    @Test
+    @DisplayName("Approved Solicitation: Throw a resourceNotFoundException when equipment not found")
+    void approvedSolicitation_Throw_resourceNotFoundException_WhenEquipmentNotFound() {
+
+
+        Solicitation oldSolicitation = createSolicitation();
+        oldSolicitation.setEquipment(null);
+
+        ApprovedSolicitationDTO requestDTO = ApprovedSolicitationDTO.builder()
+                .equipmentId(1L)
+                .build();
+
+
+        when(solicitationRepository.findById(anyLong())).thenReturn(Optional.of(oldSolicitation));
+        when(equipmentRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        ResourceNotFoundException resourceNotFoundException = Assertions
+                .assertThrows(ResourceNotFoundException.class,
+                        () -> solicitationService.approvedSolicitation(1L, requestDTO));
+
+        Assertions.assertTrue(resourceNotFoundException.getMessage()
+                .contains("The equipment was not found in the database, please check the registered equipment."));
+
+        verify(solicitationRepository).findById(anyLong());
+        verify(equipmentRepository).findById(anyLong());
+
+        verifyNoMoreInteractions(solicitationRepository);
+        verifyNoMoreInteractions(equipmentRepository);
+
+    }
+
+    @Test
+    void denySolicitation_DenySolicitationEquipment_WhenSuccessful() {
+        Solicitation solicitationUpdated = createSolicitation();
+        Solicitation oldSolicitation = createSolicitation();
+        oldSolicitation.setEquipment(null);
+        oldSolicitation.setStatus(SolicitationStatus.PENDING);
+
+        solicitationUpdated.setStatus(SolicitationStatus.DENIED);
+
+        when(solicitationRepository.findById(anyLong())).thenReturn(Optional.of(oldSolicitation));
+        when(solicitationRepository.save(any(Solicitation.class))).thenReturn(solicitationUpdated);
+
+        solicitationService.denySolicitation(1L);
+
+        verify(solicitationRepository).findById(anyLong());
+        verify(solicitationRepository).save(any(Solicitation.class));
+    }
+
+    @Test
+    void denySolicitation_Throw_BadRequestException_WhenSolicitationStatusIsNotPending() {
+        Solicitation oldSolicitation = createSolicitation();
+        oldSolicitation.setStatus(SolicitationStatus.APPROVED);
+
+        when(solicitationRepository.findById(anyLong())).thenReturn(Optional.of(oldSolicitation));
+
+        BadRequestException badRequestException = Assertions
+                .assertThrows(BadRequestException.class,
+                        () -> solicitationService.denySolicitation(1L));
+
+        Assertions.assertTrue(badRequestException.getMessage().contains("Request must be pending to disapprove it"));
+
+        verify(solicitationRepository).findById(anyLong());
+        verifyNoMoreInteractions(solicitationRepository);
+    }
+
+    @Test
+    @DisplayName("Delete: delete a solicitation with linked equipment when successful")
+    void delete_Delete_EquipmentSolicitation_WhenSuccessful() {
+        Solicitation solicitation = createSolicitation();
+        Equipment equipment = createEquipment();
+
+        when(solicitationRepository.findById(anyLong())).thenReturn(Optional.of(solicitation));
+        when(equipmentRepository.findById(anyLong())).thenReturn(Optional.of(equipment));
+
+        solicitationService.delete(1L);
+
+        verify(equipmentRepository, times(1)).save(any(Equipment.class));
+        verify(solicitationRepository, times(1)).deleteById(anyLong());
+
+        verifyNoMoreInteractions(equipmentRepository);
+        verifyNoMoreInteractions(solicitationRepository);
+
+    }
+
+    @Test
+    @DisplayName("Delete: delete a solicitation without a connected equipment when successful")
+    void delete_Delete_EquipmentSolicitationWithoutConnectedEquipment_WhenSuccessful() {
+        Solicitation solicitation = createSolicitation();
+        solicitation.setEquipment(null);
+
+        when(solicitationRepository.findById(anyLong())).thenReturn(Optional.of(solicitation));
+
+        solicitationService.delete(1L);
+
+        verify(solicitationRepository, times(1)).deleteById(anyLong());
+        verifyNoInteractions(equipmentRepository);
+        verifyNoMoreInteractions(solicitationRepository);
+
     }
 
     private Solicitation createSolicitation() {
