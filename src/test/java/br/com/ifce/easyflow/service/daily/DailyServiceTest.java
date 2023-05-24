@@ -1,6 +1,7 @@
 package br.com.ifce.easyflow.service.daily;
 
 import br.com.ifce.easyflow.controller.dto.daily.DailyRequestSaveDTO;
+import br.com.ifce.easyflow.controller.dto.daily.DailyRequestSaveFeedbackDTO;
 import br.com.ifce.easyflow.controller.dto.daily.DailyRequestUpdateDTO;
 import br.com.ifce.easyflow.controller.dto.daily.DailyResponseDTO;
 import br.com.ifce.easyflow.exception.PersonNotFoundException;
@@ -221,7 +222,7 @@ class DailyServiceTest {
         Pageable pageable = PageRequest.of(0, 5);
         when(personRepository.existsById(anyLong())).thenReturn(true);
         BadRequestException badRequestException = Assertions.assertThrows(BadRequestException.class,
-                () -> dailyService.listByPersonIdAndDate(1L,"21-52-2000", pageable));
+                () -> dailyService.listByPersonIdAndDate(1L, "21-52-2000", pageable));
         Assertions.assertTrue(badRequestException.getMessage().contains("The date format does not conform to the format: yyyy-MM-dd. "));
 
         verifyNoInteractions(dailyRepository);
@@ -266,6 +267,7 @@ class DailyServiceTest {
 
         verifyNoInteractions(dailyRepository);
     }
+
     @Test
     void update_DailyResponseDTO_WhenSuccessful() {
         Daily daily = createDaily();
@@ -283,9 +285,9 @@ class DailyServiceTest {
         Assertions.assertEquals(dailyRequestUpdateDTO.getDailyTaskStatusEnum(), dailyResponseDTO.getDailyTaskStatusEnum());
 
     }
+
     @Test
     void update_Throws_ResourceNotFoundException_WhenDailyNotFound() {
-        Daily daily = createDaily();
         DailyRequestUpdateDTO dailyRequestUpdateDTO = createDailyRequestUpdateDTO();
 
         when(dailyRepository.findById(anyLong())).thenReturn(Optional.empty());
@@ -297,11 +299,65 @@ class DailyServiceTest {
     }
 
     @Test
-    void saveFeedback() {
+    void saveFeedback_DailyResponseDTO_WhenSuccessful() {
+        Daily daily = createDaily();
+        DailyRequestSaveFeedbackDTO dailyRequestSaveFeedbackDTO = new DailyRequestSaveFeedbackDTO();
+        dailyRequestSaveFeedbackDTO.setFeedbackMessage("vffvss");
+        Daily dailyToResponse = createDaily();
+        dailyToResponse.setFeedbackMessage(dailyRequestSaveFeedbackDTO.getFeedbackMessage());
+
+        when(dailyRepository.findById(anyLong())).thenReturn(Optional.of(daily));
+        when(dailyRepository.save(any(Daily.class))).thenReturn(dailyToResponse);
+
+        DailyResponseDTO dailyResponseDTO = dailyService.saveFeedback(1L, dailyRequestSaveFeedbackDTO);
+
+        Assertions.assertEquals(dailyToResponse.getId(), dailyResponseDTO.getId());
+        Assertions.assertEquals(dailyToResponse.getFeedbackMessage(), dailyResponseDTO.getFeedbackMessage());
+
+        verify(dailyRepository).findById(1L);
+        verifyNoMoreInteractions(dailyRepository);
+
     }
 
     @Test
-    void delete() {
+    void saveFeedback_Throws_ResourceNotFoundException_WhenDailyNotFound() {
+
+        DailyRequestSaveFeedbackDTO dailyRequestSaveFeedbackDTO = new DailyRequestSaveFeedbackDTO();
+        dailyRequestSaveFeedbackDTO.setFeedbackMessage("vffvss");
+
+        when(dailyRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        ResourceNotFoundException resourceNotFoundException = Assertions.assertThrows(ResourceNotFoundException.class,
+                () -> dailyService.saveFeedback(1L, dailyRequestSaveFeedbackDTO));
+        Assertions.assertTrue(resourceNotFoundException.getMessage().contains("No daily found with given id"));
+
+        verify(dailyRepository).findById(1L);
+        verifyNoMoreInteractions(dailyRepository);
+    }
+
+    @Test
+    void delete_WhenSuccessful() {
+        Daily daily = createDaily();
+        when(dailyRepository.findById(anyLong())).thenReturn(Optional.of(daily));
+        doNothing().when(dailyRepository).deleteById(anyLong());
+        dailyService.delete(1L);
+        verify(dailyRepository, times(1)).deleteById(1L);
+
+    }
+
+    @Test
+    void delete_Throws_ResourceNotFoundException_WhenDailyNotFound() {
+
+        when(dailyRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        ResourceNotFoundException resourceNotFoundException = Assertions.assertThrows(ResourceNotFoundException.class,
+                () -> dailyService.delete(1L));
+
+        Assertions.assertTrue(resourceNotFoundException.getMessage().contains("No daily found with given id"));
+
+        verify(dailyRepository).findById(1L);
+        verifyNoMoreInteractions(dailyRepository);
+
     }
 
     private DailyRequestSaveDTO createDailyRequestSaveDTO() {
