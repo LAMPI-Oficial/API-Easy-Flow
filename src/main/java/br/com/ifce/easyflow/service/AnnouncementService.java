@@ -51,10 +51,10 @@ public class AnnouncementService {
     public Announcement update(Long id, Announcement newAnnouncement) {
         Announcement oldAnnouncement = this.searchByID(id);
 
-        return this.save(this.fillUpdateClaim(oldAnnouncement, newAnnouncement));
+        return this.save(this.fillUpdateAnnouncement(oldAnnouncement, newAnnouncement));
     }
 
-    private Announcement fillUpdateClaim(Announcement oldAnnouncement, Announcement newAnnouncement) {
+    private Announcement fillUpdateAnnouncement(Announcement oldAnnouncement, Announcement newAnnouncement) {
         oldAnnouncement.setTitle(newAnnouncement.getTitle());
         oldAnnouncement.setDescrition(newAnnouncement.getDescrition());
         oldAnnouncement.setImageUrl(newAnnouncement.getImageUrl());
