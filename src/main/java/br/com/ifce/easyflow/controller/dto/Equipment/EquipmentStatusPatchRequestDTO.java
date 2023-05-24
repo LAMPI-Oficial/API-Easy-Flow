@@ -1,5 +1,6 @@
 package br.com.ifce.easyflow.controller.dto.equipment;
 
+import br.com.ifce.easyflow.model.Equipment;
 import br.com.ifce.easyflow.model.enums.EquipmentAvailabilityStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;

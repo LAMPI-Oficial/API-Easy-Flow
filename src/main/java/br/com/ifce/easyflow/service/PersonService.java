@@ -94,25 +94,25 @@ public class PersonService {
     @Transactional
     public Person createPerson(PersonCreateDTO personCreateDTO) {
 
-        if(existsByEmail(personCreateDTO.getEmail())){
-            throw new ConflictException("The email provided is already being used.");
-        }
+            UserRequestDTO newUserDTO = new UserRequestDTO(personCreateDTO.getEmail(), personCreateDTO.getPassword());
+            User user = userService.save(newUserDTO);
+        
+            Person person = new Person();
+            BeanUtils.copyProperties(personCreateDTO, person);
+            person.setUser(user);
+            person.setCourse(courseService.searchByID(personCreateDTO.getCourse_id()));
+            person.setStudy_area(studyAreaService.searchByID(personCreateDTO.getStudy_area_id()));
+            person = this.save(person);
+            user.setPerson(person);
+        
+            if (existsByEmail(personCreateDTO.getEmail())) {
+                throw new ConflictException("The email provided is already being used.");
+            }
 
-        if(!personCreateDTO.getPassword().equals(personCreateDTO.getRepeated_password())){
-            throw new BadRequestException("Passwords does not match.");
-        }
-
-        UserRequestDTO newUserDTO = new UserRequestDTO(personCreateDTO.getEmail(),
-                                        personCreateDTO.getPassword());
-
-        User user = userService.save(newUserDTO);
-
-        Person person = new Person();
-        BeanUtils.copyProperties(personCreateDTO, person);
-        person.setUser(user);
-        person.setCourse(courseService.searchByID(personCreateDTO.getCourse_id()));
-        person.setStudy_area(studyAreaService.searchByID(personCreateDTO.getStudy_area_id()));
-        this.save(person);
-        return person;
+            if(!personCreateDTO.getPassword().equals(personCreateDTO.getRepeated_password())){
+                throw new BadRequestException("Passwords does not match.");
+            }
+        
+            return person;        
     }
 }

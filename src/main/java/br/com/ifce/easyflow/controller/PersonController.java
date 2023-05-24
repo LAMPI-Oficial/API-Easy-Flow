@@ -70,7 +70,8 @@ public class PersonController {
         UserResponseDTO user = new UserResponseDTO((User) authentication.getPrincipal());
 
         Person savedPerson = this.personService.save(person);
-        PersonSecurityDTO personSecurityDTO = new PersonSecurityDTO(token, user, savedPerson);
+        user.setPersonDTO(savedPerson);
+        PersonSecurityDTO personSecurityDTO = new PersonSecurityDTO(token, user);
 
         return ResponseEntity.ok(personSecurityDTO);
     }
