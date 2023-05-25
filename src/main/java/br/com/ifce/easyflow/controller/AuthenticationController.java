@@ -54,7 +54,6 @@ public class AuthenticationController {
 
 			UserResponseDTO user = new UserResponseDTO((User) authentication.getPrincipal());
 
-
 			return ResponseEntity.ok(new UserSecurityDTO(token,user));
 		} catch (AuthenticationException e) {
 			e.printStackTrace();
