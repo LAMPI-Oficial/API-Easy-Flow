@@ -1,5 +1,6 @@
 package br.com.ifce.easyflow.service;
 
+import br.com.ifce.easyflow.controller.dto.event.EventRequestDTO;
 import br.com.ifce.easyflow.controller.dto.event.EventResponseDTO;
 import br.com.ifce.easyflow.model.Event;
 import br.com.ifce.easyflow.repository.EventRepository;
@@ -116,8 +117,6 @@ class EventServiceTest {
     @Test
     void listByDate_ThrowsBadRequestException_WhenTheDateFormatDoesNotConformToTheFormat() {
         PageRequest pageable = PageRequest.of(0, 5);
-        LocalDate date = LocalDate.parse("2023-08-25", DateTimeFormatter.ISO_DATE);
-
         BadRequestException badRequestException = Assertions.assertThrows(BadRequestException.class,
                 () -> eventService.listByDate("20-2002-8", pageable));
 
@@ -144,36 +143,123 @@ class EventServiceTest {
 
     }
 
-//    @Test
-//    void listByDateTime_PadeOfEventResponseDTO_WhenSuccessful() {
-//        PageRequest pageable = PageRequest.of(0, 5);
-//        List<Event> eventList = List.of(createEvent());
-//        PageImpl<Event> eventPage = new PageImpl<>(eventList);
-//        LocalDate date = LocalDate.parse("2023-08-25", DateTimeFormatter.ISO_DATE);
-//        LocalTime time = LocalTime.parse("15:30", DateTimeFormatter.ISO_TIME);
-//
-//        when(eventRepository.findByDateTime(date, time, pageable)).thenReturn(eventPage);
-//
-//        List<EventResponseDTO> eventResponseDTOList = eventService.listByDateTime("2023-08-25", "15:30", pageable).stream().toList();
-//
-//        Assertions.assertEquals(eventList.get(0).getId(), eventResponseDTOList.get(0).getId());
-//        Assertions.assertEquals(eventList.get(0).getTime(), eventResponseDTOList.get(0).getTime());
-//        Assertions.assertEquals(eventList.get(0).getDate(), eventResponseDTOList.get(0).getDate());
-//        verify(eventRepository).findByDate(date, pageable);
-//        verifyNoMoreInteractions(eventRepository);
-//
-//    }
-
     @Test
-    void save() {
+    void listByDateTime_PadeOfEventResponseDTO_WhenSuccessful() {
+        PageRequest pageable = PageRequest.of(0, 5);
+        List<Event> eventList = List.of(createEvent());
+        PageImpl<Event> eventPage = new PageImpl<>(eventList);
+        LocalDate date = LocalDate.parse("2023-08-25", DateTimeFormatter.ISO_DATE);
+        LocalTime time = LocalTime.parse("15:30", DateTimeFormatter.ISO_TIME);
+
+        when(eventRepository.findByDateTime(date, time, pageable)).thenReturn(eventPage);
+
+        List<EventResponseDTO> eventResponseDTOList = eventService.listByDateTime("2023-08-25", "15:30", pageable).stream().toList();
+
+        Assertions.assertEquals(eventList.get(0).getId(), eventResponseDTOList.get(0).getId());
+        Assertions.assertEquals(eventList.get(0).getTime(), eventResponseDTOList.get(0).getTime());
+        Assertions.assertEquals(eventList.get(0).getDate(), eventResponseDTOList.get(0).getDate());
+        verify(eventRepository).findByDateTime(date, time, pageable);
+        verifyNoMoreInteractions(eventRepository);
+
     }
 
     @Test
-    void update() {
+    void listByDate_PageEmpty_WhenNoEventsFoundOnThatDateAndTime() {
+        PageRequest pageable = PageRequest.of(0, 5);
+        List<Event> eventList = new ArrayList<>();
+        PageImpl<Event> eventPage = new PageImpl<>(eventList);
+        LocalDate date = LocalDate.parse("2023-08-25", DateTimeFormatter.ISO_DATE);
+        LocalTime time = LocalTime.parse("15:30", DateTimeFormatter.ISO_TIME);
+        when(eventRepository.findByDateTime(date, time, pageable)).thenReturn(eventPage);
+
+        List<EventResponseDTO> eventResponseDTOList = eventService.listByDateTime("2023-08-25", "15:30", pageable).stream().toList();
+
+        Assertions.assertTrue(eventResponseDTOList.isEmpty());
+
+        verify(eventRepository).findByDateTime(date, time, pageable);
+        verifyNoMoreInteractions(eventRepository);
+
     }
 
     @Test
-    void delete() {
+    void listByDate_ThrowsBadRequestException_WhenTheDateOrTimeFormatDoesNotConformToTheFormat() {
+        PageRequest pageable = PageRequest.of(0, 5);
+
+        BadRequestException badRequestException = Assertions.assertThrows(BadRequestException.class,
+                () -> eventService.listByDateTime("25-2255-14", "21-32", pageable));
+
+        Assertions.assertTrue(badRequestException.getMessage().contains("The date format does not conform to the format: yyyy-MM-dd or HH:mm "));
+        verifyNoInteractions(eventRepository);
+
+    }
+
+    @Test
+    void save_ReturnEventResponseDTO_WhenSuccessful() {
+        Event event = createEvent();
+
+        when(eventRepository.save(any(Event.class))).thenReturn(event);
+        EventRequestDTO eventRequestDTO = createEventRequestDTO();
+        EventResponseDTO eventResponseDTO = eventService.save(eventRequestDTO);
+
+        Assertions.assertEquals(event.getId(), eventResponseDTO.getId());
+        Assertions.assertNotNull(eventResponseDTO.getId());
+        Assertions.assertEquals(event.getDate(), eventResponseDTO.getDate());
+        Assertions.assertEquals(event.getDescription(), eventResponseDTO.getDescription());
+        verifyNoMoreInteractions(eventRepository);
+    }
+
+    @Test
+    void update_ReturnEventResponseDTO_WhenSuccessful() {
+        Event event = createEvent();
+        Event eventUpdated = createEvent();
+        eventUpdated.setDescription("vfvijuyuuni");
+
+        when(eventRepository.findById(anyLong())).thenReturn(Optional.of(event));
+        when(eventRepository.save(any(Event.class))).thenReturn(eventUpdated);
+
+        EventRequestDTO eventRequestDTO = createEventRequestDTO();
+        eventRequestDTO.setDescription("vfvijuyuuni");
+        EventResponseDTO eventResponseDTO = eventService.update(1L, eventRequestDTO);
+
+        Assertions.assertEquals(eventRequestDTO.getDescription(), eventResponseDTO.getDescription());
+        verifyNoMoreInteractions(eventRepository);
+
+    }
+
+    @Test
+    void update_ThrowsResourceNotFoundException_WhenEventNotFound() {
+        EventRequestDTO eventRequestDTO = createEventRequestDTO();
+
+        when(eventRepository.findById(anyLong())).thenReturn(Optional.empty());
+        ResourceNotFoundException resourceNotFoundException = Assertions.assertThrows(ResourceNotFoundException.class,
+                () -> eventService.update(2L, eventRequestDTO));
+
+        Assertions.assertTrue(resourceNotFoundException.getMessage().contains("Event not found with given id"));
+        verifyNoMoreInteractions(eventRepository);
+
+    }
+
+    @Test
+    void delete_WhenSuccessful() {
+        Event event = createEvent();
+
+        when(eventRepository.findById(anyLong())).thenReturn(Optional.of(event));
+        doNothing().when(eventRepository).deleteById(anyLong());
+        eventService.delete(1L);
+        verify(eventRepository, times(1)).deleteById(1L);
+
+    }
+
+    @Test
+    void delete_ThrowsResourceNotFoundException_WhenEventNotFoundl() {
+
+        when(eventRepository.findById(anyLong())).thenReturn(Optional.empty());
+        ResourceNotFoundException resourceNotFoundException = Assertions.assertThrows(ResourceNotFoundException.class,
+                () -> eventService.delete(2L));
+
+        Assertions.assertTrue(resourceNotFoundException.getMessage().contains("Event not found with given id"));
+        verifyNoMoreInteractions(eventRepository);
+
     }
 
     private Event createEvent(){
@@ -185,6 +271,17 @@ class EventServiceTest {
                 .date(date)
                 .description("dbvdyvbydb")
                 .imageUrl("vfvsfdfsfsfvf")
+                .build();
+    }
+
+    private EventRequestDTO createEventRequestDTO(){
+        LocalDate date = LocalDate.parse("2023-08-25", DateTimeFormatter.ISO_DATE);
+        LocalTime time = LocalTime.parse("15:30", DateTimeFormatter.ISO_TIME);
+        return EventRequestDTO.builder()
+                .description("dbvdyvbydb")
+                .imageUrl("vfvsfdfsfsfvf")
+                .date(date)
+                .time(time)
                 .build();
     }
 }
