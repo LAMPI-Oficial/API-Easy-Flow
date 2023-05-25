@@ -34,7 +34,7 @@ public class EventService {
     public Page<EventResponseDTO> listByDate(String date, Pageable pageable){
 
         try {
-            LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ISO_DATE);
             return eventRepository.findByDate(localDate, pageable).map(EventResponseDTO::new);
 
         } catch (DateTimeParseException e) {
@@ -46,11 +46,11 @@ public class EventService {
     public Page<EventResponseDTO> listByDateTime(String date, String time, Pageable pageable){
 
         try {
-            LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            LocalTime localTime = LocalTime.parse(time, DateTimeFormatter.ofPattern("HH-mm-ss"));
+            LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ISO_DATE);
+            LocalTime localTime = LocalTime.parse(time, DateTimeFormatter.ISO_TIME);
             return eventRepository.findByDateTime(localDate, localTime, pageable).map(EventResponseDTO::new);
         } catch (DateTimeParseException e) {
-            throw new BadRequestException("The date format does not conform to the format: yyyy-MM-dd. or HH-mm-ss " +
+            throw new BadRequestException("The date format does not conform to the format: yyyy-MM-dd or HH:mm " +
                     e.getMessage());
         }
     }
