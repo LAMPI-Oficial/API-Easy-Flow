@@ -1,4 +1,4 @@
-package br.com.ifce.smash;
+package br.com.ifce.easyflow;
 
 import org.springframework.boot.test.context.SpringBootTest;
 

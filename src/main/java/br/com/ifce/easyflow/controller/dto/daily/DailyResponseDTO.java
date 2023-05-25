@@ -3,16 +3,15 @@ package br.com.ifce.easyflow.controller.dto.daily;
 import br.com.ifce.easyflow.model.Daily;
 import br.com.ifce.easyflow.model.Person;
 import br.com.ifce.easyflow.model.enums.DailyTaskStatusEnum;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class DailyResponseDTO {
 
     private Long id;

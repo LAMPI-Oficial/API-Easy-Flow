@@ -2,6 +2,8 @@ package br.com.ifce.easyflow.security;
 
 import br.com.ifce.easyflow.service.UserService;
 
+import java.util.Arrays;
+
 import javax.annotation.security.PermitAll;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @EnableWebSecurity
 @Configuration
@@ -45,7 +50,8 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeRequests()
+		http.cors().and()
+			.authorizeRequests()
 				.antMatchers(HttpMethod.POST, "/auth").permitAll()
 				.antMatchers(HttpMethod.GET,"/study_area").permitAll()
 				.antMatchers(HttpMethod.GET, "/courses").permitAll()
@@ -60,13 +66,25 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
                         "/v2/api-docs",
                         "/webjars/**").permitAll()
                 .anyRequest().authenticated()
-//				.anyRequest().permitAll()
 				.and()
 				.csrf().disable()
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				.and()
 				.addFilterBefore(new AuthenticatorFilter(tokenService, userService), UsernamePasswordAuthenticationFilter.class);
 	}
+	
+	@Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("*")); // Define as origens permitidas (pode ser ajustado para suas necessidades)
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE")); // Define os métodos HTTP permitidos
+        configuration.setAllowedHeaders(Arrays.asList("*")); // Define os headers permitidos
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
 	
 	
 	@Override
