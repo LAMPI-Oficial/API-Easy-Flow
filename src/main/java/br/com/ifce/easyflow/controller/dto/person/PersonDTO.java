@@ -32,6 +32,10 @@ public class PersonDTO {
 
     private Long study_area_id;
 
+    private boolean person_admin;
+
+    private boolean person_representant;
+
     public PersonDTO(){
 
     }
@@ -43,7 +47,8 @@ public class PersonDTO {
         this.email = person.getEmail();
         this.study_area_id = person.getStudy_area().getId();
         this.course_id = person.getCourse().getId();
-        
+        this.person_admin = person.isPerson_admin();
+        this.person_representant = person.isPerson_representant();
     }
 
 

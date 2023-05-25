@@ -13,6 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/event")
 @RequiredArgsConstructor
@@ -30,7 +32,7 @@ public class EventController {
         return ResponseEntity.ok(eventService.listAll(pageable));
     }
 
-    @ApiOperation(value = "Returns the events by date.", notes = "Pattern: yyyy-MM-dd", tags = {"Event"})
+    @ApiOperation(value = "Returns the events by date.", notes = "Pattern: yyyy-MM-dd.  Example: /find-by-date?date=2023-10-25", tags = {"Event"})
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful request"),
             @ApiResponse(code = 403, message = "Permission denied to access this resource"),
@@ -42,7 +44,7 @@ public class EventController {
         return ResponseEntity.ok(eventService.listByDate(date,pageable));
     }
 
-    @ApiOperation(value = "Returns the events by date and time.", notes=" [Pattern of date: yyyy-MM-dd] [Pattern of time: HH-mm-ss]", tags = {"Event"})
+    @ApiOperation(value = "Returns the events by date and time.", notes=" [Pattern of date: yyyy-MM-dd] [Pattern of time: HH:mm]. Example: /find-by-date-and-time?date=2023-10-25&time=15:30", tags = {"Event"})
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful request"),
             @ApiResponse(code = 403, message = "Permission denied to access this resource"),
@@ -73,7 +75,7 @@ public class EventController {
             @ApiResponse(code = 500, message = "Internal exception"),
     })
     @PostMapping
-    public ResponseEntity<EventResponseDTO> save(@RequestBody EventRequestDTO eventRequestSaveDTO){
+    public ResponseEntity<EventResponseDTO> save(@RequestBody @Valid EventRequestDTO eventRequestSaveDTO){
         return ResponseEntity.ok(eventService.save(eventRequestSaveDTO));
     }
 
@@ -85,7 +87,7 @@ public class EventController {
             @ApiResponse(code = 500, message = "Internal exception"),
     })
     @PutMapping("/{id}")
-    public ResponseEntity<EventResponseDTO> update(@PathVariable Long id ,@RequestBody EventRequestDTO eventRequestsDTO){
+    public ResponseEntity<EventResponseDTO> update(@PathVariable Long id ,@RequestBody @Valid EventRequestDTO eventRequestsDTO){
         return ResponseEntity.ok(eventService.update(id, eventRequestsDTO));
     }
 
@@ -97,7 +99,7 @@ public class EventController {
             @ApiResponse(code = 500, message = "Internal exception"),
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity delete(@PathVariable Long id){
+    public ResponseEntity<Void> delete(@PathVariable Long id){
         eventService.delete(id);
         return ResponseEntity.ok().build();
     }
