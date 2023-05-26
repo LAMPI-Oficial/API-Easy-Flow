@@ -62,6 +62,13 @@ public class TableService {
     @Transactional
     public LabTable update(Long id, LabTableUpdateRequestDTO requestDTO) {
 
+        boolean existsTableWithNumber = labTableRepository
+                .existsByNumber(requestDTO.number());
+
+        if (existsTableWithNumber) {
+            throw new ConflictException("A table has already been registered with that number.");
+        }
+
         LabTable oldTable = this.findById(id);
         oldTable.setNumber(requestDTO.number());
         return this.save(oldTable);
