@@ -16,10 +16,28 @@ services:
     links:
       - maria-db:ip_db
     tty: true
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.services.api-easy-flow.loadbalancer.server.port=8080"
+      - "traefik.http.routers.api-easy-flow.rule=Host(`api-easy-flow.pensemais.net`)"
+      - "traefik.http.routers.api-easy-flow.entrypoints=web"
+      - "traefik.http.routers.api-easy-flow.middlewares=https_redirect"
+
+      - "traefik.http.routers.api-easy-flow-secure.rule=Host(`api-easy-flow.pensemais.net`)"
+      - "traefik.http.routers.api-easy-flow-secure.entrypoints=websecure"
+      - "traefik.http.routers.api-easy-flow-secure.tls=true"
+      - "traefik.http.routers.api-easy-flow.tls.certresolver=darm"
+    networks:
+      - proxy
+      - internal
 
   maria-db:
     image: mariadb
     restart: always
+    volumes:
+      - api-db:/var/lib/mysql
 
     container_name: 'easyflow-db'
 
@@ -30,3 +48,12 @@ services:
       MARIADB_DATABASE: easyflow
       MARIADB_USER: root
       MARIADB_PASSWORD: root
+    networks:
+      - internal
+networks:
+    proxy:
+        external: true
+    internal:
+        external: false
+volumes:
+  api-db:
