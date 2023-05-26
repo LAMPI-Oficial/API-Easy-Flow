@@ -143,7 +143,7 @@ public class ScheduleService {
     public Schedule approved(Long idSchedule) {
 
         Schedule scheduleSaved = scheduleRepository.findById(idSchedule)
-                .orElseThrow();
+                .orElseThrow(() -> new ResourceNotFoundException("No time was found with the given id."));
 
         if (!scheduleSaved.getStatus().equals(ScheduleRequestStatus.PENDING)) {
             throw new BadRequestException("The schedule request has a status other than pending.");
@@ -186,15 +186,11 @@ public class ScheduleService {
         Schedule schedule = scheduleRepository.findById(idSchedule)
                 .orElseThrow(() -> new ResourceNotFoundException("No time was found with the given id."));
 
-        if (!schedule.getStatus().equals(ScheduleRequestStatus.APPROVED)) {
 
-            scheduleRepository.deleteById(idSchedule);
+        reservedTableRepository.deleteByShiftScheduleAndDayAndTableId(schedule.getShiftSchedule(), schedule.getDay(), schedule.getTable().getId());
+        scheduleRepository.deleteById(idSchedule);
 
 
-        } else {
-            reservedTableRepository.deleteByShiftScheduleAndDayAndTableId(schedule.getShiftSchedule(), schedule.getDay(), schedule.getTable().getId());
-            scheduleRepository.deleteById(idSchedule);
-        }
     }
 
     private Schedule updateScheduleEntity(Schedule scheduleSaved, SchedulePutRequestDTO requestDTO) {
