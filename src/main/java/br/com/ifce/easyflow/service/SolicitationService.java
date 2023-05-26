@@ -12,7 +12,6 @@ import br.com.ifce.easyflow.model.enums.SolicitationStatus;
 import br.com.ifce.easyflow.repository.EquipmentRepository;
 import br.com.ifce.easyflow.repository.PersonRepository;
 import br.com.ifce.easyflow.repository.SolicitationRepository;
-//import br.com.ifce.easyflow.service.exceptions.BadRequestException;
 import br.com.ifce.easyflow.service.exceptions.BadRequestException;
 import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -86,24 +85,42 @@ public class SolicitationService {
         Person person = personRepository.findById(requestDTO.getPersonId())
                 .orElseThrow(PersonNotFoundException::new);
 
-        Solicitation newSolicitation = Solicitation.builder()
-                .justification(requestDTO.getJustification())
-                .startDate(requestDTO.getStartDate())
-                .endDate(requestDTO.getEndDate())
-                .person(person)
-                .status(SolicitationStatus.PENDING)
-                .build();
+        try {
+            LocalDate startDate = LocalDate.parse(requestDTO.getStartDate(),
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-        return solicitationRepository.save(newSolicitation);
+            LocalDate endDate = LocalDate.parse(requestDTO.getEndDate(),
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+            Solicitation newSolicitation = Solicitation.builder()
+                    .justification(requestDTO.getJustification())
+                    .startDate(startDate)
+                    .endDate(endDate)
+                    .person(person)
+                    .status(SolicitationStatus.PENDING)
+                    .build();
+
+            return solicitationRepository.save(newSolicitation);
+
+        } catch (DateTimeParseException ex) {
+            throw new BadRequestException("The date format does not conform to the format: yyyy-MM-dd. " + ex.getMessage());
+        }
+
     }
 
     @Transactional
     public Solicitation update(Long id, SolicitationPutRequestDTO requestDTO) {
         Solicitation solicitationSaved = this.findById(id);
 
-        Solicitation solicitationUpdated = updateSolicitationEntity(solicitationSaved, requestDTO);
+        try {
 
-        return solicitationRepository.save(solicitationUpdated);
+            Solicitation solicitationUpdated = updateSolicitationEntity(solicitationSaved, requestDTO);
+            return solicitationRepository.save(solicitationUpdated);
+
+        } catch (DateTimeParseException e) {
+            throw new BadRequestException("The date format does not conform to the format: yyyy-MM-dd. " + e.getMessage());
+        }
+
     }
 
     @Transactional
@@ -140,26 +157,27 @@ public class SolicitationService {
     public void denySolicitation(Long id) {
 
         Solicitation solicitation = this.findById(id);
-        if (solicitation.getStatus().equals(SolicitationStatus.PENDING)) {
-            solicitation.setStatus(SolicitationStatus.DENIED);
-            solicitationRepository.save(solicitation);
+        if (!solicitation.getStatus().equals(SolicitationStatus.PENDING)) {
+            throw new BadRequestException("Request must be pending to disapprove it");
         }
-        throw new BadRequestException("Request must be pending to disapprove it");
+        solicitation.setStatus(SolicitationStatus.DENIED);
+        solicitationRepository.save(solicitation);
     }
 
     @Transactional
     public void delete(Long id) {
 
         Solicitation solicitation = this.findById(id);
-        Long equipmentId = solicitation.getEquipment().getId();
 
-        Optional<Equipment> equipment = equipmentRepository.findById(equipmentId);
+        if (solicitation.getEquipment() != null) {
 
-        if (equipment.isPresent()) {
+            Optional<Equipment> equipment = equipmentRepository.findById(solicitation.getEquipment().getId());
 
-            equipment.get().setEquipmentStatus(EquipmentAvailabilityStatus.AVAILABLE);
-            equipmentRepository.save(equipment.get());
-            solicitationRepository.deleteById(id);
+            if (equipment.isPresent()) {
+                equipment.get().setEquipmentStatus(EquipmentAvailabilityStatus.AVAILABLE);
+                equipmentRepository.save(equipment.get());
+                solicitationRepository.deleteById(id);
+            }
 
         } else {
             solicitationRepository.deleteById(id);
@@ -167,11 +185,17 @@ public class SolicitationService {
     }
 
     private Solicitation updateSolicitationEntity(Solicitation solicitationSaved,
-                                                  SolicitationPutRequestDTO requestDTO) {
+                                                  SolicitationPutRequestDTO requestDTO) throws DateTimeParseException {
+
+        LocalDate startDate = LocalDate.parse(requestDTO.getStartDate(),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+        LocalDate endDate = LocalDate.parse(requestDTO.getEndDate(),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
         solicitationSaved.setJustification(requestDTO.getJustification());
-        solicitationSaved.setStartDate(requestDTO.getStartDate());
-        solicitationSaved.setEndDate(requestDTO.getEndDate());
+        solicitationSaved.setStartDate(startDate);
+        solicitationSaved.setEndDate(endDate);
         return solicitationSaved;
 
     }

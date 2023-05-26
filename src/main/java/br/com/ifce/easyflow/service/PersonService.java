@@ -12,7 +12,6 @@ import br.com.ifce.easyflow.repository.PersonRepository;
 import br.com.ifce.easyflow.service.exceptions.BadRequestException;
 import br.com.ifce.easyflow.service.exceptions.ConflictException;
 import org.springframework.beans.BeanUtils;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -95,27 +94,25 @@ public class PersonService {
     @Transactional
     public Person createPerson(PersonCreateDTO personCreateDTO) {
 
-        if(existsByEmail(personCreateDTO.getEmail())){
-            throw new ConflictException("The email provided is already being used.");
-        }
-
-        if(!personCreateDTO.getPassword().equals(personCreateDTO.getRepeated_password())){
-            throw new BadRequestException("Passwords does not match.");
-        }
-
-        UserRequestDTO newUserDTO = new UserRequestDTO(personCreateDTO.getEmail(),
-                                        personCreateDTO.getPassword());
-
-        User user = userService.save(newUserDTO);
-
-        Person person = new Person();
-        BeanUtils.copyProperties(personCreateDTO, person);
-        person.setUser(user);
-        person.setCourse(courseService.searchByID(personCreateDTO.getCourse_id()));
-        person.setStudy_area(studyAreaService.searchByID(personCreateDTO.getStudy_area_id()));
-        this.save(person);
-        user.setPerson(person);
+            UserRequestDTO newUserDTO = new UserRequestDTO(personCreateDTO.getEmail(), personCreateDTO.getPassword());
+            User user = userService.save(newUserDTO);
         
-        return person;
+            Person person = new Person();
+            BeanUtils.copyProperties(personCreateDTO, person);
+            person.setUser(user);
+            person.setCourse(courseService.searchByID(personCreateDTO.getCourse_id()));
+            person.setStudy_area(studyAreaService.searchByID(personCreateDTO.getStudy_area_id()));
+            person = this.save(person);
+            user.setPerson(person);
+        
+            if (existsByEmail(personCreateDTO.getEmail())) {
+                throw new ConflictException("The email provided is already being used.");
+            }
+
+            if(!personCreateDTO.getPassword().equals(personCreateDTO.getRepeated_password())){
+                throw new BadRequestException("Passwords does not match.");
+            }
+        
+            return person;        
     }
 }

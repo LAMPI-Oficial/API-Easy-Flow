@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
@@ -101,7 +102,7 @@ public class SolicitationController {
             @ApiResponse(code = 404, message = "Person not found in database"),
     })
     @PostMapping
-    public ResponseEntity<Solicitation> save(@RequestBody SolicitationPostRequestDTO requestDTO) {
+    public ResponseEntity<Solicitation> save(@RequestBody @Valid SolicitationPostRequestDTO requestDTO) {
         URI uri = URI.create("/solicitations");
         return ResponseEntity.created(uri).body(solicitationService.save(requestDTO));
     }
@@ -114,7 +115,7 @@ public class SolicitationController {
             @ApiResponse(code = 404, message = "Solicitation not found in database"),
     })
     @PutMapping("/{id}")
-    public ResponseEntity<Solicitation> update(@PathVariable Long id, @RequestBody SolicitationPutRequestDTO requestDTO) {
+    public ResponseEntity<Solicitation> update(@PathVariable Long id, @RequestBody @Valid SolicitationPutRequestDTO requestDTO) {
         return ResponseEntity.ok(solicitationService.update(id, requestDTO));
 
     }
@@ -128,7 +129,7 @@ public class SolicitationController {
     })
     @PatchMapping("/approve/{id}")
     ResponseEntity<Solicitation> approveRequest(@PathVariable Long id,
-                                                @RequestBody ApprovedSolicitationDTO requestDTO) {
+                                                @RequestBody @Valid ApprovedSolicitationDTO requestDTO) {
         return ResponseEntity.ok(solicitationService.approvedSolicitation(id, requestDTO));
 
     }

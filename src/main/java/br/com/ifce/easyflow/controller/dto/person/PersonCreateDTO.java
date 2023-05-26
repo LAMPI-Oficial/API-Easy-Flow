@@ -3,14 +3,21 @@ package br.com.ifce.easyflow.controller.dto.person;
 import br.com.ifce.easyflow.controller.dto.validation.constraints.OnlyNumbers;
 import br.com.ifce.easyflow.model.Person;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
-@Getter @Setter
+@AllArgsConstructor
+@Builder
+@Getter 
+@Setter
 public class PersonCreateDTO {
+    @NotBlank
+    private Long id;
 
     @ApiModelProperty(value = "Persons name", example = "Maria Castro")
     private String name;
@@ -32,8 +39,6 @@ public class PersonCreateDTO {
 
     @ApiModelProperty(value = "Person's repeated password", example = "123456")
     private String repeated_password;
-
-
 
     public PersonCreateDTO(){
 
