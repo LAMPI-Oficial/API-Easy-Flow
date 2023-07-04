@@ -9,6 +9,7 @@ import br.com.ifce.easyflow.model.Person;
 import br.com.ifce.easyflow.model.StudyArea;
 import br.com.ifce.easyflow.model.User;
 import br.com.ifce.easyflow.repository.PersonRepository;
+import br.com.ifce.easyflow.repository.UserRepository;
 import br.com.ifce.easyflow.service.exceptions.BadRequestException;
 import br.com.ifce.easyflow.service.exceptions.ConflictException;
 import org.springframework.beans.BeanUtils;
@@ -28,12 +29,14 @@ public class PersonService {
     private final UserService userService;
     private final CourseService courseService;
     private final StudyAreaService studyAreaService;
+    private final UserRepository userRepository;
 
-    public PersonService(PersonRepository personRepository, UserService userService, CourseService courseService, StudyAreaService studyAreaService) {
+    public PersonService(PersonRepository personRepository, UserService userService, CourseService courseService, StudyAreaService studyAreaService,UserRepository userRepository) {
         this.personRepository = personRepository;
         this.userService = userService;
         this.courseService = courseService;
         this.studyAreaService = studyAreaService;
+        this.userRepository = userRepository;
     }
 
     @Transactional
@@ -61,6 +64,7 @@ public class PersonService {
     @Transactional
     public Person update(Long id, PersonDTO personDTO){
         Person oldPerson = this.findById(id);
+        User oldUser = userService.findByLogin(oldPerson.getEmail());
 
 
         if(!Objects.equals(oldPerson.getEmail(), personDTO.getEmail()) && this.existsByEmail(personDTO.getEmail())){
@@ -74,6 +78,9 @@ public class PersonService {
         oldPerson.setEmail(personDTO.getEmail());
         oldPerson.setCourse(course);
         oldPerson.setStudy_area(studyArea);
+        oldUser.setLogin(personDTO.getEmail());
+
+        userRepository.save(oldUser);
 
        return this.save(oldPerson);
     }
