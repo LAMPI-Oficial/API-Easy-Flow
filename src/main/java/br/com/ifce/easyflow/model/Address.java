@@ -41,7 +41,7 @@ public class Address {
     @Column(name = "state")
     private StateEnum stateEnum;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "person_id")
     @JsonIgnore
     private Person person;

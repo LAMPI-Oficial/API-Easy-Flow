@@ -1,13 +1,10 @@
 package br.com.ifce.easyflow.controller.dto.user;
 
-import br.com.ifce.easyflow.controller.dto.person.PersonDTO;
 import br.com.ifce.easyflow.model.Address;
 import br.com.ifce.easyflow.model.Course;
 import br.com.ifce.easyflow.model.Person;
 import br.com.ifce.easyflow.model.StudyArea;
 import br.com.ifce.easyflow.model.User;
-
-import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -23,13 +20,13 @@ public class UserResponseDTO {
     private Person personDTO;
 
     @JsonProperty("studyArea")
-        private StudyArea studyArea;
+    private StudyArea studyArea;
 
     @JsonProperty("course")
-        private Course course;
+    private Course course;
 
     @JsonProperty("address")
-    private List<Address> address;
+    private Address address;
 
     public UserResponseDTO(){
 

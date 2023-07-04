@@ -66,8 +66,8 @@ public class Person {
     @OneToMany(mappedBy = "person", targetEntity = Schedule.class, cascade = CascadeType.ALL)
     private Set<Schedule> schedules;
     @JsonIgnore
-    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Address> addresses = new ArrayList<>();
+    @OneToOne(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Address addresses;
 
 
     public Person(Long id) {
