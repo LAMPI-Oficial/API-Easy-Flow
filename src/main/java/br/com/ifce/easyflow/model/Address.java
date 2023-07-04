@@ -5,6 +5,8 @@ import lombok.*;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "address")
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -41,6 +43,7 @@ public class Address {
 
     @ManyToOne
     @JoinColumn(name = "person_id")
+    @JsonIgnore
     private Person person;
 
 

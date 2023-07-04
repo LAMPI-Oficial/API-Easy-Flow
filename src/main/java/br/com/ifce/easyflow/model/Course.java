@@ -10,6 +10,8 @@ import java.util.List;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "course")
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -28,6 +30,7 @@ public class Course {
     private String name;
 
     @OneToMany(mappedBy = "course",  targetEntity = Person.class, cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Person> person;
 
     public Course(String course_name){
