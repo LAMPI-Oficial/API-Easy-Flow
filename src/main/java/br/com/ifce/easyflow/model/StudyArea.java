@@ -9,6 +9,8 @@ import java.util.List;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "study_area")
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -26,6 +28,7 @@ public class StudyArea {
     private String name;
 
     @OneToMany(mappedBy = "study_area", targetEntity = Person.class, cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Person> person;
 
     public StudyArea(String study_area_name){
