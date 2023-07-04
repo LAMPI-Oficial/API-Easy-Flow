@@ -12,7 +12,6 @@ import lombok.Setter;
 @Getter @Setter
 public class AddressRequestDTO {
 
-
     @ApiModelProperty(value = "Person's municipality", example = "Caninde")
     private String municipality;
 
@@ -31,8 +30,6 @@ public class AddressRequestDTO {
     @ApiModelProperty(value = "Person's stateEnum", example = "CEARA")
     private StateEnum stateEnum;
 
-    private Long person_id;
-
     public AddressRequestDTO(){
         
     }
@@ -44,8 +41,6 @@ public class AddressRequestDTO {
         this.complement = address.getComplement();
         this.neighborhood = address.getNeighborhood();
         this.stateEnum = address.getStateEnum();
-        this.person_id = address.getPerson().getId();
        }
 
-    
 }

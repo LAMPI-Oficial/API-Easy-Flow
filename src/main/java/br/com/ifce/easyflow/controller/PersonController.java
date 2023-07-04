@@ -1,14 +1,18 @@
 package br.com.ifce.easyflow.controller;
 
 
+import br.com.ifce.easyflow.controller.dto.address.AddressRequestDTO;
 import br.com.ifce.easyflow.controller.dto.person.PersonCreateDTO;
 import br.com.ifce.easyflow.controller.dto.person.PersonDTO;
+import br.com.ifce.easyflow.controller.dto.person.PersonSaveRequest;
 import br.com.ifce.easyflow.controller.dto.security.PersonSecurityDTO;
 import br.com.ifce.easyflow.controller.dto.security.TokenDTO;
 import br.com.ifce.easyflow.controller.dto.user.UserResponseDTO;
+import br.com.ifce.easyflow.model.Address;
 import br.com.ifce.easyflow.model.Person;
 import br.com.ifce.easyflow.model.User;
 import br.com.ifce.easyflow.security.TokenService;
+import br.com.ifce.easyflow.service.AddressService;
 import br.com.ifce.easyflow.service.CourseService;
 import br.com.ifce.easyflow.service.PersonService;
 import br.com.ifce.easyflow.service.StudyAreaService;
@@ -36,19 +40,16 @@ public class PersonController {
     private final UserService userService;
     private final CourseService courseService;
     private final StudyAreaService studyAreaService;
+    private final AddressService addressService;
+
 
     @Autowired
-    private AuthenticationManager authManager;
-
-    @Autowired
-    private TokenService tokenService;
-
-    @Autowired
-    private PersonController(PersonService personService, UserService userService, CourseService courseService, StudyAreaService studyAreaService) {
+    private PersonController(PersonService personService, UserService userService, CourseService courseService, StudyAreaService studyAreaService, AddressService addressService) {
         this.personService = personService;
         this.userService = userService;
         this.courseService = courseService;
         this.studyAreaService = studyAreaService;
+        this.addressService = addressService;
     }
 
     @ApiOperation(value = "Save a person", tags = {"Person"})
@@ -59,19 +60,11 @@ public class PersonController {
             @ApiResponse(code = 500, message = "Internal exception"),
     })
     @PostMapping
-    public ResponseEntity<Object> save(@RequestBody @Valid PersonCreateDTO personCreateDTO) {
+    public ResponseEntity<Object> save(@RequestBody @Valid PersonSaveRequest personSaveRequest) {
+        PersonCreateDTO personCreateDTO = personSaveRequest.getPersonCreateDTO();
+        AddressRequestDTO addressRequestDTO = personSaveRequest.getAddressRequestDTO();
 
-        Person person = personService.createPerson(personCreateDTO);
-
-        UsernamePasswordAuthenticationToken login = new UsernamePasswordAuthenticationToken(personCreateDTO.getEmail(), personCreateDTO.getPassword());
-
-        Authentication authentication = authManager.authenticate(login);
-        TokenDTO token = new TokenDTO(tokenService.generateToken(authentication));
-        UserResponseDTO user = new UserResponseDTO((User) authentication.getPrincipal());
-
-        Person savedPerson = this.personService.save(person);
-        user.setPersonDTO(savedPerson);
-        PersonSecurityDTO personSecurityDTO = new PersonSecurityDTO(token, user);
+        PersonSecurityDTO personSecurityDTO = personService.createPerson(personCreateDTO,addressRequestDTO);
 
         return ResponseEntity.ok(personSecurityDTO);
     }

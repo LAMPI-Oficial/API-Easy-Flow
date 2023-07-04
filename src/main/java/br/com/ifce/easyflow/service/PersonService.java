@@ -1,18 +1,30 @@
 package br.com.ifce.easyflow.service;
 
+import br.com.ifce.easyflow.controller.dto.address.AddressRequestDTO;
 import br.com.ifce.easyflow.controller.dto.person.PersonCreateDTO;
 import br.com.ifce.easyflow.controller.dto.person.PersonDTO;
+import br.com.ifce.easyflow.controller.dto.security.PersonSecurityDTO;
+import br.com.ifce.easyflow.controller.dto.security.TokenDTO;
 import br.com.ifce.easyflow.controller.dto.user.UserRequestDTO;
+import br.com.ifce.easyflow.controller.dto.user.UserResponseDTO;
 import br.com.ifce.easyflow.exception.PersonNotFoundException;
+import br.com.ifce.easyflow.model.Address;
 import br.com.ifce.easyflow.model.Course;
 import br.com.ifce.easyflow.model.Person;
 import br.com.ifce.easyflow.model.StudyArea;
 import br.com.ifce.easyflow.model.User;
 import br.com.ifce.easyflow.repository.PersonRepository;
 import br.com.ifce.easyflow.repository.UserRepository;
+import br.com.ifce.easyflow.security.TokenService;
 import br.com.ifce.easyflow.service.exceptions.BadRequestException;
 import br.com.ifce.easyflow.service.exceptions.ConflictException;
+
+
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -30,12 +42,20 @@ public class PersonService {
     private final CourseService courseService;
     private final StudyAreaService studyAreaService;
     private final UserRepository userRepository;
+    private final AddressService addressService;
 
-    public PersonService(PersonRepository personRepository, UserService userService, CourseService courseService, StudyAreaService studyAreaService,UserRepository userRepository) {
+    @Autowired
+    private AuthenticationManager authManager;
+
+    @Autowired
+    private TokenService tokenService;
+
+    public PersonService(PersonRepository personRepository, UserService userService, AddressService addressService, CourseService courseService, StudyAreaService studyAreaService,UserRepository userRepository) {
         this.personRepository = personRepository;
         this.userService = userService;
         this.courseService = courseService;
         this.studyAreaService = studyAreaService;
+        this.addressService = addressService;
         this.userRepository = userRepository;
     }
 
@@ -114,7 +134,15 @@ public class PersonService {
     }
 
     @Transactional
-    public Person createPerson(PersonCreateDTO personCreateDTO) {
+    public PersonSecurityDTO createPerson(PersonCreateDTO personCreateDTO, AddressRequestDTO addressRequestDTO) {
+
+            if (existsByEmail(personCreateDTO.getEmail())) {
+                throw new ConflictException("The email provided is already being used.");
+            }
+
+            if(!personCreateDTO.getPassword().equals(personCreateDTO.getRepeated_password())){
+                throw new BadRequestException("Passwords does not match.");
+            }
 
             UserRequestDTO newUserDTO = new UserRequestDTO(personCreateDTO.getEmail(), personCreateDTO.getPassword());
             User user = userService.save(newUserDTO);
@@ -124,17 +152,20 @@ public class PersonService {
             person.setUser(user);
             person.setCourse(courseService.searchByID(personCreateDTO.getCourse_id()));
             person.setStudy_area(studyAreaService.searchByID(personCreateDTO.getStudy_area_id()));
+            Address address = addressService.createAddress(addressRequestDTO);
+            address = addressService.save(address); 
+            person.setAddresses(address);
             person = this.save(person);
             user.setPerson(person);
-        
-            if (existsByEmail(personCreateDTO.getEmail())) {
-                throw new ConflictException("The email provided is already being used.");
-            }
+   
+            UsernamePasswordAuthenticationToken login = new UsernamePasswordAuthenticationToken(personCreateDTO.getEmail(), personCreateDTO.getPassword());
 
-            if(!personCreateDTO.getPassword().equals(personCreateDTO.getRepeated_password())){
-                throw new BadRequestException("Passwords does not match.");
-            }
-        
-            return person;        
+            Authentication authentication = authManager.authenticate(login);
+            TokenDTO token = new TokenDTO(tokenService.generateToken(authentication));
+            UserResponseDTO userResponseDTO = new UserResponseDTO((User) authentication.getPrincipal());
+
+            userResponseDTO.setPersonDTO(person);    
+
+            return new PersonSecurityDTO(token, userResponseDTO);
     }
 }
