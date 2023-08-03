@@ -1,9 +1,6 @@
 package br.com.ifce.easyflow.service;
 
-import br.com.ifce.easyflow.controller.dto.daily.DailyRequestSaveDTO;
-import br.com.ifce.easyflow.controller.dto.daily.DailyRequestSaveFeedbackDTO;
-import br.com.ifce.easyflow.controller.dto.daily.DailyRequestUpdateDTO;
-import br.com.ifce.easyflow.controller.dto.daily.DailyResponseDTO;
+import br.com.ifce.easyflow.controller.dto.daily.*;
 import br.com.ifce.easyflow.exception.PersonNotFoundException;
 import br.com.ifce.easyflow.model.Daily;
 import br.com.ifce.easyflow.model.Person;
@@ -20,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -27,9 +25,12 @@ public class DailyService {
     private final DailyRepository dailyRepository;
     private final PersonRepository personRepository;
 
-    public Page<DailyResponseDTO> listAll(Pageable pageable) {
+    public List<DailySimpleResponseDTO> listAll() {
 
-        return dailyRepository.findAll(pageable).map(DailyResponseDTO::new);
+        return dailyRepository.findAll()
+                .stream()
+                .map(DailySimpleResponseDTO::new)
+                .toList();
     }
 
     public DailyResponseDTO findById(Long id) {

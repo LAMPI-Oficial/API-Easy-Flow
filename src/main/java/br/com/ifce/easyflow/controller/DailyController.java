@@ -1,9 +1,6 @@
 package br.com.ifce.easyflow.controller;
 
-import br.com.ifce.easyflow.controller.dto.daily.DailyRequestSaveDTO;
-import br.com.ifce.easyflow.controller.dto.daily.DailyRequestSaveFeedbackDTO;
-import br.com.ifce.easyflow.controller.dto.daily.DailyRequestUpdateDTO;
-import br.com.ifce.easyflow.controller.dto.daily.DailyResponseDTO;
+import br.com.ifce.easyflow.controller.dto.daily.*;
 import br.com.ifce.easyflow.service.DailyService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -16,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,8 +28,8 @@ public class DailyController {
             @ApiResponse(code = 500, message = "Internal exception"),
     })
     @GetMapping
-    public ResponseEntity<Page<DailyResponseDTO>> listAll(Pageable pageable) {
-        return ResponseEntity.ok(dailyService.listAll(pageable));
+    public ResponseEntity<List<DailySimpleResponseDTO>> listAll() {
+        return ResponseEntity.ok(dailyService.listAll());
     }
 
     @ApiOperation(value = "Returns a daily by id", tags = {"Daily"})
