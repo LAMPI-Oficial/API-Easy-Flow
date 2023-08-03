@@ -6,26 +6,14 @@ import br.com.ifce.easyflow.controller.dto.person.PersonCreateDTO;
 import br.com.ifce.easyflow.controller.dto.person.PersonDTO;
 import br.com.ifce.easyflow.controller.dto.person.PersonSaveRequest;
 import br.com.ifce.easyflow.controller.dto.security.PersonSecurityDTO;
-import br.com.ifce.easyflow.controller.dto.security.TokenDTO;
-import br.com.ifce.easyflow.controller.dto.user.UserResponseDTO;
-import br.com.ifce.easyflow.model.Address;
 import br.com.ifce.easyflow.model.Person;
-import br.com.ifce.easyflow.model.User;
-import br.com.ifce.easyflow.security.TokenService;
-import br.com.ifce.easyflow.service.AddressService;
-import br.com.ifce.easyflow.service.CourseService;
 import br.com.ifce.easyflow.service.PersonService;
-import br.com.ifce.easyflow.service.StudyAreaService;
-import br.com.ifce.easyflow.service.UserService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -37,19 +25,11 @@ import java.util.stream.Collectors;
 public class PersonController {
 
     private final PersonService personService;
-    private final UserService userService;
-    private final CourseService courseService;
-    private final StudyAreaService studyAreaService;
-    private final AddressService addressService;
 
 
     @Autowired
-    private PersonController(PersonService personService, UserService userService, CourseService courseService, StudyAreaService studyAreaService, AddressService addressService) {
+    private PersonController(PersonService personService) {
         this.personService = personService;
-        this.userService = userService;
-        this.courseService = courseService;
-        this.studyAreaService = studyAreaService;
-        this.addressService = addressService;
     }
 
     @ApiOperation(value = "Save a person", tags = {"Person"})
@@ -64,10 +44,11 @@ public class PersonController {
         PersonCreateDTO personCreateDTO = personSaveRequest.getPersonCreateDTO();
         AddressRequestDTO addressRequestDTO = personSaveRequest.getAddressRequestDTO();
 
-        PersonSecurityDTO personSecurityDTO = personService.createPerson(personCreateDTO,addressRequestDTO);
+        PersonSecurityDTO personSecurityDTO = personService.createPerson(personCreateDTO, addressRequestDTO);
 
         return ResponseEntity.ok(personSecurityDTO);
     }
+
     @ApiOperation(value = "Save a person representant", tags = {"Person"})
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Person saved"),
