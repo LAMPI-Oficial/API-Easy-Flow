@@ -77,11 +77,9 @@ public class PersonController {
     })
     @PostMapping("savedRepresentant/{id}")
     public ResponseEntity<Object> save_representant(@PathVariable Long id) {
-        Person person = personService.findById(id);
-        person.setPerson_representant(true);
-        Person savedPerson = this.personService.save(person);
-        return ResponseEntity.ok(savedPerson);
+        return ResponseEntity.ok(personService.turnIntoRepresentative(id));
     }
+
     @ApiOperation(value = "Returns a list of representants", tags = {"Person"})
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful request"),

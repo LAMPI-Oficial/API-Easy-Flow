@@ -133,6 +133,12 @@ public class PersonService {
         return exist.isPresent();
     }
 
+    public Person turnIntoRepresentative(Long id) {
+        Person person = this.findById(id);
+        person.setPerson_representant(true);
+        return personRepository.save(person);
+    }
+
     @Transactional
     public PersonSecurityDTO createPerson(PersonCreateDTO personCreateDTO, AddressRequestDTO addressRequestDTO) {
 
