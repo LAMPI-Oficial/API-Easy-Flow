@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/event")
@@ -28,7 +29,7 @@ public class EventController {
             @ApiResponse(code = 500, message = "Internal exception"),
     })
     @GetMapping
-    public ResponseEntity<Page<EventResponseDTO>> listAll(Pageable pageable){
+    public ResponseEntity<List<EventResponseDTO>> listAll(Pageable pageable){
         return ResponseEntity.ok(eventService.listAll(pageable));
     }
 
@@ -40,7 +41,7 @@ public class EventController {
             @ApiResponse(code = 500, message = "Internal exception"),
     })
     @GetMapping("/find-by-date")
-    public ResponseEntity<Page<EventResponseDTO>> listByDate(@RequestParam(name = "date") String date, Pageable pageable){
+    public ResponseEntity<List<EventResponseDTO>> listByDate(@RequestParam(name = "date") String date, Pageable pageable){
         return ResponseEntity.ok(eventService.listByDate(date,pageable));
     }
 
@@ -52,7 +53,7 @@ public class EventController {
             @ApiResponse(code = 500, message = "Internal exception"),
     })
     @GetMapping("/find-by-date-and-time")
-    public ResponseEntity<Page<EventResponseDTO>> listByDateTime(@RequestParam(name = "date") String date, @RequestParam(name = "time") String time, Pageable pageable){
+    public ResponseEntity<List<EventResponseDTO>> listByDateTime(@RequestParam(name = "date") String date, @RequestParam(name = "time") String time, Pageable pageable){
         return ResponseEntity.ok(eventService.listByDateTime(date, time, pageable));
     }
 

@@ -16,13 +16,14 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class EventService {
     private final EventRepository eventRepository;
-    public Page<EventResponseDTO> listAll(Pageable pageable) {
-        return eventRepository.findAll(pageable).map(EventResponseDTO::new);
+    public List<EventResponseDTO> listAll(Pageable pageable) {
+        return eventRepository.findAll(pageable).stream().map(EventResponseDTO::new).toList();
     }
 
     public EventResponseDTO listById(Long id) {
@@ -30,11 +31,11 @@ public class EventService {
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found with given id"));
         return new EventResponseDTO(event);
     }
-    public Page<EventResponseDTO> listByDate(String date, Pageable pageable){
+    public List<EventResponseDTO> listByDate(String date, Pageable pageable){
 
         try {
             LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ISO_DATE);
-            return eventRepository.findByDate(localDate, pageable).map(EventResponseDTO::new);
+            return eventRepository.findByDate(localDate, pageable).stream().map(EventResponseDTO::new).toList();
 
         } catch (DateTimeParseException e) {
 
@@ -42,12 +43,12 @@ public class EventService {
                     e.getMessage());
         }
     }
-    public Page<EventResponseDTO> listByDateTime(String date, String time, Pageable pageable){
+    public List<EventResponseDTO> listByDateTime(String date, String time, Pageable pageable){
 
         try {
             LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ISO_DATE);
             LocalTime localTime = LocalTime.parse(time, DateTimeFormatter.ISO_TIME);
-            return eventRepository.findByDateTime(localDate, localTime, pageable).map(EventResponseDTO::new);
+            return eventRepository.findByDateTime(localDate, localTime, pageable).stream().map(EventResponseDTO::new).toList();
         } catch (DateTimeParseException e) {
             throw new BadRequestException("The date format does not conform to the format: yyyy-MM-dd or HH:mm " +
                     e.getMessage());
