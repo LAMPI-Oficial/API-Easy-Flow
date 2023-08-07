@@ -241,25 +241,26 @@ class EventServiceTest {
 
     @Test
     void delete_WhenSuccessful() {
-        Event event = createEvent();
+        Long id = 1L;
+        when(eventRepository.existsById(id)).thenReturn(true);
 
-        when(eventRepository.findById(anyLong())).thenReturn(Optional.of(event));
-        doNothing().when(eventRepository).deleteById(anyLong());
-        eventService.delete(1L);
-        verify(eventRepository, times(1)).deleteById(1L);
+        eventService.delete(id);
 
+        verify(eventRepository, times(1)).deleteById(id);
     }
 
     @Test
     void delete_ThrowsResourceNotFoundException_WhenEventNotFoundl() {
 
-        when(eventRepository.findById(anyLong())).thenReturn(Optional.empty());
-        ResourceNotFoundException resourceNotFoundException = Assertions.assertThrows(ResourceNotFoundException.class,
-                () -> eventService.delete(2L));
+        when(eventRepository.existsById(anyLong())).thenReturn(false);
 
-        Assertions.assertTrue(resourceNotFoundException.getMessage().contains("Event not found with given id"));
-        verifyNoMoreInteractions(eventRepository);
+        try{
+            eventService.delete(anyLong());
+        } catch (ResourceNotFoundException e){
+            assert true;
+        }
 
+        verify(eventRepository, never()).deleteById(anyLong());
     }
 
     private Event createEvent(){

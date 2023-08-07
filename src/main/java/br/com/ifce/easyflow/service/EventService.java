@@ -77,8 +77,11 @@ public class EventService {
 
     @Transactional
     public void delete(Long id){
-        eventRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Event not found with given id"));
+
+        if (!eventRepository.existsById(id)){
+            throw new ResourceNotFoundException("Event not found with given id.");
+        }
+
         eventRepository.deleteById(id);
     }
 
