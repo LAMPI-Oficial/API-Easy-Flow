@@ -52,7 +52,7 @@ public class DailyController {
             @ApiResponse(code = 500, message = "Internal exception"),
     })
     @GetMapping("/person/{id}")
-    public ResponseEntity<Page<DailyResponseDTO>> listsByIdPerson(@PathVariable Long id, Pageable pageable) {
+    public ResponseEntity<List<DailyResponseDTO>> listsByIdPerson(@PathVariable Long id, Pageable pageable) {
 
         return ResponseEntity.ok(dailyService.listByPersonId(id, pageable));
     }
@@ -65,7 +65,7 @@ public class DailyController {
             @ApiResponse(code = 500, message = "Internal exception"),
     })
     @GetMapping("/find-by-date")
-    public ResponseEntity<Page<DailyResponseDTO>> listByDate(@RequestParam(name = "date") String date, Pageable pageable){
+    public ResponseEntity<List<DailyResponseDTO>> listByDate(@RequestParam(name = "date") String date, Pageable pageable){
         return ResponseEntity.ok(dailyService.listByDate(date, pageable));
 
     }
@@ -79,7 +79,7 @@ public class DailyController {
             @ApiResponse(code = 500, message = "Internal exception"),
     })
     @GetMapping("/person/{id}/find-by-date")
-    public ResponseEntity<Page<DailyResponseDTO>> listDailysByPersonIdAndDate(@PathVariable Long id, @RequestParam(name = "date") String date, Pageable pageable) {
+    public ResponseEntity<List<DailyResponseDTO>> listDailysByPersonIdAndDate(@PathVariable Long id, @RequestParam(name = "date") String date, Pageable pageable) {
 
         return ResponseEntity.ok(dailyService.listByPersonIdAndDate(id, date, pageable));
     }
@@ -131,7 +131,7 @@ public class DailyController {
             @ApiResponse(code = 500, message = "Internal exception"),
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         dailyService.delete(id);
         return ResponseEntity.noContent().build();
     }

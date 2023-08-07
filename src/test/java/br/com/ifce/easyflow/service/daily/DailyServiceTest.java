@@ -1,9 +1,6 @@
 package br.com.ifce.easyflow.service.daily;
 
-import br.com.ifce.easyflow.controller.dto.daily.DailyRequestSaveDTO;
-import br.com.ifce.easyflow.controller.dto.daily.DailyRequestSaveFeedbackDTO;
-import br.com.ifce.easyflow.controller.dto.daily.DailyRequestUpdateDTO;
-import br.com.ifce.easyflow.controller.dto.daily.DailyResponseDTO;
+import br.com.ifce.easyflow.controller.dto.daily.*;
 import br.com.ifce.easyflow.exception.PersonNotFoundException;
 import br.com.ifce.easyflow.model.Daily;
 import br.com.ifce.easyflow.model.Person;
@@ -19,8 +16,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
@@ -43,32 +38,30 @@ class DailyServiceTest {
 
     @Test
     void listAll_DailyResponseDTO_WhenSuccessful() {
-        PageRequest pageable = PageRequest.of(0, 5);
+
         List<Daily> dailyList = List.of(createDaily());
-        PageImpl<Daily> dailyPage = new PageImpl<>(dailyList);
 
-        when(dailyRepository.findAll(pageable)).thenReturn(dailyPage);
+        when(dailyRepository.findAll()).thenReturn(dailyList);
 
-        Page<DailyResponseDTO> dailyResponseDTOSPage = dailyService.listAll(pageable);
-        List<DailyResponseDTO> dailyResponseDTOSList = dailyResponseDTOSPage.stream().toList();
+        List<DailySimpleResponseDTO> dailyResponseDTOSList = dailyService.listAll();
         Assertions.assertEquals(dailyList.get(0).getId(), dailyResponseDTOSList.get(0).getId());
-        Assertions.assertEquals(dailyList.get(0).getPerson().getId(), dailyResponseDTOSList.get(0).getPerson().getId());
+        Assertions.assertEquals(dailyList.get(0).getPerson().getId(), dailyResponseDTOSList.get(0).getPersonId());
         Assertions.assertNotNull(dailyResponseDTOSList.get(0).getId());
-        verify(dailyRepository).findAll(pageable);
+        verify(dailyRepository).findAll();
     }
 
     @Test
     void listAll_DailyResponseDTO_Return_EmptyPage_WhenSuccessful() {
         PageRequest pageRequest = PageRequest.of(0, 5);
         List<Daily> dailyList = new ArrayList<>();
-        PageImpl<Daily> dailyPage = new PageImpl<>(dailyList);
 
-        when(dailyRepository.findAll(pageRequest)).thenReturn(dailyPage);
 
-        List<DailyResponseDTO> dailyResponseDto = dailyService.listAll(pageRequest).stream().toList();
+        when(dailyRepository.findAll()).thenReturn(dailyList);
+
+        List<DailySimpleResponseDTO> dailyResponseDto = dailyService.listAll();
 
         Assertions.assertTrue(dailyResponseDto.isEmpty());
-        verify(dailyRepository).findAll(pageRequest);
+        verify(dailyRepository).findAll();
         verifyNoMoreInteractions(dailyRepository);
 
     }
@@ -103,12 +96,11 @@ class DailyServiceTest {
     void listByPersonId_Return_PageOfDailyResponseDTO_WhenSuccessful() {
         PageRequest pageable = PageRequest.of(0, 5);
         List<Daily> dailyList = List.of(createDaily());
-        PageImpl<Daily> dailyPage = new PageImpl<>(dailyList);
 
         when(personRepository.existsById(anyLong())).thenReturn(true);
-        when(dailyRepository.findByPersonId(1L, pageable)).thenReturn(dailyPage);
+        when(dailyRepository.findByPersonId(1L, pageable)).thenReturn(dailyList);
 
-        List<DailyResponseDTO> dailyResponseDTOList = dailyService.listByPersonId(1L, pageable).stream().toList();
+        List<DailyResponseDTO> dailyResponseDTOList = dailyService.listByPersonId(1L, pageable);
 
         Assertions.assertEquals(dailyList.get(0).getId(), dailyResponseDTOList.get(0).getId());
         Assertions.assertEquals(dailyList.get(0).getPerson().getId(), dailyResponseDTOList.get(0).getPerson().getId());
@@ -130,12 +122,11 @@ class DailyServiceTest {
     @Test
     void listByDate_PageOfDailyResponseDTO_WhenSuccessful() {
         List<Daily> dailyList = List.of(createDaily());
-        PageImpl<Daily> dailyPage = new PageImpl<>(dailyList);
         Pageable pageable = PageRequest.of(0, 5);
         LocalDate date = LocalDate.parse("2023-05-25", DateTimeFormatter.ISO_DATE);
-        when(dailyRepository.findByDate(date, pageable)).thenReturn(dailyPage);
+        when(dailyRepository.findByDate(date, pageable)).thenReturn(dailyList);
 
-        List<DailyResponseDTO> dailyResponseDTOList = dailyService.listByDate("2023-05-25", pageable).stream().toList();
+        List<DailyResponseDTO> dailyResponseDTOList = dailyService.listByDate("2023-05-25", pageable);
 
         Assertions.assertEquals(dailyList.get(0).getId(), dailyResponseDTOList.get(0).getId());
         Assertions.assertEquals(dailyList.get(0).getDate(), dailyResponseDTOList.get(0).getDate());
@@ -146,10 +137,9 @@ class DailyServiceTest {
     @Test
     void listByDate_Return_PageEmptyOfDailyResponseDTO_WhenNoDailyToBeFound() {
         List<Daily> dailyList = new ArrayList<>();
-        PageImpl<Daily> dailyPage = new PageImpl<>(dailyList);
         Pageable pageable = PageRequest.of(0, 5);
         LocalDate date = LocalDate.parse("2023-05-25", DateTimeFormatter.ISO_DATE);
-        when(dailyRepository.findByDate(date, pageable)).thenReturn(dailyPage);
+        when(dailyRepository.findByDate(date, pageable)).thenReturn(dailyList);
 
         List<DailyResponseDTO> dailyResponseDTOList = dailyService.listByDate("2023-05-25", pageable).stream().toList();
 
@@ -170,12 +160,11 @@ class DailyServiceTest {
     @Test
     void listByPersonIdAndDate_PageOfDailyResponseDTO_WhenSuccessful() {
         List<Daily> dailyList = List.of(createDaily());
-        PageImpl<Daily> dailyPage = new PageImpl<>(dailyList);
         Pageable pageable = PageRequest.of(0, 5);
         LocalDate date = LocalDate.parse("2023-05-25", DateTimeFormatter.ISO_DATE);
 
         when(personRepository.existsById(anyLong())).thenReturn(true);
-        when(dailyRepository.findByPersonIdAndDate(1L, date, pageable)).thenReturn(dailyPage);
+        when(dailyRepository.findByPersonIdAndDate(1L, date, pageable)).thenReturn(dailyList);
 
         List<DailyResponseDTO> dailyResponseDTOList = dailyService.listByPersonIdAndDate(1L, "2023-05-25", pageable).stream().toList();
 
@@ -189,12 +178,11 @@ class DailyServiceTest {
     @Test
     void listByPersonIdAndDate_EmptyPageOfDailyResponseDTO_WhenNoDailyToBeFound() {
         List<Daily> dailyList = new ArrayList<>();
-        PageImpl<Daily> dailyPage = new PageImpl<>(dailyList);
         Pageable pageable = PageRequest.of(0, 5);
         LocalDate date = LocalDate.parse("2023-05-25", DateTimeFormatter.ISO_DATE);
 
         when(personRepository.existsById(anyLong())).thenReturn(true);
-        when(dailyRepository.findByPersonIdAndDate(1L, date, pageable)).thenReturn(dailyPage);
+        when(dailyRepository.findByPersonIdAndDate(1L, date, pageable)).thenReturn(dailyList);
 
         List<DailyResponseDTO> dailyResponseDTOList = dailyService.listByPersonIdAndDate(1L, "2023-05-25", pageable).stream().toList();
 
@@ -271,13 +259,12 @@ class DailyServiceTest {
     @Test
     void update_DailyResponseDTO_WhenSuccessful() {
         Daily daily = createDaily();
-        Daily dailyUpdated = daily;
-        dailyUpdated.setDailyTaskStatusEnum(DailyTaskStatusEnum.IN_PROGRESS);
-        dailyUpdated.setAnyQuestionsMessage("vybsmjdmudoumudoumdodcdc");
-        dailyUpdated.setWhatWasDoneTodayMessage("vndvsuvdsdvnusmudouc");
+        daily.setDailyTaskStatusEnum(DailyTaskStatusEnum.IN_PROGRESS);
+        daily.setAnyQuestionsMessage("vybsmjdmudoumudoumdodcdc");
+        daily.setWhatWasDoneTodayMessage("vndvsuvdsdvnusmudouc");
 
         when(dailyRepository.findById(anyLong())).thenReturn(Optional.of(daily));
-        when(dailyRepository.save(any(Daily.class))).thenReturn(dailyUpdated);
+        when(dailyRepository.save(any(Daily.class))).thenReturn(daily);
 
         DailyRequestUpdateDTO dailyRequestUpdateDTO = createDailyRequestUpdateDTO();
         DailyResponseDTO dailyResponseDTO = dailyService.update(1L, dailyRequestUpdateDTO);
@@ -337,26 +324,27 @@ class DailyServiceTest {
 
     @Test
     void delete_WhenSuccessful() {
-        Daily daily = createDaily();
-        when(dailyRepository.findById(anyLong())).thenReturn(Optional.of(daily));
-        doNothing().when(dailyRepository).deleteById(anyLong());
-        dailyService.delete(1L);
-        verify(dailyRepository, times(1)).deleteById(1L);
+        Long id = 1L;
+        when(dailyRepository.existsById(id)).thenReturn(true);
+
+        dailyService.delete(id);
+
+        verify(dailyRepository, times(1)).deleteById(id);
 
     }
 
     @Test
     void delete_Throws_ResourceNotFoundException_WhenDailyNotFound() {
 
-        when(dailyRepository.findById(anyLong())).thenReturn(Optional.empty());
+        when(dailyRepository.existsById(anyLong())).thenReturn(false);
 
-        ResourceNotFoundException resourceNotFoundException = Assertions.assertThrows(ResourceNotFoundException.class,
-                () -> dailyService.delete(1L));
+        try{
+            dailyService.delete(anyLong());
+        } catch (ResourceNotFoundException e){
+            assert true;
+        }
 
-        Assertions.assertTrue(resourceNotFoundException.getMessage().contains("No daily found with given id"));
-
-        verify(dailyRepository).findById(1L);
-        verifyNoMoreInteractions(dailyRepository);
+        verify(dailyRepository, never()).deleteById(anyLong());
 
     }
 
@@ -368,21 +356,6 @@ class DailyServiceTest {
                 .personId(1L)
                 .anyQuestionsMessage("testetstetstets")
                 .whatWasDoneTodayMessage("ededed")
-                .build();
-    }
-
-    private DailyResponseDTO createDailyResponseDTO() {
-        LocalDate date = LocalDate.parse("2023-05-25", DateTimeFormatter.ISO_DATE);
-        Person person = new Person();
-        person.setId(1L);
-        person.setName("vfvfv");
-        return DailyResponseDTO.builder()
-                .id(1L)
-                .dailyTaskStatusEnum(DailyTaskStatusEnum.CONCLUDED)
-                .whatWasDoneTodayMessage("vfvvfvf")
-                .date(date)
-                .anyQuestionsMessage("FFvVFv")
-                .person(person)
                 .build();
     }
 

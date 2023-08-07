@@ -40,19 +40,19 @@ public class DailyService {
         return new DailyResponseDTO(daily);
     }
 
-    public Page<DailyResponseDTO> listByPersonId(Long id, Pageable pageable) {
+    public List<DailyResponseDTO> listByPersonId(Long id, Pageable pageable) {
         boolean personExists = personRepository.existsById(id);
         if (!personExists) {
             throw new PersonNotFoundException();
         }
-        return dailyRepository.findByPersonId(id, pageable).map(DailyResponseDTO::new);
+        return dailyRepository.findByPersonId(id, pageable).stream().map(DailyResponseDTO::new).toList();
     }
 
-    public Page<DailyResponseDTO> listByDate(String date, Pageable pageable) {
+    public List<DailyResponseDTO> listByDate(String date, Pageable pageable) {
         try {
 
             LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            return dailyRepository.findByDate(localDate, pageable).map(DailyResponseDTO::new);
+            return dailyRepository.findByDate(localDate, pageable).stream().map(DailyResponseDTO::new).toList();
 
         } catch (DateTimeParseException e) {
             throw new BadRequestException("The date format does not conform to the format: yyyy-MM-dd. " + e.getMessage());
@@ -60,7 +60,7 @@ public class DailyService {
 
     }
 
-    public Page<DailyResponseDTO> listByPersonIdAndDate(Long id, String date, Pageable pageable) {
+    public List<DailyResponseDTO> listByPersonIdAndDate(Long id, String date, Pageable pageable) {
 
         if (!personRepository.existsById(id)) {
             throw new PersonNotFoundException();
@@ -70,7 +70,7 @@ public class DailyService {
 
             LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-            return dailyRepository.findByPersonIdAndDate(id, localDate, pageable).map(DailyResponseDTO::new);
+            return dailyRepository.findByPersonIdAndDate(id, localDate, pageable).stream().map(DailyResponseDTO::new).toList();
         } catch (DateTimeParseException e) {
             throw new BadRequestException("The date format does not conform to the format: yyyy-MM-dd. " + e.getMessage());
         }
@@ -118,8 +118,11 @@ public class DailyService {
 
     @Transactional
     public void delete(Long id) {
-        dailyRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("No daily found with given id"));
+
+        if (!dailyRepository.existsById(id)){
+            throw new ResourceNotFoundException("No daily found with given id");
+        }
+
         dailyRepository.deleteById(id);
     }
 
