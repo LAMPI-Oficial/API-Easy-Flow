@@ -1,6 +1,6 @@
 package br.com.ifce.easyflow.service;
 
-import br.com.ifce.easyflow.controller.dto.Equipment.EquipmentSimpleResponseDTO;
+import br.com.ifce.easyflow.controller.dto.equipment.EquipmentSimpleResponseDTO;
 import br.com.ifce.easyflow.controller.dto.equipment.EquipmentPostRequestDTO;
 import br.com.ifce.easyflow.controller.dto.equipment.EquipmentPutRequestDTO;
 import br.com.ifce.easyflow.controller.dto.equipment.EquipmentStatusPatchRequestDTO;

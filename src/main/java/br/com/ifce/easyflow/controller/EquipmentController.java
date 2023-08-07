@@ -1,6 +1,6 @@
 package br.com.ifce.easyflow.controller;
 
-import br.com.ifce.easyflow.controller.dto.Equipment.EquipmentSimpleResponseDTO;
+import br.com.ifce.easyflow.controller.dto.equipment.EquipmentSimpleResponseDTO;
 import br.com.ifce.easyflow.controller.dto.equipment.EquipmentPostRequestDTO;
 import br.com.ifce.easyflow.controller.dto.equipment.EquipmentPutRequestDTO;
 import br.com.ifce.easyflow.controller.dto.equipment.EquipmentStatusPatchRequestDTO;
@@ -10,7 +10,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
