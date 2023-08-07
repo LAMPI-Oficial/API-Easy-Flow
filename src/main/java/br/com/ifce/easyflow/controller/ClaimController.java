@@ -2,6 +2,7 @@ package br.com.ifce.easyflow.controller;
 
 import br.com.ifce.easyflow.controller.dto.claim.ClaimRequestDTO;
 import br.com.ifce.easyflow.controller.dto.claim.ClaimResponseDTO;
+import br.com.ifce.easyflow.controller.dto.claim.ClaimSimpleResponseDTO;
 import br.com.ifce.easyflow.controller.dto.claim.ClaimUpdateDTO;
 import br.com.ifce.easyflow.model.Claim;
 import br.com.ifce.easyflow.service.ClaimService;
@@ -39,11 +40,11 @@ public class ClaimController {
         })
 
         @GetMapping
-        public List<ClaimResponseDTO> search() {
+        public List<ClaimSimpleResponseDTO> search() {
                 return this.claimService
                                 .search()
                                 .stream()
-                                .map(ClaimResponseDTO::new)
+                                .map(ClaimSimpleResponseDTO::new)
                                 .collect(Collectors.toList());
         }
 
@@ -70,13 +71,10 @@ public class ClaimController {
                         @ApiResponse(code = 500, message = "Internal exception"),
         })
 
-        @PostMapping
-        public ResponseEntity<Object> save(@RequestBody @Valid ClaimRequestDTO claimsRequest,
+        @PostMapping("/{id}")
+        public ResponseEntity<Object> save(@PathVariable Long id, @RequestBody @Valid ClaimRequestDTO claimsRequest,
                         UriComponentsBuilder uriBuilder) {
-
-                Claim claim = claimsRequest.toClaim();
-                this.claimService.save(claim);
-
+                Claim claim = claimService.saveClaim(id, claimsRequest);
                 URI uri = uriBuilder.path("/claims/{id}").buildAndExpand(claim.getId()).toUri();
                 return ResponseEntity.created(uri).body(new ClaimResponseDTO(claim));
         }

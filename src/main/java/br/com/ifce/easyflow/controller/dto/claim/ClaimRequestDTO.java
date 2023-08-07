@@ -14,14 +14,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ClaimRequestDTO {
-    private String claim_name_user;
-    private String claim_email_user;
     @NotNull
     @NotEmpty
     private String claim_descrition;
-
-    public Claim toClaim() {
-        return new Claim(claim_name_user, claim_email_user, claim_descrition);
-    }
 
 }

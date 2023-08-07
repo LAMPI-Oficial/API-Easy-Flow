@@ -1,9 +1,12 @@
 package br.com.ifce.easyflow.service;
 
+import br.com.ifce.easyflow.controller.dto.claim.ClaimRequestDTO;
+import br.com.ifce.easyflow.model.Person;
 import br.com.ifce.easyflow.service.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import javax.transaction.Transactional;
@@ -14,15 +17,31 @@ import br.com.ifce.easyflow.repository.ClaimRepository;
 @Service
 public class ClaimService {
     private final ClaimRepository claimRepository;
+    private final PersonService personService;
 
     @Autowired
-    public ClaimService(ClaimRepository claimRepository) {
+    public ClaimService(ClaimRepository claimRepository, PersonService personService) {
         this.claimRepository = claimRepository;
+        this.personService = personService;
     }
 
     @Transactional
     public Claim save(Claim claim) {
         return this.claimRepository.save(claim);
+    }
+
+    public Claim saveClaim(Long id, ClaimRequestDTO request) {
+        Person person = personService.findById(id);
+
+        Claim claim = Claim.builder()
+                .user_name(person.getName())
+                .user_email(person.getEmail())
+                .criationDate(LocalDate.now())
+                .descrition(request.getClaim_descrition())
+                .build();
+
+        return claimRepository.save(claim);
+
     }
 
     public List<Claim> search() {
