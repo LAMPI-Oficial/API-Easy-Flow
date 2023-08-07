@@ -1,5 +1,6 @@
 package br.com.ifce.easyflow.controller;
 
+import br.com.ifce.easyflow.controller.dto.Equipment.EquipmentSimpleResponseDTO;
 import br.com.ifce.easyflow.controller.dto.equipment.EquipmentPostRequestDTO;
 import br.com.ifce.easyflow.controller.dto.equipment.EquipmentPutRequestDTO;
 import br.com.ifce.easyflow.controller.dto.equipment.EquipmentStatusPatchRequestDTO;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/equipments")
@@ -29,9 +31,8 @@ public class EquipmentController {
             @ApiResponse(code = 200, message = "Successful request"),
     })
     @GetMapping
-    public ResponseEntity<Page<Equipment>> findAll(Pageable pageable) {
-        Page<Equipment> equipment = equipmentService.findAll(pageable);
-        return ResponseEntity.ok(equipment);
+    public ResponseEntity<List<EquipmentSimpleResponseDTO>> findAll(Pageable pageable) {
+        return ResponseEntity.ok(equipmentService.findAll(pageable).getContent());
     }
 
     @ApiOperation(value = "Returns a equipment by id",tags = {"Equipment"})

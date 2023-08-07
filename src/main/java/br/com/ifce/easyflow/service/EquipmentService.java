@@ -1,5 +1,6 @@
 package br.com.ifce.easyflow.service;
 
+import br.com.ifce.easyflow.controller.dto.Equipment.EquipmentSimpleResponseDTO;
 import br.com.ifce.easyflow.controller.dto.equipment.EquipmentPostRequestDTO;
 import br.com.ifce.easyflow.controller.dto.equipment.EquipmentPutRequestDTO;
 import br.com.ifce.easyflow.controller.dto.equipment.EquipmentStatusPatchRequestDTO;
@@ -21,8 +22,9 @@ public class EquipmentService {
 
     private final EquipmentRepository equipmentRepository;
 
-    public Page<Equipment> findAll(Pageable pageable) {
-        return equipmentRepository.findAll(pageable);
+    public Page<EquipmentSimpleResponseDTO> findAll(Pageable pageable) {
+        return equipmentRepository.findAll(pageable)
+                .map(EquipmentSimpleResponseDTO::new);
     }
 
     public Equipment findById(Long id) {
